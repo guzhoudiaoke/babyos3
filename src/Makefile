@@ -1,40 +1,52 @@
-CC= gcc
-LD = ld
-
-LDFLAGS = -m elf_i386 -static
-CFLAGS  = -g -w -trigraphs -fno-builtin -fno-exceptions -fno-stack-protector -m32 -fno-rtti -nostdlib -nodefaultlibs -Werror -fno-omit-frame-pointer
-
-OBJS = \
-	cxx.o\
-
+.PHONY: all
 all: babyos
 
+CPP = g++
+LD = ld
+OBJCOPY = objcopy
+
+LDFLAGS  = -m elf_x86_64 -nodefaultlibs
+CPPFLAGS = -g -w -fno-builtin -fno-exceptions -fno-stack-protector -m64 -fno-rtti -nostdlib -nodefaultlibs -Werror -fno-omit-frame-pointer -mcmodel=small -fno-pie
+ASFLAGS  = -gdwarf-2 -m64 -DX64 -mcmodel=small -mtls-direct-seg-refs -mno-red-zone -fno-pie
+
+OBJS = \
+
+
+BOOTSIZE   = 1
+LOADERSIZE = 3
+KERNELSIZE = 183
+DISKSIZE   = 1024
+#babyos: boot loader kernel
 babyos: boot loader
-	../tool/checksize boot 1
-	../tool/checksize loader 2
+	../tool/checksize boot   ${BOOTSIZE}
+	../tool/checksize loader ${LOADERSIZE}
+	#../tool/checksize kernel ${KERNELSIZE}
 
-	dd if=/dev/zero of=boot.img bs=512 count=1024
-	dd if=/dev/zero of=baby_hd.img bs=512 count=1024
+	dd if=/dev/zero of=boot.img    ibs=512 seek=0 				count=${DISKSIZE}
+	dd if=/dev/zero of=baby_hd.img ibs=512 seek=0 				count=${DISKSIZE}
 
-	dd if=boot              of=boot.img    ibs=512 seek=0   count=1 conv=notrunc
-	dd if=loader            of=baby_hd.img ibs=512 seek=0   count=1 conv=notrunc
+	dd if=boot      of=boot.img    ibs=512 seek=0 			  	count=${BOOTSIZE}   conv=notrunc
+	dd if=loader    of=baby_hd.img ibs=512 seek=0 			  	count=${LOADERSIZE} conv=notrunc
+	#dd if=kernel    of=baby_hd.img ibs=512 seek=${LOADERSIZE} 	count=${KERNELSIZE} conv=notrunc
 
 
 boot: boot.S
-	${CC} ${CFLAGS} -c boot.S
+	${CPP} ${CPPFLAGS} -c boot.S
 	${LD} ${LDFLAGS} --oformat binary -N -Ttext 0x7c00 -o boot boot.o
 
-loader: load.S loadmain.c
-	${CC} ${CFLAGS} -c load.S
-	${CC} ${CFLAGS} -O -c loadmain.c
-	${LD} ${LDFLAGS} -Ttext 0x0000 -o loader.o load.o loadmain.o
-	objcopy -S -O binary -j .text loader.o loader
+loader: head.S
+	${CPP} -fno-builtin -fno-pic -m64 -nostdinc -c head.S
+	${LD} -m elf_x86_64 -Ttext 0x0000 -o loader.o head.o
+	${OBJCOPY} -S -O binary -j .text loader.o loader
 
-%.o: %.cc
-	$(CC) $(CFLAGS) -c $< -o  $@
+#kernel: ${OBJS} entry.o kernel.ld
+#	${LD} ${LDFLAGS} -T kernel.ld -o kernel entry.o ${OBJS}
+
+%.o: %.c
+	$(CPP) $(CPPFLAGS) -c $< -o  $@
 
 %.o: %.S
-	$(CC) $(CFLAGS) -c $< -o  $@
+	$(CPP) $(ASFLAGS) -c $< -o  $@
 
 
 clean:
