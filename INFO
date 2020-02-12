@@ -1,0 +1,37 @@
+Description
+===========
+
+babyos3 is a 64 bit intel x86_64 toy OS kernel to learn Linux.
+
+Contact
+=======
+
+babyos3 project page: https://blog.csdn.net/guzhou_diaoke/article/details/78503825
+
+
+Copyright
+=========
+
+See the file AUTHORS for the list of copyright holders on babyos3.
+
+License
+=======
+
+babyos3 is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+babyos3 is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with babyos3.  If not, see <http://www.gnu.org/licenses/>.
+
+
+Documentation
+=============
+
+https://blog.csdn.net/guzhou_diaoke/article/details/78503825
