@@ -24,8 +24,8 @@
 
 #include "kernel.h"
 
-.code16
-.global _start
+	.code16
+	.global _start
 
 
 _start:
@@ -110,7 +110,7 @@ failed:
 disk_packet:
     .byte   0x10                        # [0] size of packet 16 bytes
     .byte   0x00                        # [1] reserved always 0
-    .word   0x03                        # [2] blocks to read
+    .word   0x3                         # [2] blocks to read
     .word   0x8000                      # [4] transfer buffer(16 bit offset)
     .word   0x00						# [6] transfer buffer(16 bit segment)
     .long   0x00                        # [8] starting LBA
@@ -146,10 +146,9 @@ save_video_info:
 	xorw	%ax,			%ax
 	movw	%ax,			%ds	# DS:SI src
 	leaw	video_mode,		%si
-	movw	$BOOT_INFO_SEG,	%ax
 	movw	%ax,			%es	# ES:DI dst
-	xorw	%di,			%di
-	movw	$(VIDEO_INFO_SIZE), %cx	# num of bytes to move
+	movw	$VIDEO_INFO_ADDR,	%di
+	movw	$VIDEO_INFO_SIZE,	%cx	# num of bytes to move
 	rep		movsb
 	ret
 
@@ -189,7 +188,7 @@ begin_protected_mode:
 	orl		$CR0_PE,		%eax
 	movl	%eax,			%cr0
 
-	ljmp	$SEG_KCODE<<3,	$0x0
+	ljmp	$KERNEL_CS,		$0x0
 
 	/* will never return */
 	ret
@@ -203,7 +202,7 @@ main:
 	movw	%ax,			%ds
 	movw	%ax,			%es
 	movw	%ax,			%ss
-	movw	$STACK_BOOT,	%sp
+	movw	$0x1000,		%sp
 
 	call	clear_screen
 	call	set_video_mode
@@ -215,7 +214,7 @@ main:
 	jmp		1b
 
 
-.p2align 2
+	.p2align 2
 gdt:
 	.quad	0x0000000000000000
 	.quad	0x00cf9a000000ffff
@@ -237,6 +236,6 @@ memory_model:
 video_ram:
 	.long	0
 
-.org	0x1fe,	0x90	# nop
-.word	0xaa55
+	.org	0x1fe,	0x90	# nop
+	.word	0xaa55
 

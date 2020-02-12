@@ -27,38 +27,30 @@
 #define _KENERL_H_
 
 /* segs */
-#define SEG_NULL			(0)
-#define SEG_KCODE           (1)
-#define SEG_KDATA           (2)
-#define SEG_UCODE           (3)
-#define SEG_UDATA           (4)
-#define SEG_TSS				(5)
-#define GDT_LEN			    (6)
-#define IDT_LEN				(256)
+#define KERNEL_CS           (0x8)
+#define KERNEL_DS           (0x10)
 
-#define	SECT_SIZE			(512)
-#define KSTACK_SIZE         (8192)
-#define STACK_BOOT			(0x1000)
-#define STACK_PM_BOTTOM     (0x10000)
 
-#define BOOT_STACK_SIZE     (0x4000)
+/* boot memory layout */
+#define BOOT_PML4           (0x3000)
+#define BOOT_PD_PTR0        (0x4000)
+#define BOOT_PG_DIRS        (0x5000)    /* 4 page dirs, [0x5000, 0x9000) */
+#define BOOT_STACK_BOTTOM   (0xd000)    /* size 16kb,   [0x9000, 0xd000) */
 
-/* boot information */
-#define BOOT_INFO_ADDR		(0xe000)    /* 0xa000 */
-#define BOOT_INFO_SEG		(BOOT_INFO_ADDR >> 4)
+#define BOOT_INFO_ADDR		(0xe000)    /* 56k, boot info address */
 #define VIDEO_INFO_ADDR	    (BOOT_INFO_ADDR)
-#define VIDEO_INFO_OFFSET	(VIDEO_INFO_ADDR - BOOT_INFO_ADDR)
 #define VIDEO_INFO_SIZE	    (12)
 
+
 /* disk */
+#define	SECT_SIZE			(512)
 #define LOADER_SECT_NUM     (1)
 #define ELF_SECT_NUM        (10)
 #define FONT_ASC16_SECT_NUM (8)
 
 #define LOADER_LBA          (0)
-#define KERNEL_ELF_LBA      (2)
+#define KERNEL_ELF_LBA      (3)
 
-#define KERNEL_BASE         (0xffffffff80000000)
 
 
 /* for cr0 */
@@ -68,9 +60,9 @@
 
 
 /* page table, page directory entry flag */
-#define PTE_P               0x001		// present
-#define PTE_W               0x002		// writeable
-#define PTE_U               0x004		// user
+#define PTE_P               0x001		/* present */
+#define PTE_W               0x002		/* writeable */
+#define PTE_U               0x004		/* user */
 
 
 /* page size and so on */
@@ -81,6 +73,9 @@
 
 #define PGDIR_SHIFT	        (21)
 #define PGDIR_SIZE	        (1UL << PGDIR_SHIFT)
+
+#define KERNEL_BASE         (0xffffffff80000000)
+
 
 
 #endif
