@@ -30,11 +30,6 @@
 #include "mm.h"
 
 
-const int32 c_asc16_size = 16;
-const int32 c_asc16_width = 8;
-const int32 c_asc16_height = 16;
-
-
 vbe_t::vbe_t()
 {
 }

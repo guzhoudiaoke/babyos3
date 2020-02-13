@@ -101,7 +101,7 @@ static inline void halt(void)
         __asm__ volatile("hlt");
 }
 
-#define rdtsc(low,high) \
+#define rdtsc(low, high) \
     __asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high))
 
 #define rdtsc64(val) \

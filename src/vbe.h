@@ -28,6 +28,12 @@
 #include "types.h"
 #include "color.h"
 
+
+const int32 c_asc16_size = 16;
+const int32 c_asc16_width = 8;
+const int32 c_asc16_height = 16;
+
+
 class vbe_t {
 public:
 	vbe_t();

@@ -24,8 +24,11 @@
 
 #include "babyos.h"
 #include "x86.h"
+#include "delay.h"
 
 static babyos_t babyos;
+
+
 babyos_t* babyos_t::get_instance()
 {
     return &babyos;
@@ -39,23 +42,35 @@ babyos_t::~babyos_t()
 {
 }
 
+uart_t* babyos_t::uart()
+{
+    return &m_uart;
+}
+
+vbe_t* babyos_t::vbe()
+{
+    return &m_vbe;
+}
+
+console_t* babyos_t::console()
+{
+    return &m_console;
+}
+
 void babyos_t::init()
 {
     const char* welcome = "Welcome to babyos..\n";
 
     /* serial port */
-    this->uart.early_init();
-    uart.puts(welcome);
+    m_uart.early_init();
+    m_uart.puts(welcome);
 
     /* VBE */
-    this->vbe.init();
-    rect_t rc = { 0, 0, vbe.width(), vbe.height() };
-    vbe.fill_rectangle(rc, RGB(0x40, 0, 0x30));
-    int i = 10;
-    for (const char* p = welcome; *p != '\n'; p++) {
-        vbe.draw_asc16(*p, i, 10, RGB(0xff, 0xff, 0xff));
-        i += 8;
-    }
+    m_vbe.init();
+
+    /* console */
+    m_console.init();
+    console()->kprintf(YELLOW, welcome);
 }
 
 void babyos_t::run()

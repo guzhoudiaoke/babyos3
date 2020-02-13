@@ -17,6 +17,7 @@ OBJS = \
 		delay.o \
 		vbe.o \
 		string.o \
+		console.o \
 
 
 BOOTSIZE   = 1

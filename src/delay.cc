@@ -27,16 +27,16 @@
 #include "x86.h"
 
 
-uint32 delay_t::s_inited = 0;
-uint32 delay_t::s_cpu_freq = 1000000000ull;
-uint32 delay_t::s_cpu_freq_mhz = delay_t::s_cpu_freq/1000000;
+bool   delay_t::s_inited = 0;
+uint64 delay_t::s_cpu_freq = 1000000000ull;
+uint64 delay_t::s_cpu_freq_mhz = delay_t::s_cpu_freq/1000000;
 
 void delay_t::init(uint32 freq)
 {
     if (!s_inited) {
         s_cpu_freq = freq;
         s_cpu_freq_mhz = freq / 1000000;
-        s_inited = 1;
+        s_inited = true;
     }
 }
 

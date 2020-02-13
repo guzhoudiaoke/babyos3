@@ -28,6 +28,7 @@
 #include "types.h"
 #include "uart.h"
 #include "vbe.h"
+#include "console.h"
 
 class babyos_t {
 public:
@@ -39,11 +40,16 @@ public:
     void init();
     void run();
 
+    uart_t*    uart();
+    vbe_t*     vbe();
+    console_t* console();
+
 private:
-    uart_t  uart;
-    vbe_t   vbe;
+    uart_t    m_uart;
+    vbe_t     m_vbe;
+    console_t m_console;
 };
 
-#define os() babyos_t::get_instance();
+#define os() babyos_t::get_instance()
 
 #endif
