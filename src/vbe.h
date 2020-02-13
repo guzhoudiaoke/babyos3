@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/babyos.cc
+ *	babyos/kernel/vbe.h
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -22,45 +22,33 @@
  *  2020-02-13		created
  */
 
-#include "babyos.h"
-#include "x86.h"
+#ifndef _VBE_H_
+#define _VBE_H_
 
-static babyos_t babyos;
-babyos_t* babyos_t::get_instance()
-{
-    return &babyos;
-}
+#include "types.h"
+#include "color.h"
 
-babyos_t::babyos_t()
-{
-}
+class vbe_t {
+public:
+	vbe_t();
+	~vbe_t();
 
-babyos_t::~babyos_t()
-{
-}
+	void   init();
+	uint32 width();
+	uint32 height();
+	uint8* vram();
 
-void babyos_t::init()
-{
-    const char* welcome = "Welcome to babyos..\n";
+	void   set_pixel(uint32 x, uint32 y, color_ref_t color);
+	void   draw_asc16(char ch, uint32 left, uint32 top, color_ref_t color);
+	void   fill_rectangle(rect_t rect, color_ref_t color);
+    void   scroll();
 
-    /* serial port */
-    this->uart.early_init();
-    uart.puts(welcome);
+private:
+	uint8*	m_base;        /* base address */
+	uint8*	m_asc16_addr;
+	uint16	m_width;
+	uint16	m_height;
+	uint8	m_bytes_pp;    /* bytes per pixel */
+};
 
-    /* VBE */
-    this->vbe.init();
-    rect_t rc = { 0, 0, vbe.width(), vbe.height() };
-    vbe.fill_rectangle(rc, RGB(0x40, 0, 0x30));
-    int i = 10;
-    for (const char* p = welcome; *p != '\n'; p++) {
-        vbe.draw_asc16(*p, i, 10, RGB(0xff, 0xff, 0xff));
-        i += 8;
-    }
-}
-
-void babyos_t::run()
-{
-    while (true) {
-        halt();
-    }
-}
+#endif

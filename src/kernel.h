@@ -41,15 +41,19 @@
 #define VIDEO_INFO_ADDR	    (BOOT_INFO_ADDR)
 #define VIDEO_INFO_SIZE	    (12)
 
+/* font */
+#define FONT_ASC16_ADDR     (0x10000)   /* 64k */
+
 
 /* disk */
 #define	SECT_SIZE			(512)
 #define LOADER_SECT_NUM     (1)
-#define ELF_SECT_NUM        (10)
+#define ELF_SECT_NUM        (1024)
 #define FONT_ASC16_SECT_NUM (8)
 
 #define LOADER_LBA          (0)
 #define KERNEL_ELF_LBA      (3)
+#define FONT_ASC16_LBA      (2048)
 
 
 
@@ -71,10 +75,8 @@
 #define PAGE_MASK           (~(PAGE_SIZE-1))
 #define PAGE_ALIGN(addr)    (((uint64)(addr)+PAGE_SIZE-1) & PAGE_MASK)
 
-#define PGDIR_SHIFT	        (21)
-#define PGDIR_SIZE	        (1UL << PGDIR_SHIFT)
 
-#define KERNEL_BASE         (0xffffffff80000000)
+#define KERNEL_BASE         (0xffff800000000000)
 
 
 

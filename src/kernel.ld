@@ -5,15 +5,15 @@
 
 OUTPUT_FORMAT("elf64-x86-64", "elf64-x86-64", "elf64-x86-64")
 OUTPUT_ARCH(i386:x86-64)
-ENTRY(_start)
+ENTRY(main)
 
 SECTIONS
 {
-    . = 0xffffffff80100000;
+    . = 0xffff800000100000;
 
     PROVIDE(begin = .);
 
-    .text : AT(0x00100000) {
+    .text : {
         *(.text .rela.text .stub .text.* .gnu.linkonce.t.*)
     }
 

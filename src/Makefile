@@ -6,8 +6,8 @@ LD = ld
 OBJCOPY = objcopy
 
 LDFLAGS  = -m elf_x86_64 -static
-CPPFLAGS = -g -w -fno-builtin -fno-exceptions -fno-stack-protector -m64 -fno-rtti -nostdlib -nodefaultlibs -Werror -fno-omit-frame-pointer -mcmodel=kernel -fno-pie
-ASFLAGS  = -gdwarf-2 -m64 -DX64 -mcmodel=kernel -mtls-direct-seg-refs -mno-red-zone -fno-pie
+CPPFLAGS = -g -w -fno-builtin -fno-exceptions -fno-stack-protector -m64 -fno-rtti -nostdlib -nodefaultlibs -Werror -fno-omit-frame-pointer -mcmodel=large -fno-pie
+ASFLAGS  = -gdwarf-2 -m64 -DX64 -mcmodel=large -mtls-direct-seg-refs -mno-red-zone -fno-pie
 
 OBJS = \
 		cxx.o \
@@ -15,23 +15,29 @@ OBJS = \
 	   	babyos.o \
 		uart.o \
 		delay.o \
+		vbe.o \
+		string.o \
 
 
 BOOTSIZE   = 1
 LOADERSIZE = 3
 KERNELSIZE = 100
-DISKSIZE   = 1024
+FONTSIZE   = 8
+FONTLBA    = 2048
+FLOPPYSIZE = 1024
+DISKSIZE   = 4096
 babyos: boot loader kernel
 	../tool/checksize boot   ${BOOTSIZE}
 	../tool/checksize loader ${LOADERSIZE}
 	../tool/checksize kernel ${KERNELSIZE}
 
-	dd if=/dev/zero of=boot.img    ibs=512 seek=0 				count=${DISKSIZE}
+	dd if=/dev/zero of=boot.img    ibs=512 seek=0 				count=${FLOPPYSIZE}
 	dd if=/dev/zero of=baby_hd.img ibs=512 seek=0 				count=${DISKSIZE}
 
-	dd if=boot      of=boot.img    ibs=512 seek=0 			  	count=${BOOTSIZE}   conv=notrunc
-	dd if=loader    of=baby_hd.img ibs=512 seek=0 			  	count=${LOADERSIZE} conv=notrunc
-	dd if=kernel    of=baby_hd.img ibs=512 seek=${LOADERSIZE} 	count=${KERNELSIZE} conv=notrunc
+	dd if=boot              of=boot.img    ibs=512 seek=0 			  	count=${BOOTSIZE}   conv=notrunc
+	dd if=loader            of=baby_hd.img ibs=512 seek=0 			  	count=${LOADERSIZE} conv=notrunc
+	dd if=kernel            of=baby_hd.img ibs=512 seek=${LOADERSIZE} 	count=${KERNELSIZE} conv=notrunc
+	dd if=../res/font/ASC16 of=baby_hd.img ibs=512 seek=${FONTLBA}      count=${FONTSIZE}   conv=notrunc
 
 
 boot: boot.S
@@ -44,8 +50,8 @@ loader: head.S loadmain.cc
 	${LD} -m elf_x86_64 -Ttext 0x0000 -o loader.o head.o loadmain.o
 	${OBJCOPY} -S -O binary -j .text loader.o loader
 
-kernel: ${OBJS} kernel.ld entry.o
-	${LD} ${LDFLAGS} -T kernel.ld -o kernel entry.o ${OBJS}
+kernel: ${OBJS} kernel.ld
+	${LD} ${LDFLAGS} -T kernel.ld -o kernel ${OBJS}
 
 %.o: %.c
 	$(CPP) $(CPPFLAGS) -c $< -o  $@

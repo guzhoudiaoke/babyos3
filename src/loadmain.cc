@@ -98,6 +98,13 @@ void loadmain(void)
         }
     }
 
+    /* load font */
+    uint8* font_addr = (uint8 *) FONT_ASC16_ADDR;
+    uint32 font_lba = FONT_ASC16_LBA;
+    for (int i = 0; i < FONT_ASC16_SECT_NUM; i++, font_addr += SECT_SIZE, font_lba++) {
+        read_sector(font_addr, font_lba);
+    }
+
     /* find entry from elf, and call */
     kernel_entry_t entry = (kernel_entry_t) elf->e_entry;
     entry();

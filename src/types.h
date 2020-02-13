@@ -48,4 +48,12 @@ typedef struct video_info_s {
     uint8* vram_base_addr;
 } video_info_t;
 
+typedef struct rect_s {
+    int32 left;
+    int32 top;
+    uint32 width;
+    uint32 height;
+} rect_t;
+
+
 #endif

@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/babyos.cc
+ *	babyos/kernel/string.h
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -22,45 +22,26 @@
  *  2020-02-13		created
  */
 
-#include "babyos.h"
-#include "x86.h"
 
-static babyos_t babyos;
-babyos_t* babyos_t::get_instance()
-{
-    return &babyos;
-}
 
-babyos_t::babyos_t()
-{
-}
+#ifndef _STRING_H_
+#define _STRING_H_
 
-babyos_t::~babyos_t()
-{
-}
+#include "arg.h"
 
-void babyos_t::init()
-{
-    const char* welcome = "Welcome to babyos..\n";
+void* memmov(void* dst, const void* src, uint32 n);
+void* memcpy(void* dst, const void* src, uint32 n);
+void* memset(void* dst, uint32 c, uint32 n);
+int   memcmp(const void* b1, const void* b2, uint32 n);
 
-    /* serial port */
-    this->uart.early_init();
-    uart.puts(welcome);
+char* strcpy(char* dst, const char* src);
+char* strncpy(char* dst, const char* src, int n);
+int   strcmp(const char* s1, const char *s2);
+int   strlen(const char* s);
+int   strncmp(const char* s1, const char *s2, int n);
 
-    /* VBE */
-    this->vbe.init();
-    rect_t rc = { 0, 0, vbe.width(), vbe.height() };
-    vbe.fill_rectangle(rc, RGB(0x40, 0, 0x30));
-    int i = 10;
-    for (const char* p = welcome; *p != '\n'; p++) {
-        vbe.draw_asc16(*p, i, 10, RGB(0xff, 0xff, 0xff));
-        i += 8;
-    }
-}
+bool  is_digit(char c);
+int   sprintf(char* buffer, const char *fmt, ...);
+int   vsprintf(char *buffer, const char *fmt, va_list ap);
 
-void babyos_t::run()
-{
-    while (true) {
-        halt();
-    }
-}
+#endif

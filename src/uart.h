@@ -33,6 +33,7 @@ public:
     void early_init();
     void init();
     void putc(int c);
+    void puts(const char* s);
 
 private:
     bool exist;

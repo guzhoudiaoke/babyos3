@@ -75,3 +75,11 @@ void uart_t::putc(int c)
 
     outb(COM1+0, c);
 }
+
+void uart_t::puts(const char* s)
+{
+    const char* p = s;
+    for(; *p != '\0'; p++) {
+        putc(*p);
+    }
+}
