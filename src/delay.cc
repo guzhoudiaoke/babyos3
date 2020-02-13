@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/main.cc
+ *	babyos/kernel/delay.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,19 +19,44 @@
 
 
 /*
- *  2020-02-12		created
+ *  2020-02-13		created
  */
 
 
-#include "types.h"
-#include "kernel.h"
-#include "babyos.h"
+#include "delay.h"
+#include "x86.h"
 
 
-extern "C"
-int main(void)
+uint32 delay_t::s_inited = 0;
+uint32 delay_t::s_cpu_freq = 1000000000ull;
+uint32 delay_t::s_cpu_freq_mhz = delay_t::s_cpu_freq/1000000;
+
+void delay_t::init(uint32 freq)
 {
-    babyos_t::get_instance()->init();
-    babyos_t::get_instance()->run();
-    return 0;
+    if (!s_inited) {
+        s_cpu_freq = freq;
+        s_cpu_freq_mhz = freq / 1000000;
+        s_inited = 1;
+    }
 }
+
+void delay_t::ms_delay(uint32 ms)
+{
+    us_delay(ms*1000);
+}
+
+void delay_t::us_delay(uint32 us)
+{
+    rdtsc_delay((uint64) us * s_cpu_freq_mhz);
+}
+
+void delay_t::rdtsc_delay(uint64 delta)
+{
+    uint64 prev, now;
+    rdtsc64(prev);
+    do {
+        nop();
+        rdtsc64(now);
+    } while (now - prev < delta);
+}
+

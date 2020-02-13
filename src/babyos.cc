@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/main.cc
+ *	babyos/kernel/babyos.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,19 +19,38 @@
 
 
 /*
- *  2020-02-12		created
+ *  2020-02-13		created
  */
 
-
-#include "types.h"
-#include "kernel.h"
 #include "babyos.h"
+#include "x86.h"
 
-
-extern "C"
-int main(void)
+static babyos_t babyos;
+babyos_t* babyos_t::get_instance()
 {
-    babyos_t::get_instance()->init();
-    babyos_t::get_instance()->run();
-    return 0;
+    return &babyos;
+}
+
+babyos_t::babyos_t()
+{
+}
+
+babyos_t::~babyos_t()
+{
+}
+
+void babyos_t::init()
+{
+    this->uart.early_init();
+    const char* s = "Hello babyos3...\n";
+    for (const char* p = s; *p != '\0'; p++) {
+        uart.putc(*p);
+    }
+}
+
+void babyos_t::run()
+{
+    while (true) {
+        halt();
+    }
 }

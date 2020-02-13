@@ -2,3 +2,9 @@
 *.img
 *.elf
 logbochs
+boot
+loader
+kernel
+GPATH
+GRTAGS
+GTAGS

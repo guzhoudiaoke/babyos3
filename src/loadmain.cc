@@ -28,51 +28,17 @@
 #include "elf.h"
 #include "x86.h"
 
-#define HD_STATE_READY  0x40
-#define HD_STATE_BUSY   0x80
-#define IO_CMD_READ     0x20
+typedef enum hd_state {
+    HD_STATE_READY = 0x40,
+    HD_STATE_BUSY  = 0x80,
+} hd_state_e;
 
-bool is_pixel_valid(int32 x, int32 y)
-{
-    video_info_t* video_info = (video_info_t *)VIDEO_INFO_ADDR;
-    uint32 width = video_info->width;
-    uint32 height = video_info->height;
-
-    if (x < 0 || y < 0 || x >= width || y >= height) {
-        while (1) {}
-        return false;
-    }
-
-    return true;
-}
-
-void set_pixel(int32 x, int32 y, uint8 r, uint8 g, uint8 b)
-{
-    video_info_t* video_info = (video_info_t *)VIDEO_INFO_ADDR;
-    uint8* vram_base_addr = video_info->vram_base_addr;
-    uint32 width = video_info->width;
-    uint32 bytes_per_pixel = video_info->bits_per_pixel/8;
-
-    uint8* pvram = NULL;
-    if (is_pixel_valid(x, y)) {
-        pvram = vram_base_addr + bytes_per_pixel*(y*width + x);
-        pvram[0] = b;
-        pvram[1] = g;
-        pvram[2] = r;
-    }
-}
-
-void draw_line(uint32 y, uint32 length, uint8 r, uint8 g, uint8 b)
-{
-    video_info_t* video_info = (video_info_t *)VIDEO_INFO_ADDR;
-    uint32 width = video_info->width;
-    for (int i = (width-length) / 2; i < (width+length) / 2; i++) {
-        set_pixel(i, y, r, g, b);
-    }
-}
-
+typedef enum io_cmd_e {
+    IO_CMD_READ = 0x20,
+} io_cmd_e;
 
 typedef void (*kernel_entry_t)(void);
+
 
 void wait_disk()
 {
@@ -96,7 +62,8 @@ void read_sector(void* buf, uint32 lba)
     insl(0x1f0, buf, SECT_SIZE / 4);
 }
 
-/* pa:     the buffer to read data, will be aligned by SECT_SIZE
+/*
+ * pa:     the buffer to read data, will be aligned by SECT_SIZE
  * offset: where to read from disk (byte)
  * size:   how many byte to read
  */
@@ -114,13 +81,10 @@ void read_segment(void* pa, uint32 offset, uint32 size)
 extern "C"
 void loadmain(void)
 {
-    draw_line(400, 1024, 0x00, 0xff, 0x0);
-
     char buf[512] = {0};
     elf64_hdr_t* elf = (elf64_hdr_t *) buf;
     read_sector(elf, KERNEL_ELF_LBA);
     if (*((uint32 *)elf->e_ident) != ELF_MAGIC) {
-        draw_line(20, 512, 0xff, 0x00, 0x0);
         return;
     }
 
@@ -134,14 +98,8 @@ void loadmain(void)
         }
     }
 
-    draw_line(500, 1024, 0x00, 0xff, 0xff);
-
     /* find entry from elf, and call */
     kernel_entry_t entry = (kernel_entry_t) elf->e_entry;
     entry();
-
-    draw_line(700, 1024, 0xff, 0xff, 0x0);
-    while (1) {
-    }
 }
 

@@ -96,4 +96,21 @@ static inline void movsb(void *dst, void *src, int32 cnt)
             "memory", "cc");
 }
 
+static inline void halt(void)
+{
+        __asm__ volatile("hlt");
+}
+
+#define rdtsc(low,high) \
+    __asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high))
+
+#define rdtsc64(val) \
+    __asm__ __volatile__("rdtsc" : "=A" (val))
+
+static inline void nop(void)
+{
+    __asm__ __volatile__("rep; nop");
+}
+
+
 #endif

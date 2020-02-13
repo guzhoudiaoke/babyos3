@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/main.cc
+ *	babyos/kernel/uart.h
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,19 +19,23 @@
 
 
 /*
- *  2020-02-12		created
+ *  2020-02-13		created
  */
 
+#ifndef _UART_H_
+#define _UART_H_
 
-#include "types.h"
-#include "kernel.h"
-#include "babyos.h"
+class uart_t {
+public:
+    uart_t();
+    ~uart_t();
 
+    void early_init();
+    void init();
+    void putc(int c);
 
-extern "C"
-int main(void)
-{
-    babyos_t::get_instance()->init();
-    babyos_t::get_instance()->run();
-    return 0;
-}
+private:
+    bool exist;
+};
+
+#endif

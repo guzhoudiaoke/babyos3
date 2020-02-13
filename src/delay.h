@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/main.cc
+ *	babyos/kernel/delay.h
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,19 +19,27 @@
 
 
 /*
- *  2020-02-12		created
+ *  2020-02-13		created
  */
 
+#ifndef _DELAY_H_
+#define _DELAY_H_
 
 #include "types.h"
-#include "kernel.h"
-#include "babyos.h"
 
+class delay_t {
+public:
+    static void init(uint32 freq);
+    static void ms_delay(uint32 ms);
+    static void us_delay(uint32 us);
 
-extern "C"
-int main(void)
-{
-    babyos_t::get_instance()->init();
-    babyos_t::get_instance()->run();
-    return 0;
-}
+private:
+    static void rdtsc_delay(uint64 delta);
+
+private:
+    static uint32 s_inited;
+    static uint32 s_cpu_freq;
+    static uint32 s_cpu_freq_mhz;
+};
+
+#endif

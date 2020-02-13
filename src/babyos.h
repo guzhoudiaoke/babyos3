@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/main.cc
+ *	babyos/kernel/babyos.h
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,19 +19,29 @@
 
 
 /*
- *  2020-02-12		created
+ *  2020-02-13		created
  */
 
+#ifndef _BABYOS_H_
+#define _BABYOS_H_
 
 #include "types.h"
-#include "kernel.h"
-#include "babyos.h"
+#include "uart.h"
 
+class babyos_t {
+public:
+    static babyos_t* get_instance();
 
-extern "C"
-int main(void)
-{
-    babyos_t::get_instance()->init();
-    babyos_t::get_instance()->run();
-    return 0;
-}
+    babyos_t();
+    ~babyos_t();
+
+    void init();
+    void run();
+
+private:
+    uart_t  uart;
+};
+
+#define os() babyos_t::get_instance();
+
+#endif

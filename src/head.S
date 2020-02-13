@@ -34,33 +34,6 @@ _start:
 	jmp		startup32
 
 
-/* function to draw a line cross the screen at row edi */
-draw_line:
-	pushl   %esi
-	pushl   %ecx
-	pushl   %eax
-    movl    (VIDEO_INFO_ADDR+8),    %esi
-    addl    %edi,					%esi
-    movl    $1024,                  %ecx
-1:
-    movb    $0xff,                  %al
-    movb    %al,                    (%esi)
-    addl    $3,                     %esi
-    decl    %ecx
-    cmpl    $0x0,                   %ecx
-    jne		1b
-	popl	%eax
-	popl	%ecx
-	popl	%esi
-	ret
-
-/* do dead loop */
-dead_loop:
-1:
-	hlt
-	jmp		1b
-
-
 /* function to set boot page table */
 setup_page_table:
 	/* 1. setup pml4[0] = dir_ptr0, pml4[511] = dir_ptr0 */
@@ -71,7 +44,8 @@ setup_page_table:
 	addl    $(PAGE_SIZE-8),			%edi
 	movl    %eax,					(%edi)
 
-	/* 2. setup pg_dir_ptr[0,1,2,3] = pg_dir0, pg_dir1, pg_dir2, pg_dir3 
+	/*
+     * 2. setup pg_dir_ptr[0,1,2,3] = pg_dir0, pg_dir1, pg_dir2, pg_dir3 
 	 *	  setup pg_dir_ptr[510,511] = pg_dir0, pg_dir1
 	 */
 	movl    $BOOT_PD_PTR0,			%edi
@@ -128,11 +102,6 @@ startup32:
 	movw	%ax,					%gs
 	movl	$0x10000,				%esp	# temp kernel stack at 64k
 
-	/* draw a line at row 200 */
-    movl    $(200*1024*3+2),		%edi
-	call	draw_line
-
-
 	/* setup boot page table */
 	call	setup_page_table
 
@@ -177,35 +146,11 @@ startup_64:
 	movw	%ax,					%gs
 	movq	$BOOT_STACK_BOTTOM,		%rsp
 
-	/* draw a line */
-	movq	$(300*1024*3+3),		%rdi
-	call    draw_line_64
-
 	/* call load main to load elf kernel */
 	call	loadmain
-	call	dead_loop
 
 
-/* function to draw a line in 64 bit mode */
-draw_line_64:
-	pushq   %rsi
-	pushq   %rcx
-	pushq   %rax
-    movq    (VIDEO_INFO_ADDR+8),    %rsi
-    addq    %rdi,					%rsi
-    movq    $1024,                  %rcx
-1:
-    movb    $0xff,                  (%rsi)
-    addq    $3,                     %rsi
-    decq    %rcx
-    jnz		1b
-	popq	%rax
-	popq	%rcx
-	popq	%rsi
-	ret
-
-	
-/* 
+/*
  * gdt
  */
 	.align	16

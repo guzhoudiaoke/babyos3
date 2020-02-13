@@ -5,17 +5,21 @@ CPP = g++
 LD = ld
 OBJCOPY = objcopy
 
-LDFLAGS  = -m elf_x86_64 -nodefaultlibs
-CPPFLAGS = -g -w -fno-builtin -fno-exceptions -fno-stack-protector -m64 -fno-rtti -nostdlib -nodefaultlibs -Werror -fno-omit-frame-pointer -mcmodel=small -fno-pie
-ASFLAGS  = -gdwarf-2 -m64 -DX64 -mcmodel=small -mtls-direct-seg-refs -mno-red-zone -fno-pie
+LDFLAGS  = -m elf_x86_64 -static
+CPPFLAGS = -g -w -fno-builtin -fno-exceptions -fno-stack-protector -m64 -fno-rtti -nostdlib -nodefaultlibs -Werror -fno-omit-frame-pointer -mcmodel=kernel -fno-pie
+ASFLAGS  = -gdwarf-2 -m64 -DX64 -mcmodel=kernel -mtls-direct-seg-refs -mno-red-zone -fno-pie
 
 OBJS = \
-	   main.o \
+		cxx.o \
+	   	main.o \
+	   	babyos.o \
+		uart.o \
+		delay.o \
 
 
 BOOTSIZE   = 1
 LOADERSIZE = 3
-KERNELSIZE = 10
+KERNELSIZE = 100
 DISKSIZE   = 1024
 babyos: boot loader kernel
 	../tool/checksize boot   ${BOOTSIZE}
@@ -40,8 +44,8 @@ loader: head.S loadmain.cc
 	${LD} -m elf_x86_64 -Ttext 0x0000 -o loader.o head.o loadmain.o
 	${OBJCOPY} -S -O binary -j .text loader.o loader
 
-kernel: ${OBJS} kernel.ld
-	${LD} ${LDFLAGS} -T kernel.ld -o kernel ${OBJS}
+kernel: ${OBJS} kernel.ld entry.o
+	${LD} ${LDFLAGS} -T kernel.ld -o kernel entry.o ${OBJS}
 
 %.o: %.c
 	$(CPP) $(CPPFLAGS) -c $< -o  $@
