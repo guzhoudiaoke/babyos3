@@ -5,7 +5,7 @@ CPP = g++
 LD = ld
 OBJCOPY = objcopy
 
-LDFLAGS  = -m elf_x86_64 -static
+LDFLAGS  = -m elf_x86_64 -static -g
 CPPFLAGS = -g -w -fno-builtin -fno-exceptions -fno-stack-protector -m64 -fno-rtti -nostdlib -nodefaultlibs -Werror -fno-omit-frame-pointer -mcmodel=large -fno-pie
 ASFLAGS  = -gdwarf-2 -m64 -DX64 -mcmodel=large -mtls-direct-seg-refs -mno-red-zone -fno-pie
 

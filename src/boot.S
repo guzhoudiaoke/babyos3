@@ -139,7 +139,7 @@ load_loader:
     ret
 
 
-/* 
+/*
  * function to copy gdt and video info to a safe position
  */
 save_video_info:
@@ -151,6 +151,36 @@ save_video_info:
 	movw	$VIDEO_INFO_SIZE,	%cx	# num of bytes to move
 	rep		movsb
 	ret
+
+
+
+/* function to get memory info by 0xe820 */
+get_mem_info:
+    xorw    %eax,           %eax
+	movw	%ax,			%es
+	movw	%ax,			%ds
+
+	xorl	%ebx,			%ebx
+	movl	$MEM_INFO_ADDR, %edi
+	addl	$4,				%edi
+	movl	$0,				(MEM_INFO_ADDR)
+
+1:
+	movl	$0xe820,		%eax
+	movl	$20,			%ecx
+	movl	$0x534d4150,	%edx
+	int		$0x15
+	jc		get_mem_info_failed
+
+	addl	$20,			%edi
+	incl	(MEM_INFO_ADDR)
+	cmpl	$0,				%ebx
+	jne		1b
+    ret
+
+get_mem_info_failed:
+	movl	$0,				(MEM_INFO_ADDR)
+    ret
 
 
 /*
@@ -194,7 +224,7 @@ begin_protected_mode:
 	ret
 
 
-/* 
+/*
  * the main function
  */
 main:
@@ -207,6 +237,7 @@ main:
 	call	clear_screen
 	call	set_video_mode
 	call	save_video_info
+    call    get_mem_info
 	call	load_loader
 	call	begin_protected_mode
 

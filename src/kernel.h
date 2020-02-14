@@ -37,9 +37,14 @@
 #define BOOT_PG_DIRS        (0x5000)    /* 4 page dirs, [0x5000, 0x9000) */
 #define BOOT_STACK_BOTTOM   (0xd000)    /* size 16kb,   [0x9000, 0xd000) */
 
-#define BOOT_INFO_ADDR		(0xe000)    /* 56k, boot info address */
+/* video info */
+#define BOOT_INFO_ADDR		(0xe000)    /* 56k, boot info address, should under 64k */
 #define VIDEO_INFO_ADDR	    (BOOT_INFO_ADDR)
 #define VIDEO_INFO_SIZE	    (12)
+
+/* memory info */
+#define MEM_INFO_ADDR	    (VIDEO_INFO_ADDR + VIDEO_INFO_SIZE)
+#define MEM_INFO_SIZE	    (4+256)
 
 /* font */
 #define FONT_ASC16_ADDR     (0x10000)   /* 64k */
