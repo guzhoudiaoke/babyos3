@@ -57,20 +57,26 @@ console_t* babyos_t::console()
     return &m_console;
 }
 
+bootmem_t* babyos_t::bootmem()
+{
+    return &m_bootmem;
+}
+
 void babyos_t::init()
 {
-    const char* welcome = "Welcome to babyos..\n";
-
     /* serial port */
     m_uart.early_init();
-    m_uart.puts(welcome);
+    m_uart.puts("Hello babyos..\n");
 
     /* VBE */
     m_vbe.init();
 
     /* console */
     m_console.init();
-    console()->kprintf(YELLOW, welcome);
+    console()->kprintf(YELLOW, "Welcome to babyos!\n");
+
+    /* bootmem */
+    m_bootmem.init();
 }
 
 void babyos_t::run()

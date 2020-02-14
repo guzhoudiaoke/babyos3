@@ -168,40 +168,7 @@ void console_t::putc(int c, color_ref_t color)
     draw_cursor();
 }
 
-void console_t::print_int(int32 n, int32 base, int32 sign, color_ref_t color)
-{
-    static char digits[] = "0123456789abcdef";
-    char buffer[16] = {0};
-
-    uint32 num = (uint32)n;
-    if (sign && (sign = (n < 0))) {
-        num = -n;
-    }
-
-    int i = 0;
-    do {
-        buffer[i++] = digits[num % base];
-        num /= base;
-    } while (num != 0);
-
-    if (base == 16) {
-        while (i < 8) {
-            buffer[i++] = '0';
-        }
-        buffer[i++] = 'x';
-        buffer[i++] = '0';
-    }
-
-    if (sign) {
-        buffer[i++] = '-';
-    }
-
-    while (i-- > 0) {
-        putc(buffer[i], color);
-    }
-}
-
-// only support %d %u %x %p %c %s, and seems enough for now
+/* only support %d %u %x %p %c %s, and seems enough for now */
 void console_t::kprintf(color_ref_t color, const char *fmt, ...)
 {
     static char buffer[c_buffer_size] = {0};

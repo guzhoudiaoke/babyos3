@@ -29,6 +29,7 @@
 #include "uart.h"
 #include "vbe.h"
 #include "console.h"
+#include "bootmem.h"
 
 class babyos_t {
 public:
@@ -43,11 +44,13 @@ public:
     uart_t*    uart();
     vbe_t*     vbe();
     console_t* console();
+    bootmem_t* bootmem();
 
 private:
     uart_t    m_uart;
     vbe_t     m_vbe;
     console_t m_console;
+    bootmem_t m_bootmem;
 };
 
 #define os() babyos_t::get_instance()

@@ -73,16 +73,10 @@
 #define PTE_W               0x002		/* writeable */
 #define PTE_U               0x004		/* user */
 
-
-/* page size and so on */
-#define PAGE_SHIFT          (12)
-#define PAGE_SIZE           (1UL << PAGE_SHIFT)
-#define PAGE_MASK           (~(PAGE_SIZE-1))
-#define PAGE_ALIGN(addr)    (((uint64)(addr)+PAGE_SIZE-1) & PAGE_MASK)
-
-
-#define KERNEL_BASE         (0xffff800000000000)
-
+#define KERNEL_LOAD_BASE    0xffffffff80000000
+#define KERNEL_LOAD_EXTRA   0x0000000000100000
+#define KERNEL_LOAD_ADDR    (KERNEL_LOAD_BASE + KERNEL_LOAD_EXTRA)
+#define KERNEL_STACK_BOTTOM (KERNEL_LOAD_BASE + BOOT_STACK_BOTTOM)
 
 
 #endif

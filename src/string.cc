@@ -148,6 +148,44 @@ bool is_digit(char c)
     return (c >= '0' && c <= '9');
 }
 
+int sprint_long(char* buffer, long n, int width, int base, bool sign)
+{
+    if (base <= 0) {
+        return -1;
+    }
+
+    const static char digits[] = "0123456789abcdef";
+    char buf[16] = {0};
+
+    uint64 num = (uint64)n;
+    if (sign && (sign = (n < 0))) {
+        num = -n;
+    }
+
+    int i = 0;
+    do {
+        buf[i++] = digits[num % base];
+        num /= base;
+    } while (num != 0);
+
+    if (sign) {
+        buf[i++] = '-';
+    }
+
+    if (width < i) {
+        width = i;
+    }
+
+    for (int j = 0; j < width - i; j++) {
+        *buffer++ = base == 16 ? '0' : ' ';
+    }
+    while (--i >= 0) {
+        *buffer++ = buf[i];
+    }
+
+    return width;
+}
+
 int sprint_int(char* buffer, int n, int width, int base, bool sign)
 {
     if (base <= 0) {
@@ -205,7 +243,7 @@ int sprint_str(char* buffer, char* s, int width)
     return width;
 }
 
-int vsprintf(char *buffer, const char *fmt, va_list ap)
+int vsprintf(char *buffer, const char* fmt, va_list ap)
 {
     buffer[0] = '\0';
     if (fmt == NULL) {
@@ -213,8 +251,9 @@ int vsprintf(char *buffer, const char *fmt, va_list ap)
     }
 
     char c;
-    int total = 0;
-    int width = 0;
+    int total = 0, width = 0;
+    bool prefix_l = false, sign = false;
+
     for (int i = 0; (c = CHARACTER(fmt[i])) != 0; i++) {
         if (c != '%') {
             buffer[total++] = c;
@@ -236,16 +275,39 @@ int vsprintf(char *buffer, const char *fmt, va_list ap)
             break;
         }
 
+        if (c == 'l') {
+            prefix_l = true;
+            c = CHARACTER(fmt[++i]);
+        }
+
+        if (c == '\0') {
+            break;
+        }
+
         switch (c) {
         case 'd':
-            total += sprint_int(buffer + total, va_arg(ap, int32), width, 10, true);
-            break;
         case 'u':
-            total += sprint_int(buffer + total, va_arg(ap, int32), width, 10, false);
+            sign = c == 'd';
+            if (prefix_l) {
+                total += sprint_long(buffer + total, va_arg(ap, int64), width, 10, sign);
+            }
+            else {
+                total += sprint_int(buffer + total, va_arg(ap, int32), width, 10, sign);
+            }
             break;
         case 'x':
         case 'p':
-            total += sprint_int(buffer + total, va_arg(ap, int32), width, 16, false);
+            if (c == 'p') {
+                prefix_l = true;
+                buffer[total++] = '0';
+                buffer[total++] = 'x';
+            }
+            if (prefix_l) {
+                total += sprint_long(buffer + total, va_arg(ap, int64), width, 16, false);
+            }
+            else {
+                total += sprint_int(buffer + total, va_arg(ap, int32), width, 16, false);
+            }
             break;
         case 'c':
             buffer[total++] = (char) CHARACTER(va_arg(ap, int32));
@@ -260,6 +322,10 @@ int vsprintf(char *buffer, const char *fmt, va_list ap)
             buffer[total++] = '%';
             buffer[total++] = c;
             break;
+        }
+
+        if (prefix_l) {
+            prefix_l = false;
         }
     }
 

@@ -37,17 +37,6 @@ typedef short          int16;
 typedef int            int32;
 typedef long           int64;
 
-
-/* video info */
-typedef struct video_info_s {
-    uint16 video_mode;
-    uint16 width;
-    uint16 height;
-    uint8  bits_per_pixel;
-    uint8  memory_model;
-    uint32 vram_base_addr;
-} video_info_t;
-
 typedef struct rect_s {
     int32 left;
     int32 top;

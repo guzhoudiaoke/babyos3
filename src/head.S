@@ -34,24 +34,50 @@ _start:
 	jmp		startup32
 
 
-/* function to set boot page table */
+/*
+ * function to set boot page table
+ * map [0, 4GB) -> [0, 4GB)
+ * map [0xffffffff80100000, 0xffffffffffffffff] -> [0, 2GB)
+ * map [0xffff800000000000, 0xffff800000000000+4GB] -> [0, 4GB)
+ */
 setup_page_table:
-	/* 1. setup pml4[0] = dir_ptr0,
-     *    setup pml4[256] = dir_ptr0 */
+	/*
+     * 1. setup pml4[0] = dir_ptr0,
+     *    setup pml4[256] = dir_ptr0
+     *    setup pml4[511] = dir_ptr0
+     */
 	movl    $BOOT_PD_PTR0,			%eax
 	xorl	$(PTE_P|PTE_W|PTE_U),	%eax
 	movl	$BOOT_PML4,				%edi
 	movl    %eax,					(%edi)
+
 	addl    $(256*8),			    %edi
+	movl    %eax,					(%edi)
+
+	movl	$BOOT_PML4,				%edi
+	addl    $(511*8),			    %edi
 	movl    %eax,					(%edi)
 
 	/*
      * 2. setup pg_dir_ptr[0,1,2,3] = pg_dir0, pg_dir1, pg_dir2, pg_dir3
+     *    setup pg_dir_ptr[510,511] = pg_dir0, pg_dir1
 	 */
 	movl    $BOOT_PD_PTR0,			%edi
 	movl	$BOOT_PG_DIRS,			%eax
 	xorl	$(PTE_P|PTE_W|PTE_U),	%eax
 	movl    $4,						%ecx
+1:
+	movl    %eax,					(%edi)
+	addl	$8,						%edi
+	addl	$0x00001000,			%eax
+	decl	%ecx
+	jnz		1b
+
+	movl    $BOOT_PD_PTR0,			%edi
+	movl	$BOOT_PG_DIRS,			%eax
+	xorl	$(PTE_P|PTE_W|PTE_U),	%eax
+	addl    $(510*8),			    %edi
+    movl    $2,						%ecx
 1:
 	movl    %eax,					(%edi)
 	addl	$8,						%edi
@@ -131,7 +157,7 @@ startup_64:
 	movw	%ax,					%es
 	movw	%ax,					%fs
 	movw	%ax,					%gs
-	movq	$BOOT_STACK_BOTTOM,		%rsp
+    movq	$KERNEL_STACK_BOTTOM,   %rsp
 
 	/* call load main to load elf kernel */
 	call	loadmain

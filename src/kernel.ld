@@ -9,15 +9,15 @@ ENTRY(main)
 
 SECTIONS
 {
-    . = 0xffff800000100000;
+    . = 0xffffffff80100000;
 
-    PROVIDE(begin = .);
+    PROVIDE(_begin = .);
 
     .text : {
         *(.text .rela.text .stub .text.* .gnu.linkonce.t.*)
     }
 
-    PROVIDE(etext = .);
+    PROVIDE(_etext = .);
 
     .rodata : {
         *(.rodata .rodata.* .gnu.linkonce.r.*)
@@ -25,13 +25,13 @@ SECTIONS
 
     . = ALIGN(0x1000);
 
-    PROVIDE(data = .);
+    PROVIDE(_data = .);
 
     .data : {
         *(.data)
     }
 
-    PROVIDE(edata = .);
+    PROVIDE(_edata = .);
 
     .bss : {
         *(.bss)
@@ -39,7 +39,7 @@ SECTIONS
 
     . = ALIGN(0x1000);
 
-    PROVIDE(end = .);
+    PROVIDE(_end = .);
 
     /DISCARD/ : {
         *(.eh_frame .note.GNU-stack)

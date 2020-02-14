@@ -29,8 +29,21 @@
 #include "kernel.h"
 
 
-#define VA2PA(x)	        (((uint32)(x)) - KERNEL_BASE)
-#define PA2VA(x)	        ((void *)((x) + KERNEL_BASE))
+#define KB                  (1024)
+#define MB                  (1024*KB)
+#define GB                  (1024*GB)
+
+
+/* page size and so on */
+#define PAGE_SHIFT          (12)
+#define PAGE_SIZE           (1UL << PAGE_SHIFT)
+#define PAGE_MASK           (~(PAGE_SIZE-1))
+#define PAGE_ALIGN(addr)    (((uint64)(addr)+PAGE_SIZE-1) & PAGE_MASK)
+
+#define KERNEL_BASE         (0xffff800000000000ull)
+
+#define VA2PA(x)	        (((uint64)(x)) - KERNEL_BASE)
+#define PA2VA(x)	        ((void *)(((uint64)x) + KERNEL_BASE))
 
 
 #endif

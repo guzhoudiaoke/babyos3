@@ -1,6 +1,7 @@
 *.o
 *.img
 *.elf
+*.d
 logbochs
 boot
 loader

@@ -5,9 +5,13 @@ CPP = g++
 LD = ld
 OBJCOPY = objcopy
 
-LDFLAGS  = -m elf_x86_64 -static -g
-CPPFLAGS = -g -w -fno-builtin -fno-exceptions -fno-stack-protector -m64 -fno-rtti -nostdlib -nodefaultlibs -Werror -fno-omit-frame-pointer -mcmodel=large -fno-pie
-ASFLAGS  = -gdwarf-2 -m64 -DX64 -mcmodel=large -mtls-direct-seg-refs -mno-red-zone -fno-pie
+LDFLAGS  = -g -m elf_x86_64
+CPPFLAGS = -g -Wall -Werror -fno-exceptions -m64
+CPPFLAGS += -mcmodel=kernel -fno-pic -static -fno-builtin -fno-strict-aliasing
+CPPFLAGS += -MD -fno-omit-frame-pointer -ffreestanding -fno-common -nostdlib
+CPPFLAGS += -gdwarf-2 -DX64 -mtls-direct-seg-refs -mno-red-zone
+ASFLAGS  = -g -m64
+
 
 OBJS = \
 		cxx.o \
@@ -18,11 +22,12 @@ OBJS = \
 		vbe.o \
 		string.o \
 		console.o \
+		bootmem.o \
 
 
 BOOTSIZE   = 1
 LOADERSIZE = 3
-KERNELSIZE = 100
+KERNELSIZE = 200
 FONTSIZE   = 8
 FONTLBA    = 2048
 FLOPPYSIZE = 1024
@@ -32,8 +37,8 @@ babyos: boot loader kernel
 	../tool/checksize loader ${LOADERSIZE}
 	../tool/checksize kernel ${KERNELSIZE}
 
-	dd if=/dev/zero of=boot.img    ibs=512 seek=0 				count=${FLOPPYSIZE}
-	dd if=/dev/zero of=baby_hd.img ibs=512 seek=0 				count=${DISKSIZE}
+	dd if=/dev/zero of=boot.img    ibs=512 seek=0 count=${FLOPPYSIZE}
+	dd if=/dev/zero of=baby_hd.img ibs=512 seek=0 count=${DISKSIZE}
 
 	dd if=boot              of=boot.img    ibs=512 seek=0 			  	count=${BOOTSIZE}   conv=notrunc
 	dd if=loader            of=baby_hd.img ibs=512 seek=0 			  	count=${LOADERSIZE} conv=notrunc
@@ -62,4 +67,4 @@ kernel: ${OBJS} kernel.ld
 
 
 clean:
-	rm -f boot loader kernel *.o *.img *.elf
+	rm -f boot loader kernel *.o *.img *.elf *.d

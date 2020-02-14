@@ -34,6 +34,17 @@ const int32 c_asc16_width = 8;
 const int32 c_asc16_height = 16;
 
 
+/* video info */
+typedef struct video_info_s {
+    uint16 video_mode;
+    uint16 width;
+    uint16 height;
+    uint8  bits_per_pixel;
+    uint8  memory_model;
+    uint32 vram_base_addr;
+} video_info_t;
+
+
 class vbe_t {
 public:
 	vbe_t();

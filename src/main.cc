@@ -33,5 +33,6 @@ int main(void)
 {
     babyos_t::get_instance()->init();
     babyos_t::get_instance()->run();
+
     return 0;
 }
