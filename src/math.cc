@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/babyos.h
+ *	babyos/kernel/buddy.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,44 +19,39 @@
 
 
 /*
- *  2020-02-13		created
+ *  2020-02-15		created
  */
 
-#ifndef _BABYOS_H_
-#define _BABYOS_H_
 
-#include "types.h"
-#include "uart.h"
-#include "vbe.h"
-#include "console.h"
-#include "bootmem.h"
-#include "buddy.h"
-
-class babyos_t {
-public:
-    static babyos_t* get_instance();
-
-    babyos_t();
-    ~babyos_t();
-
-    void init();
-    void run();
-
-    uart_t*    uart();
-    vbe_t*     vbe();
-    console_t* console();
-    bootmem_t* bootmem();
-    buddy_t*   buddy();
-
-private:
-    uart_t    m_uart;
-    bootmem_t m_bootmem;
-    buddy_t   m_buddy;
-    vbe_t     m_vbe;
-    console_t m_console;
-};
-
-#define os() babyos_t::get_instance()
+#include "math.h"
 
 
-#endif
+uint32 math_t::log(int32 x, int32 n)
+{
+    int32 ret = 0, num = 1;
+    while (num < n) {
+        num *= x;
+        ret++;
+    }
+
+    return ret;
+}
+
+uint32 math_t::min(uint32 a, uint32 b)
+{
+    return a < b ? a : b;
+}
+
+uint32 math_t::max(uint32 a, uint32 b)
+{
+    return a > b ? a : b;
+}
+
+uint32 math_t::pow(int32 x, int32 p)
+{
+    uint32 ret = 1;
+    for (int32 i = 0; i < p; i++) {
+        ret *= x;
+    }
+    return ret;
+}

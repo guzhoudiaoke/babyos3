@@ -58,6 +58,10 @@ void bootmem_t::init_boot_info()
 
 void bootmem_t::init_mem_range()
 {
+    /* set the end of kernel code/data as start of boot memory */
+    m_start_pa = (uint64)_end - KERNEL_LOAD_BASE;
+    m_end_pa = m_start_pa;
+
     os()->uart()->kprintf("the memory info from int 0x15, eax=0xe820:\n");
     os()->uart()->kprintf("type\t\taddress\t\t\tlength\n");
 
@@ -65,14 +69,17 @@ void bootmem_t::init_mem_range()
     for (uint32 i = 0; i < m_boot_info.mem_layout->num_of_range; i++) {
         address_range_t* range = &m_boot_info.mem_layout->ranges[i];
         uint64 addr = ((uint64)range->base_addr_high << 32) + range->base_addr_low;
-        uint64 length = ((uint64)range->length_high << 32) + range->length_low;
+        uint64 end = addr + ((uint64)range->length_high << 32) + range->length_low;
         os()->uart()->kprintf("0x%8x\t0x%16lx\t0x%16lx\n",
-                              range->type, addr, addr + length);
+                              range->type, addr, end);
+
+        if (range->type == 1 && end > m_end_pa) {
+            m_end_pa = end;
+        }
     }
 
-    /* set the end of kernel code/data as start of boot memory */
-    m_start_pa = (uint64)_end - KERNEL_LOAD_BASE;
-    os()->uart()->kprintf("usable mem start: 0x%16lx\n", m_start_pa);
+    os()->uart()->kprintf("usable usable mem range: [0x%lx, 0x%lx)\n",
+                          m_start_pa, m_end_pa);
 }
 
 uint64 bootmem_t::mem_alloc(uint32 size, bool page_align)
@@ -233,4 +240,14 @@ void* bootmem_t::early_pa2va(uint64 pa)
 boot_info_t* bootmem_t::get_boot_info()
 {
     return &m_boot_info;
+}
+
+uint64 bootmem_t::get_start_usable_pa()
+{
+    return m_start_pa;
+}
+
+uint64 bootmem_t::get_end_usable_pa()
+{
+    return m_end_pa;
 }

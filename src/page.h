@@ -27,6 +27,7 @@
 
 #include "types.h"
 #include "kernel.h"
+#include "atomic.h"
 
 
 
@@ -69,6 +70,11 @@ typedef uint64 pdpe_t;
 typedef uint64 pde_t;
 /* page table entry */
 typedef uint64 pte_t;
+
+
+typedef struct page_s {
+	atomic_t	ref;
+} page_t;
 
 
 #endif

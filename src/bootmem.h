@@ -39,7 +39,11 @@ public:
 
     void init();
     void map_pages(void* va, uint64 pa, uint64 length, uint32 perm);
+    uint64 mem_alloc(uint32 size, bool page_align);
     boot_info_t* get_boot_info();
+    uint64 get_start_usable_pa();
+    uint64 get_end_usable_pa();
+
 
 private:
     static uint64 early_va2pa(void* va);
@@ -49,7 +53,6 @@ private:
     void init_mem_range();
     void init_page_map();
 
-    uint64  mem_alloc(uint32 size, bool page_align);
     pdpe_t* get_pdp_table(pml4e_t* pml4_table, void* v);
     pde_t*  get_pd_table(pdpe_t* pdp_table, void* v);
     pde_t*  get_page_table(pde_t* pd_table, void* v);
@@ -57,6 +60,7 @@ private:
 private:
     boot_info_t      m_boot_info;
     uint64           m_start_pa;
+    uint64           m_end_pa;
     uint64           m_pml4_pa;
 };
 

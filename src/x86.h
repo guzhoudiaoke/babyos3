@@ -129,4 +129,15 @@ static inline void set_cr3(uint64 val)
     __asm__ volatile("mov %0, %%cr3" : : "r" (val));
 }
 
+static inline uint32 change_bit(uint64 nr, void* addr)
+{
+    uint32 oldbit;
+
+    __asm__ __volatile__("btcq %2,%1\n\tsbbl %0,%0"
+                         :"=r" (oldbit),"=m" (*((unsigned *)(addr)))
+                         :"r" (nr));
+    return oldbit;
+}
+
+
 #endif

@@ -23,6 +23,8 @@ OBJS = \
 		string.o \
 		console.o \
 		bootmem.o \
+		buddy.o \
+		math.o \
 
 
 BOOTSIZE   = 1

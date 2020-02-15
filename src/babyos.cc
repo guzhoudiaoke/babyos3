@@ -62,6 +62,22 @@ bootmem_t* babyos_t::bootmem()
     return &m_bootmem;
 }
 
+buddy_t* babyos_t::buddy()
+{
+    return &m_buddy;
+}
+
+void test_buddy()
+{
+    os()->buddy()->dump();
+    for (int i = 0; i < 10; i++) {
+        uint64 pa = os()->buddy()->alloc_pages(0);
+        os()->console()->kprintf(GREEN, "allocated page: %lx\n", pa);
+        os()->uart()->kprintf("allocated page: %lx\n", pa);
+        os()->buddy()->dump();
+    }
+}
+
 void babyos_t::init()
 {
     /* serial port */
@@ -72,6 +88,10 @@ void babyos_t::init()
     m_bootmem.init();
     uart()->puts("boot mem init done\n");
 
+    /* buddy */
+    m_buddy.init();
+    uart()->puts("buddy init done\n");
+
     /* VBE */
     m_vbe.init();
     uart()->puts("VBE init done\n");
@@ -80,6 +100,9 @@ void babyos_t::init()
     m_console.init();
     uart()->puts("console init done\n");
     console()->kprintf(YELLOW, "Welcome to babyos!\n");
+
+    /* test buddy */
+    test_buddy();
 }
 
 void babyos_t::run()
