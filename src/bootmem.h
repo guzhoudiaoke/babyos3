@@ -28,45 +28,8 @@
 
 
 #include "types.h"
-#include "mm.h"
-
-/*
-Offset in Bytes		Name		       Description
-0	                BaseAddrLow        Low 32 Bits of Base Address
-4	                BaseAddrHigh	   High 32 Bits of Base Address
-8	                LengthLow		   Low 32 Bits of Length in Bytes
-12	                LengthHigh		   High 32 Bits of Length in Bytes
-16	                Type		       Address type of  this range.
-The BaseAddrLow and BaseAddrHigh together are the 64 bit BaseAddress of this range.
-The BaseAddress is the physical address of the start of the range being specified.
-The LengthLow and LengthHigh together are the 64 bit Length of this range.
-The Length is the physical contiguous length in bytes of a range being specified.
-
-The Type field describes the usage of the described address range as defined in the table below.
-
-Value	Pneumonic		        Description
-1	    AddressRangeMemory	    This run is available RAM usable by the operating system.
-2	    AddressRangeReserved	This run of addresses is in use or reserved
-				                by the system, and must not be used by the
-				                operating system.
-Other	Undefined		        Undefined - Reserved for future use.  Any
-                                range of this type must be treated by the
-                                OS as if the type returned was
-                                AddressRangeReserved.
-*/
-typedef struct address_range_s {
-	uint32	base_addr_low;
-	uint32	base_addr_high;
-	uint32	length_low;
-	uint32	length_high;
-    uint32  type;
-} __attribute__((packed, aligned(4))) address_range_t;
-
-
-typedef struct memory_layout_s {
-	uint32 num_of_range;
-	address_range_t ranges[32];
-} __attribute__((packed, aligned(4))) memory_layout_t;
+#include "page.h"
+#include "bootinfo.h"
 
 
 class bootmem_t {
@@ -75,17 +38,24 @@ public:
     ~bootmem_t();
 
     void init();
+    void map_pages(void* va, uint64 pa, uint64 length, uint32 perm);
+    boot_info_t* get_boot_info();
 
 private:
-    void   init_mem_range();
-    void   init_page_map();
-    uint64 mem_alloc(uint32 size, bool page_align);
-    void   map_pages(void* va, uint64 pa, uint64 length, uint32 perm);
-    uint64 early_va2pa(void* va);
-    void*  early_pa2va(uint64 pa);
+    static uint64 early_va2pa(void* va);
+    static void*  early_pa2va(uint64 pa);
+
+    void init_boot_info();
+    void init_mem_range();
+    void init_page_map();
+
+    uint64  mem_alloc(uint32 size, bool page_align);
+    pdpe_t* get_pdp_table(pml4e_t* pml4_table, void* v);
+    pde_t*  get_pd_table(pdpe_t* pdp_table, void* v);
+    pde_t*  get_page_table(pde_t* pd_table, void* v);
 
 private:
-    memory_layout_t* m_mem_layout;
+    boot_info_t      m_boot_info;
     uint64           m_start_pa;
     uint64           m_pml4_pa;
 };

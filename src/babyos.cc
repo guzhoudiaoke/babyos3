@@ -68,16 +68,18 @@ void babyos_t::init()
     m_uart.early_init();
     uart()->puts("Hello babyos..\n");
 
-    /* VBE */
-    m_vbe.init();
-
-    /* console */
-    m_console.init();
-    console()->kprintf(YELLOW, "Welcome to babyos!\n");
-
     /* bootmem */
     m_bootmem.init();
     uart()->puts("boot mem init done\n");
+
+    /* VBE */
+    m_vbe.init();
+    uart()->puts("VBE init done\n");
+
+    /* console */
+    m_console.init();
+    uart()->puts("console init done\n");
+    console()->kprintf(YELLOW, "Welcome to babyos!\n");
 }
 
 void babyos_t::run()

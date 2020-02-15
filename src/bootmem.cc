@@ -26,7 +26,6 @@
 #include "bootmem.h"
 #include "babyos.h"
 #include "kernel.h"
-#include "mm.h"
 #include "x86.h"
 
 
@@ -45,28 +44,35 @@ bootmem_t::~bootmem_t()
 
 void bootmem_t::init()
 {
+    init_boot_info();
     init_mem_range();
     init_page_map();
 }
 
+void bootmem_t::init_boot_info()
+{
+    m_boot_info.video_info = (video_info_t *) early_pa2va(VIDEO_INFO_ADDR);
+    m_boot_info.mem_layout = (memory_layout_t *) early_pa2va(MEM_INFO_ADDR);
+    m_boot_info.asc16_font = (void *) early_pa2va(FONT_ASC16_ADDR);
+}
+
 void bootmem_t::init_mem_range()
 {
-    m_mem_layout = (memory_layout_t *) early_pa2va(MEM_INFO_ADDR);
-    os()->console()->kprintf(WHITE, "the memory info from int 0x15, eax=0xe820:\n");
-    os()->console()->kprintf(WHITE, "type\t\taddress\t\t\t\tlength\n");
+    os()->uart()->kprintf("the memory info from int 0x15, eax=0xe820:\n");
+    os()->uart()->kprintf("type\t\taddress\t\t\tlength\n");
 
     /* print mem layout */
-    for (uint32 i = 0; i < m_mem_layout->num_of_range; i++) {
-        address_range_t* range = &m_mem_layout->ranges[i];
+    for (uint32 i = 0; i < m_boot_info.mem_layout->num_of_range; i++) {
+        address_range_t* range = &m_boot_info.mem_layout->ranges[i];
         uint64 addr = ((uint64)range->base_addr_high << 32) + range->base_addr_low;
         uint64 length = ((uint64)range->length_high << 32) + range->length_low;
-        os()->console()->kprintf(RED, "0x%8x\t0x%16lx\t0x%16lx\n",
-                                 range->type, addr, addr + length);
+        os()->uart()->kprintf("0x%8x\t0x%16lx\t0x%16lx\n",
+                              range->type, addr, addr + length);
     }
 
     /* set the end of kernel code/data as start of boot memory */
     m_start_pa = (uint64)_end - KERNEL_LOAD_BASE;
-    os()->console()->kprintf(CYAN, "usable mem start: 0x%16lx\n", m_start_pa);
+    os()->uart()->kprintf("usable mem start: 0x%16lx\n", m_start_pa);
 }
 
 uint64 bootmem_t::mem_alloc(uint32 size, bool page_align)
@@ -81,61 +87,72 @@ uint64 bootmem_t::mem_alloc(uint32 size, bool page_align)
     return p;
 }
 
+pdpe_t* bootmem_t::get_pdp_table(pml4e_t* pml4_table, void* v)
+{
+    pml4e_t pml4e = pml4_table[PML4E_INDEX(v)];
+    pdpe_t* pdp_table = NULL;
+    if ((pml4e) & PTE_P) {
+        pdp_table = (pdpe_t *) (early_pa2va(pml4e & PAGE_MASK));
+    }
+    else {
+        uint64 pdpt_pa = mem_alloc(PAGE_SIZE, true);
+        pdp_table = (pdpe_t *) early_pa2va(pdpt_pa);
+        memset(pdp_table, 0, PAGE_SIZE);
+        pml4_table[PML4E_INDEX(v)] = (pdpt_pa | PTE_P | PTE_W | PTE_U);
+    }
+
+    return pdp_table;
+}
+
+pde_t* bootmem_t::get_pd_table(pdpe_t* pdp_table, void* v)
+{
+    pdpe_t pdpe = pdp_table[PDPE_INDEX(v)];
+    pde_t* pd_table = NULL;
+    if ((pdpe) & PTE_P) {
+        pd_table = (pde_t *) (early_pa2va(pdpe & PAGE_MASK));
+    }
+    else {
+        uint64 pdt_pa = mem_alloc(PAGE_SIZE, true);
+        pd_table = (pde_t *) early_pa2va(pdt_pa);
+        memset(pd_table, 0, PAGE_SIZE);
+        pdp_table[PDPE_INDEX(v)] = (pdt_pa | PTE_P | PTE_W | PTE_U);
+    }
+
+    return pd_table;
+}
+
+pte_t* bootmem_t::get_page_table(pde_t* pd_table, void* v)
+{
+    pde_t pde = pd_table[PDE_INDEX(v)];
+    pte_t* page_table = NULL;
+    if ((pde) & PTE_P) {
+        page_table = (pte_t *) (early_pa2va(pde & PAGE_MASK));
+    }
+    else {
+        uint64 pt_pa = mem_alloc(PAGE_SIZE, true);
+        page_table = (pte_t *) early_pa2va(pt_pa);
+        memset(page_table, 0, PAGE_SIZE);
+        pd_table[PDE_INDEX(v)] = (pt_pa | PTE_P | PTE_W | PTE_U);
+    }
+
+    return page_table;
+}
+
 void bootmem_t::map_pages(void *va, uint64 pa, uint64 length, uint32 perm)
 {
     uint8 *v = (uint8 *) (((uint64)va) & PAGE_MASK);
     uint8 *e = (uint8 *) (((uint64)va + length) & PAGE_MASK);
     pa = (pa & PAGE_MASK);
-    os()->console()->kprintf(WHITE, "\nmap: [%p, %p) -> [%16lx, %16lx)\n",
-                             v, e, pa, pa+length);
+    os()->uart()->kprintf("map: [%p, %p) -> [%16lx, %16lx)\n",
+                          v, e, pa, pa+length);
 
     pml4e_t* pml4_table = (pml4e_t *)early_pa2va(m_pml4_pa);
     while (v < e) {
-        pml4e_t pml4e = pml4_table[PML4E_INDEX(v)];
-        pdpe_t pdpe = 0;
-        pdpe_t* pdp_table = NULL;
-        if ((pml4e) & PTE_P) {
-            pdp_table = (pdpe_t *) (early_pa2va(pml4e & PAGE_MASK));
-        }
-        else {
-            uint64 pdpt_pa = mem_alloc(PAGE_SIZE, true);
-            pdp_table = (pdpe_t *) early_pa2va(pdpt_pa);
-            memset(pdp_table, 0, PAGE_SIZE);
-            pml4_table[PML4E_INDEX(v)] = (pdpt_pa | PTE_P | PTE_W | PTE_U);
-        }
-        pdpe = pdp_table[PDPE_INDEX(v)];
-
-        pde_t pde = 0;
-        pde_t* pd_table = NULL;
-        if ((pdpe) & PTE_P) {
-            pd_table = (pde_t *) (early_pa2va(pdpe & PAGE_MASK));
-        }
-        else {
-            uint64 pdt_pa = mem_alloc(PAGE_SIZE, true);
-            pd_table = (pde_t *) early_pa2va(pdt_pa);
-            memset(pd_table, 0, PAGE_SIZE);
-            pdp_table[PDPE_INDEX(v)] = (pdt_pa | PTE_P | PTE_W | PTE_U);
-        }
-        pde = pd_table[PDE_INDEX(v)];
-
-        pte_t* page_table = NULL;
-        if ((pde) & PTE_P) {
-            page_table = (pte_t *) (early_pa2va(pde & PAGE_MASK));
-        }
-        else {
-            uint64 pt_pa = mem_alloc(PAGE_SIZE, true);
-            page_table = (pte_t *) early_pa2va(pt_pa);
-            memset(page_table, 0, PAGE_SIZE);
-            pd_table[PDE_INDEX(v)] = (pt_pa | PTE_P | PTE_W | PTE_U);
-        }
+        pdpe_t* pdp_table = get_pdp_table(pml4_table, v);
+        pde_t* pd_table = get_pd_table(pdp_table, v);
+        pte_t* page_table = get_page_table(pd_table, v);
 
         os()->uart()->kprintf("%16lx, pml4_table[%3d]=%16lx, pdp_table[%3d]=%16lx, pd_table[%3d]=%16lx\n",
-                              v,
-                              PML4E_INDEX(v), pml4_table[PML4E_INDEX(v)],
-                              PDPE_INDEX(v), pdp_table[PDPE_INDEX(v)],
-                              PDE_INDEX(v), pd_table[PDE_INDEX(v)]);
-
-        os()->console()->kprintf(YELLOW, "va:0x%16lx, pml4_table[%3d]=%lx, pdp_table[%3d]=%lx, pd_table[%3d]=%lx\n",
                               v,
                               PML4E_INDEX(v), pml4_table[PML4E_INDEX(v)],
                               PDPE_INDEX(v), pdp_table[PDPE_INDEX(v)],
@@ -150,7 +167,6 @@ void bootmem_t::map_pages(void *va, uint64 pa, uint64 length, uint32 perm)
             pa += PAGE_SIZE;
         }
     }
-
 }
 
 void bootmem_t::init_page_map()
@@ -179,11 +195,11 @@ void bootmem_t::init_page_map()
 
     /* map all normal memory */
     uint64 pa = (uint64)_end - KERNEL_LOAD_BASE;
-    for (uint32 i = 0; i < m_mem_layout->num_of_range; i++) {
-        address_range_t* range = &m_mem_layout->ranges[i];
+    for (uint32 i = 0; i < m_boot_info.mem_layout->num_of_range; i++) {
+        address_range_t* range = &m_boot_info.mem_layout->ranges[i];
         uint64 begin = ((uint64)range->base_addr_high << 32) + range->base_addr_low;
         uint64 end = begin + ((uint64)range->length_high << 32) + range->length_low;
-        if (m_mem_layout->ranges[i].type == 1 && begin <= pa && pa <= end) {
+        if (range->type == 1 && begin <= pa && pa <= end) {
             map_pages(PA2VA(pa),  /* va */
                       pa,         /* pa */
                       end - pa,   /* length */
@@ -193,6 +209,12 @@ void bootmem_t::init_page_map()
     }
 
     /* map video vram */
+    video_info_t* video_info = m_boot_info.video_info;
+    uint32 bytes = video_info->width*video_info->height*video_info->bits_per_pixel/3;
+    map_pages(PA2VA(video_info->vram_base_addr),  /* va */
+              video_info->vram_base_addr,         /* pa */
+              bytes,                              /* length */
+              PTE_P | PTE_W);
 
     /* set pml4 to cr3 */
     set_cr3(m_pml4_pa);
@@ -206,4 +228,9 @@ uint64 bootmem_t::early_va2pa(void* va)
 void* bootmem_t::early_pa2va(uint64 pa)
 {
     return (void *)(pa + KERNEL_LOAD_BASE);
+}
+
+boot_info_t* bootmem_t::get_boot_info()
+{
+    return &m_boot_info;
 }

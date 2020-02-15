@@ -27,7 +27,8 @@
 #include "types.h"
 #include "kernel.h"
 #include "string.h"
-#include "mm.h"
+#include "bootmem.h"
+#include "babyos.h"
 
 
 vbe_t::vbe_t()
@@ -40,12 +41,12 @@ vbe_t::~vbe_t()
 
 void vbe_t::init()
 {
-    video_info_t *info = (video_info_t *) PA2VA(VIDEO_INFO_ADDR);
+    video_info_t *info = os()->bootmem()->get_boot_info()->video_info;
     m_width    = info->width;
     m_height   = info->height;
     m_bytes_pp = info->bits_per_pixel / 8;
     m_base     = (uint8 *)PA2VA(info->vram_base_addr);
-    m_asc16_addr = (uint8 *) PA2VA(FONT_ASC16_ADDR);
+    m_asc16_addr = (uint8 *) os()->bootmem()->get_boot_info()->asc16_font;
 }
 
 uint32 vbe_t::width()

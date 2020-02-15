@@ -29,7 +29,7 @@
 
 const uint32 c_buffer_size = 1024;
 const color_ref_t c_background_color = RGB(0x40, 0, 0x30);
-const color_ref_t c_cursor_color = RGB(0xff, 0xff, 0x00);
+const color_ref_t c_cursor_color     = RGB(0xff, 0xff, 0x00);
 
 
 console_t::console_t()
