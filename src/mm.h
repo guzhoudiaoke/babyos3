@@ -40,10 +40,34 @@
 #define PAGE_MASK           (~(PAGE_SIZE-1))
 #define PAGE_ALIGN(addr)    (((uint64)(addr)+PAGE_SIZE-1) & PAGE_MASK)
 
+#define PTE_INDEX(va)       (((uint64)va >> 12) & 0x1ff)
+#define PDE_INDEX(va)       (((uint64)va >> 21) & 0x1ff)
+#define PDPE_INDEX(va)      (((uint64)va >> 30) & 0x1ff)
+#define PML4E_INDEX(va)     (((uint64)va >> 39) & 0x1ff)
+
+#define PTRS_PER_PTE        512
+#define PTRS_PER_PDE        512
+#define PTRS_PER_PDPE       512
+#define PTRS_PER_PML4E      512
+
+
+/* kernel base address */
 #define KERNEL_BASE         (0xffff800000000000ull)
 
+
+/* kernel va->pa, pa->va */
 #define VA2PA(x)	        (((uint64)(x)) - KERNEL_BASE)
 #define PA2VA(x)	        ((void *)(((uint64)x) + KERNEL_BASE))
+
+
+/* pml4 table entry */
+typedef uint64 pml4e_t;
+/* page directory pointer table entry */
+typedef uint64 pdpe_t;
+/* page directory table entry */
+typedef uint64 pde_t;
+/* page table entry */
+typedef uint64 pte_t;
 
 
 #endif

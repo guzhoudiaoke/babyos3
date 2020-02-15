@@ -28,6 +28,7 @@
 
 
 #include "types.h"
+#include "mm.h"
 
 /*
 Offset in Bytes		Name		       Description
@@ -76,12 +77,17 @@ public:
     void init();
 
 private:
-    void init_mem_range();
+    void   init_mem_range();
+    void   init_page_map();
+    uint64 mem_alloc(uint32 size, bool page_align);
+    void   map_pages(void* va, uint64 pa, uint64 length, uint32 perm);
+    uint64 early_va2pa(void* va);
+    void*  early_pa2va(uint64 pa);
 
 private:
     memory_layout_t* m_mem_layout;
-    uint8*           m_mem_start;
-    uint8*           m_mem_end;
+    uint64           m_start_pa;
+    uint64           m_pml4_pa;
 };
 
 

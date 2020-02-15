@@ -25,8 +25,13 @@
 #include "uart.h"
 #include "x86.h"
 #include "delay.h"
+#include <stdarg.h>
+#include "string.h"
+
 
 #define COM1   0x3f8
+const uint32 c_buffer_size = 1024;
+
 
 uart_t::uart_t()
 {
@@ -81,5 +86,24 @@ void uart_t::puts(const char* s)
     const char* p = s;
     for(; *p != '\0'; p++) {
         putc(*p);
+    }
+}
+
+/* only support %d %u %x %p %c %s, and seems enough for now */
+void uart_t::kprintf(const char *fmt, ...)
+{
+    static char buffer[c_buffer_size] = {0};
+    if (fmt == NULL) {
+        return;
+    }
+
+    memset(buffer, 0, c_buffer_size);
+    va_list ap;
+    va_start(ap, fmt);
+    int total = vsprintf(buffer, fmt, ap);
+    va_end(ap);
+
+    for (int i = 0; i < total; i++) {
+        putc(buffer[i]);
     }
 }

@@ -66,7 +66,7 @@ void babyos_t::init()
 {
     /* serial port */
     m_uart.early_init();
-    m_uart.puts("Hello babyos..\n");
+    uart()->puts("Hello babyos..\n");
 
     /* VBE */
     m_vbe.init();
@@ -77,6 +77,7 @@ void babyos_t::init()
 
     /* bootmem */
     m_bootmem.init();
+    uart()->puts("boot mem init done\n");
 }
 
 void babyos_t::run()

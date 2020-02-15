@@ -34,6 +34,7 @@ public:
     void init();
     void putc(int c);
     void puts(const char* s);
+    void kprintf(const char *fmt, ...);
 
 private:
     bool exist;

@@ -103,7 +103,7 @@ failed:
 	ret
 
 
-/* 
+/*
  * read kernel from hd
  * and put loader to 0x0000
  */
