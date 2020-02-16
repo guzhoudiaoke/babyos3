@@ -91,13 +91,64 @@ void vbe_t::draw_asc16(char ch, uint32 left, uint32 top, color_ref_t color)
     }
 }
 
+void vbe_t::clip(rect_t* rect)
+{
+    uint32 right = rect->left + rect->width;
+    uint32 bottom = rect->top + rect->height;
+    if (right <= 0 || bottom <= 0) {
+        rect->left = 0;
+        rect->width = 0;
+        rect->top = 0;
+        rect->height = 0;
+        return;
+    }
+
+    if (rect->left < 0) {
+        rect->left = 0;
+        rect->width = right - rect->left;
+    }
+    if (rect->top < 0) {
+        rect->top = 0;
+        rect->height = bottom - rect->top;
+    }
+
+    if (right > m_width) {
+        rect->width = m_width - rect->left;
+    }
+    if (bottom > m_height) {
+        rect->height = m_height - rect->top;
+    }
+}
+
 void vbe_t::fill_rectangle(rect_t rect, color_ref_t color)
 {
-    for (uint32 y = 0; y < rect.height; ++y)
-    {
-        for (uint32 x = 0; x < rect.width; ++x) {
-            set_pixel(rect.left + x, rect.top + y, color);
-        }
+    //for (uint32 y = 0; y < rect.height; ++y)
+    //{
+    //    for (uint32 x = 0; x < rect.width; ++x) {
+    //        set_pixel(rect.left + x, rect.top + y, color);
+    //    }
+    //}
+
+    clip(&rect);
+    if (rect.width == 0 || rect.height == 0) {
+        return;
+    }
+
+    uint32 x = rect.left;
+    uint8* pvram = m_base + m_bytes_pp*rect.top*m_width + m_bytes_pp*x;
+    uint8* v = pvram;
+    for (uint32 i = 0; i < rect.width; i++) {
+        v[0] = RGB_GET_B(color);
+        v[1] = RGB_GET_G(color);
+        v[2] = RGB_GET_R(color);
+        v += m_bytes_pp;
+    }
+
+    v = pvram + m_bytes_pp*m_width;
+    for (uint32 y = rect.top+1; y < rect.top + rect.height; y++) {
+        v = m_base + m_bytes_pp*y*m_width + m_bytes_pp*x;
+        memcpy(v, pvram, m_bytes_pp*rect.width);
+        v += m_bytes_pp*m_width;
     }
 }
 

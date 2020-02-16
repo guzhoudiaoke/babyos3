@@ -50,6 +50,9 @@ public:
     void   scroll();
 
 private:
+    void   clip(rect_t* rect);
+
+private:
 	uint8*	m_base;        /* base address */
 	uint8*	m_asc16_addr;
 	uint16	m_width;
