@@ -218,13 +218,10 @@ void buddy_t::dump()
         free_list_t* free_list = &m_free_area.free_list[i];
         free_list_t* p = free_list->next;
         os()->uart()->kprintf("free list %d: ", i);
-        os()->console()->kprintf(YELLOW, "free list %d: ", i);
         while (p != free_list) {
             os()->uart()->kprintf("%p->", p);
-            os()->console()->kprintf(CYAN, "%p->", p);
             p = p->next;
         }
         os()->uart()->kprintf("\n");
-        os()->console()->kprintf(CYAN, "\n");
     }
 }

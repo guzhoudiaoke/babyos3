@@ -20,6 +20,7 @@
 
 /*
  *  2020-02-15		created
+ *  2020-02-16		change to 64 bit
  */
 
 
@@ -27,8 +28,11 @@
 #define _ATOMIC_H_
 
 
+#include "types.h"
+
+
 typedef struct atomic_s {
-    volatile int counter;
+    volatile int64 counter;
 } atomic_t;
 
 
@@ -37,28 +41,28 @@ typedef struct atomic_s {
 #define atomic_set(v, i) (((v)->counter) = (i))
 
 
-static __inline__ void atomic_add(int i, atomic_t *v)
+static __inline__ void atomic_add(int64 i, atomic_t *v)
 {
     __asm__ __volatile__(
-            "lock; addl %1,%0"
+            "lock; addq %1,%0"
             :"=m" (v->counter)
             :"ir" (i), "m" (v->counter));
 }
 
-static __inline__ void atomic_sub(int i, atomic_t *v)
+static __inline__ void atomic_sub(int64 i, atomic_t *v)
 {
     __asm__ __volatile__(
-            "lock; subl %1,%0"
+            "lock; subq %1,%0"
             :"=m" (v->counter)
             :"ir" (i), "m" (v->counter));
 }
 
-static __inline__ int atomic_sub_and_test(int i, atomic_t *v)
+static __inline__ int64 atomic_sub_and_test(int64 i, atomic_t *v)
 {
     unsigned char c;
 
     __asm__ __volatile__(
-            "lock; subl %2,%0; sete %1"
+            "lock; subq %2,%0; sete %1"
             :"=m" (v->counter), "=qm" (c)
             :"ir" (i), "m" (v->counter) : "memory");
     return c;
@@ -67,7 +71,7 @@ static __inline__ int atomic_sub_and_test(int i, atomic_t *v)
 static __inline__ void atomic_inc(atomic_t *v)
 {
     __asm__ __volatile__(
-            "lock; incl %0"
+            "lock; incq %0"
             :"=m" (v->counter)
             :"m" (v->counter));
 }
@@ -75,28 +79,28 @@ static __inline__ void atomic_inc(atomic_t *v)
 static __inline__ void atomic_dec(atomic_t *v)
 {
     __asm__ __volatile__(
-            "lock; decl %0"
+            "lock; decq %0"
             :"=m" (v->counter)
             :"m" (v->counter));
 }
 
-static __inline__ int atomic_dec_and_test(atomic_t *v)
+static __inline__ int64 atomic_dec_and_test(atomic_t *v)
 {
     unsigned char c;
 
     __asm__ __volatile__(
-            "lock; decl %0; sete %1"
+            "lock; decq %0; sete %1"
             :"=m" (v->counter), "=qm" (c)
             :"m" (v->counter) : "memory");
     return c != 0;
 }
 
-static __inline__ int atomic_inc_and_test(atomic_t *v)
+static __inline__ int64 atomic_inc_and_test(atomic_t *v)
 {
     unsigned char c;
 
     __asm__ __volatile__(
-            "lock; incl %0; sete %1"
+            "lock; incq %0; sete %1"
             :"=m" (v->counter), "=qm" (c)
             :"m" (v->counter) : "memory");
     return c != 0;
