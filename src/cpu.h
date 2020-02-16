@@ -28,7 +28,6 @@
 
 #include "types.h"
 #include "descriptor.h"
-#include "tss.h"
 #include "traps.h"
 
 

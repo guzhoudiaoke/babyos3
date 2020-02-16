@@ -215,7 +215,7 @@ begin_protected_mode:
 	lgdt	gdt_ptr
 
 	movl	%cr0,			%eax
-	orl		$CR0_PE,		%eax
+	orl	    $CR0_PE,		%eax
 	movl	%eax,			%cr0
 
 	ljmp	$KERNEL_CS,		$0x0

@@ -31,6 +31,7 @@ OBJS = \
 	    cpu.o \
 		rtc.o \
 		keyboard.o \
+		syscall.o \
 
 
 BOOTSIZE   = 1

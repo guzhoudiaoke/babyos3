@@ -28,7 +28,7 @@
 #include "string.h"
 #include "babyos.h"
 #include "traps.h"
-#include "tss.h"
+#include "syscall.h"
 
 
 extern uint64 isr_vector[];
@@ -185,6 +185,8 @@ void cpu_t::do_interrupt(uint64 trapno)
 
 void cpu_t::do_syscall(trap_frame_t* frame)
 {
+    os()->uart()->puts("do syscall\n");
+    syscall_t::do_syscall(frame);
 }
 
 void cpu_t::do_common_isr(trap_frame_t* frame)

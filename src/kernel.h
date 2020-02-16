@@ -63,9 +63,13 @@
 
 
 /* for cr0 */
-#define CR0_PE              0x00000001
-#define CR0_PG              0x80000000
-#define CR0_WP              0x00010000
+#define CR0_PE              (1 << 0)
+#define CR0_PG              (1 << 31)
+#define CR4_PAE             (1 << 5)
+
+#define MSR_EFER		    0xc0000080  /* extended feature register */
+#define EFER_LME            (1 << 8)    /* Long mode enable */
+
 
 
 /* page table, page directory entry flag */

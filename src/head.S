@@ -103,7 +103,9 @@ setup_page_table:
 	ret
 
 
-/* start code of protected mode */
+/*
+ * start code of protected mode
+ */
 startup32:
 	cli
 	movl	$KERNEL_DS,				%eax
@@ -123,34 +125,36 @@ startup32:
 
 	/* set CR4.PAE=1 */
 	movl    %cr4,					%eax
-	btsl	$5,						%eax
+    orl     $CR4_PAE, %eax
 	movl	%eax,					%cr4
 
-	/* set IA32_EFER=1 */
-	movl	$0xc0000080,			%ecx
+	/* set IA32_EFER.LME=1 */
+	movl	$MSR_EFER,			    %ecx
 	rdmsr
-	btsl    $8,						%eax
+	orl     $EFER_LME,				%eax
 	wrmsr
 
 	/* push address of startup_64 to stack, prepare to jump to 64bit mode */
 	pushl	$KERNEL_CS
-	leal	startup_64(%ebp),		%eax
+	leal	startup64(%ebp),		%eax
 	pushl	%eax
 
 	/* set CR0.PG=1, CR0.PE=1 */
 	xorl	%eax,					%eax
-	btsl    $0,						%eax
-	btsl    $31,					%eax
+	orl     $CR0_PE,				%eax
+	orl     $CR0_PG,				%eax
 	movl	%eax,					%cr0
 
 	/* Jump from 32bit compatibility mode into 64bit mode. */
 	lret
 
 
+/*
+ * start code of 64bit mode
+ */
 	.code64
 	.org	0x200
-/* start code of 64bit mode */
-startup_64:
+startup64:
 	xor		%rax,					%rax
 	movw	%ax,					%ss
 	movw	%ax,					%ds

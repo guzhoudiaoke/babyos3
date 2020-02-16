@@ -25,6 +25,8 @@
 #include "babyos.h"
 #include "x86.h"
 #include "delay.h"
+#include "syscall.h"
+
 
 static babyos_t babyos;
 
@@ -104,6 +106,13 @@ void test_buddy()
     }
 }
 
+void test_syscall()
+{
+    char str[100] = "Hello babyos, this is printed by syscall\n";
+    os()->uart()->puts("test syscall\n");
+    __asm__ volatile("int $0x80" : : "D" (WHITE), "S" (str), "a" (syscall_t::PRINT));
+}
+
 void babyos_t::init()
 {
     /* serial port */
@@ -150,6 +159,8 @@ void babyos_t::init()
     /* start interrupt */
     sti();
     uart()->puts("sti done\n");
+
+    test_syscall();
 }
 
 void babyos_t::run()
