@@ -37,6 +37,7 @@
 #include "i8254.h"
 #include "cpu.h"
 #include "rtc.h"
+#include "keyboard.h"
 
 
 class babyos_t {
@@ -50,26 +51,28 @@ public:
     void run();
     void update(uint64 tick);
 
-    uart_t*    uart();
-    vbe_t*     vbe();
-    console_t* console();
-    bootmem_t* bootmem();
-    buddy_t*   buddy();
-    i8259a_t*  i8259a();
-    i8254_t*   i8254();
-    cpu_t*     cpu();
-    rtc_t*     rtc();
+    uart_t*     uart();
+    vbe_t*      vbe();
+    console_t*  console();
+    bootmem_t*  bootmem();
+    buddy_t*    buddy();
+    i8259a_t*   i8259a();
+    i8254_t*    i8254();
+    cpu_t*      cpu();
+    rtc_t*      rtc();
+    keyboard_t* keyboard();
 
 private:
-    uart_t    m_uart;
-    bootmem_t m_bootmem;
-    buddy_t   m_buddy;
-    vbe_t     m_vbe;
-    console_t m_console;
-    i8259a_t  m_i8259a;
-    i8254_t   m_i8254;
-    cpu_t     m_cpu;
-    rtc_t     m_rtc;
+    uart_t     m_uart;
+    bootmem_t  m_bootmem;
+    buddy_t    m_buddy;
+    vbe_t      m_vbe;
+    console_t  m_console;
+    i8259a_t   m_i8259a;
+    i8254_t    m_i8254;
+    cpu_t      m_cpu;
+    rtc_t      m_rtc;
+    keyboard_t m_keyboard;
 };
 
 #define os() babyos_t::get_instance()

@@ -30,6 +30,7 @@ OBJS = \
 		entry.o \
 	    cpu.o \
 		rtc.o \
+		keyboard.o \
 
 
 BOOTSIZE   = 1

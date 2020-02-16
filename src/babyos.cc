@@ -87,6 +87,11 @@ rtc_t* babyos_t::rtc()
     return &m_rtc;
 }
 
+keyboard_t* babyos_t::keyboard()
+{
+    return &m_keyboard;
+}
+
 
 void test_buddy()
 {
@@ -139,6 +144,9 @@ void babyos_t::init()
     m_rtc.init();
     uart()->puts("rtc init done\n");
 
+    /*keyboard */
+    m_keyboard.init();
+
     /* start interrupt */
     sti();
     uart()->puts("sti done\n");
@@ -151,20 +159,24 @@ void babyos_t::run()
     }
 }
 
+void show_time_now()
+{
+    uint32 year, month, day, h, m, s;
+    year = os()->rtc()->year();
+    month = os()->rtc()->month();
+    day = os()->rtc()->day();
+    h = os()->rtc()->hour();
+    m = os()->rtc()->minute();
+    s = os()->rtc()->second();
+    os()->uart()->kprintf("%d-%d-%d %2d:%2d:%2d\n", 2000+year, month, day, h, m, s);
+}
+
 void babyos_t::update(uint64 tick)
 {
     rtc()->update();
 
     if (tick % 100 == 0) {
-        uart()->kprintf("tick: %ld\n", tick);
-        uint32 year, month, day, h, m, s;
-        year = rtc()->year();
-        month = rtc()->month();
-        day = rtc()->day();
-        h = rtc()->hour();
-        m = rtc()->minute();
-        s = rtc()->second();
-        console()->kprintf(GREEN, "%d-%d-%d %2d:%2d:%2d\n", 2000+year, month, day, h, m, s);
+        show_time_now();
     }
 }
 
