@@ -96,6 +96,47 @@ static inline void movsb(void *dst, void *src, int32 cnt)
             "memory", "cc");
 }
 
+static inline void lgdt(void* gdt, uint32 size)
+{
+    volatile uint16 pd[5];
+
+    pd[0] = size-1;
+    pd[1] = (uint64)gdt;
+    pd[2] = (uint64)gdt >> 16;
+    pd[3] = (uint64)gdt >> 32;
+    pd[4] = (uint64)gdt >> 48;
+
+    __asm__ volatile("lgdt (%0)" : : "r" (pd));
+}
+
+static inline void lidt(void* idt, uint32 size)
+{
+    volatile uint16 pd[5];
+
+    pd[0] = size-1;
+    pd[1] = (uint64)idt;
+    pd[2] = (uint64)idt >> 16;
+    pd[3] = (uint64)idt >> 32;
+    pd[4] = (uint64)idt >> 48;
+
+    __asm__ volatile("lidt (%0)" : : "r" (pd));
+}
+
+static inline void ltr(uint16 sel)
+{
+    __asm__ volatile("ltr %0" : : "r" (sel));
+}
+
+static inline void sti(void)
+{
+    __asm__ volatile("sti");
+}
+
+static inline void cli(void)
+{
+    __asm__ volatile("cli");
+}
+
 static inline void halt(void)
 {
         __asm__ volatile("hlt");
@@ -137,6 +178,21 @@ static inline uint32 change_bit(uint64 nr, void* addr)
                          :"=r" (oldbit),"=m" (*((unsigned *)(addr)))
                          :"r" (nr));
     return oldbit;
+}
+
+#define CMOS_ADDR_PORT		0x70
+#define CMOS_DATA_PORT		0x71
+
+static inline uint32 cmos_read(uint32 reg)
+{
+    outb(CMOS_ADDR_PORT, reg);
+    return inb(CMOS_DATA_PORT);
+}
+
+static inline void cmos_write(uint32 reg, uint32 value)
+{
+    outb(CMOS_ADDR_PORT, reg);
+    outb(CMOS_DATA_PORT, value);
 }
 
 

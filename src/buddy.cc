@@ -100,7 +100,6 @@ void buddy_t::init()
     atomic_set(&m_free_page_num, 0);
     uint64 pa = m_free_area.base;
     for (; pa < mem_end; pa += PAGE_SIZE) {
-        os()->uart()->kprintf("free %p\n", pa);
         free_pages(pa, 0);
     }
 
@@ -175,7 +174,7 @@ void buddy_t::free_pages(uint64 pa, uint32 order)
         address &= mask;
     }
 
-    os()->uart()->kprintf("free %p to order: %u\n", pa, order);
+    //os()->uart()->kprintf("free %p to order: %u\n", pa, order);
     add_to_head(m_free_area.free_list+order, (free_list_t *) PA2VA(address));
 }
 

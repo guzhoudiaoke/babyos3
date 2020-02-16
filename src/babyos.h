@@ -22,8 +22,10 @@
  *  2020-02-13		created
  */
 
+
 #ifndef _BABYOS_H_
 #define _BABYOS_H_
+
 
 #include "types.h"
 #include "uart.h"
@@ -31,6 +33,11 @@
 #include "console.h"
 #include "bootmem.h"
 #include "buddy.h"
+#include "i8259a.h"
+#include "i8254.h"
+#include "cpu.h"
+#include "rtc.h"
+
 
 class babyos_t {
 public:
@@ -41,12 +48,17 @@ public:
 
     void init();
     void run();
+    void update(uint64 tick);
 
     uart_t*    uart();
     vbe_t*     vbe();
     console_t* console();
     bootmem_t* bootmem();
     buddy_t*   buddy();
+    i8259a_t*  i8259a();
+    i8254_t*   i8254();
+    cpu_t*     cpu();
+    rtc_t*     rtc();
 
 private:
     uart_t    m_uart;
@@ -54,6 +66,10 @@ private:
     buddy_t   m_buddy;
     vbe_t     m_vbe;
     console_t m_console;
+    i8259a_t  m_i8259a;
+    i8254_t   m_i8254;
+    cpu_t     m_cpu;
+    rtc_t     m_rtc;
 };
 
 #define os() babyos_t::get_instance()

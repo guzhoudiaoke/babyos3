@@ -67,6 +67,27 @@ buddy_t* babyos_t::buddy()
     return &m_buddy;
 }
 
+i8259a_t* babyos_t::i8259a()
+{
+    return &m_i8259a;
+}
+
+i8254_t* babyos_t::i8254()
+{
+    return &m_i8254;
+}
+
+cpu_t* babyos_t::cpu()
+{
+    return &m_cpu;
+}
+
+rtc_t* babyos_t::rtc()
+{
+    return &m_rtc;
+}
+
+
 void test_buddy()
 {
     os()->buddy()->dump();
@@ -101,8 +122,26 @@ void babyos_t::init()
     uart()->puts("console init done\n");
     console()->kprintf(YELLOW, "Welcome to babyos!\n");
 
-    /* test buddy */
-    test_buddy();
+    /* 8259a */
+    m_i8259a.init();
+    uart()->puts("8259a init done\n");
+
+    /* 8254 */
+    m_i8254.init();
+    uart()->puts("8254 init done\n");
+
+    /* cpu */
+    m_cpu.init();
+    m_cpu.startup();
+    uart()->puts("cpu startup done\n");
+
+    /* rtc */
+    m_rtc.init();
+    uart()->puts("rtc init done\n");
+
+    /* start interrupt */
+    sti();
+    uart()->puts("sti done\n");
 }
 
 void babyos_t::run()
@@ -111,3 +150,21 @@ void babyos_t::run()
         halt();
     }
 }
+
+void babyos_t::update(uint64 tick)
+{
+    rtc()->update();
+
+    if (tick % 100 == 0) {
+        uart()->kprintf("tick: %ld\n", tick);
+        uint32 year, month, day, h, m, s;
+        year = rtc()->year();
+        month = rtc()->month();
+        day = rtc()->day();
+        h = rtc()->hour();
+        m = rtc()->minute();
+        s = rtc()->second();
+        console()->kprintf(GREEN, "%d-%d-%d %2d:%2d:%2d\n", 2000+year, month, day, h, m, s);
+    }
+}
+

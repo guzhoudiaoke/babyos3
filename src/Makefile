@@ -25,11 +25,16 @@ OBJS = \
 		bootmem.o \
 		buddy.o \
 		math.o \
+		i8259a.o \
+		i8254.o \
+		entry.o \
+	    cpu.o \
+		rtc.o \
 
 
 BOOTSIZE   = 1
 LOADERSIZE = 3
-KERNELSIZE = 200
+KERNELSIZE = 400
 FONTSIZE   = 8
 FONTLBA    = 2048
 FLOPPYSIZE = 1024
