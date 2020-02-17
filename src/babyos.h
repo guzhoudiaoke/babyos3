@@ -38,6 +38,21 @@
 #include "cpu.h"
 #include "rtc.h"
 #include "keyboard.h"
+#include "ide.h"
+#include "pool.h"
+
+
+enum pool_type_e {
+    VMA_POOL = 0,
+    PIPE_POOL,
+    TIMER_POOL,
+    MAX_POOL,
+};
+
+enum device_type_e {
+    DEV_CONSOLE = 0,
+    MAX_DEV,
+};
 
 
 class babyos_t {
@@ -50,6 +65,10 @@ public:
     void init();
     void run();
     void update(uint64 tick);
+    void panic(const char* s);
+
+    object_pool_t*  get_obj_pool(uint32 type);
+    object_pool_t*  get_obj_pool_of_size();
 
     uart_t*     uart();
     vbe_t*      vbe();
@@ -61,6 +80,11 @@ public:
     cpu_t*      cpu();
     rtc_t*      rtc();
     keyboard_t* keyboard();
+    ide_t*      ide();
+
+private:
+    void        init_pools();
+
 
 private:
     uart_t     m_uart;
@@ -73,6 +97,10 @@ private:
     cpu_t      m_cpu;
     rtc_t      m_rtc;
     keyboard_t m_keyboard;
+    ide_t      m_ide;
+
+    object_pool_t  m_pools[MAX_POOL];
+    object_pool_t  m_pool_of_size[SMALL_POOL_SIZE+1];
 };
 
 #define os() babyos_t::get_instance()

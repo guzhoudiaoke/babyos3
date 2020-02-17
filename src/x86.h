@@ -195,5 +195,24 @@ static inline void cmos_write(uint32 reg, uint32 value)
     outb(CMOS_DATA_PORT, value);
 }
 
+static inline uint32 xchg(volatile uint32 *addr, uint32 newval)
+{
+    uint32 result;
+
+    // "+m": read-modify-write operand
+    __asm__ volatile("lock; xchgl %0, %1" :
+                     "+m" (*addr), "=a" (result) :
+                     "1" (newval) :
+                     "cc");
+    return result;
+}
+
+
+#define mb() 	__asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
+#define rmb()	mb()
+#define wmb()	__asm__ __volatile__ ("": : :"memory")
+
+#define barrier() __asm__ __volatile__("": : :"memory")
+
 
 #endif

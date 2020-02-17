@@ -177,6 +177,9 @@ void cpu_t::do_interrupt(uint64 trapno)
     case IRQ_0 + IRQ_KEYBOARD:
         os()->keyboard()->do_irq();
         break;
+    case IRQ_0 + IRQ_HARDDISK:
+        os()->ide()->do_irq();
+        break;
     default:
         os()->console()->kprintf(RED, "Interrupt: %x not known.\n", trapno);
         break;

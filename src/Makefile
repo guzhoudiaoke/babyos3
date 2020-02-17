@@ -32,11 +32,15 @@ OBJS = \
 		rtc.o \
 		keyboard.o \
 		syscall.o \
+		spinlock.o \
+		ide.o \
+		pool.o \
+		io_buffer.o \
 
 
 BOOTSIZE   = 1
 LOADERSIZE = 3
-KERNELSIZE = 400
+KERNELSIZE = 800
 FONTSIZE   = 8
 FONTLBA    = 2048
 FLOPPYSIZE = 1024

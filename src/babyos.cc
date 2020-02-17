@@ -94,6 +94,11 @@ keyboard_t* babyos_t::keyboard()
     return &m_keyboard;
 }
 
+ide_t* babyos_t::ide()
+{
+    return &m_ide;
+}
+
 
 void test_buddy()
 {
@@ -111,6 +116,31 @@ void test_syscall()
     char str[100] = "Hello babyos, this is printed by syscall\n";
     os()->uart()->puts("test syscall\n");
     __asm__ volatile("int $0x80" : : "D" (WHITE), "S" (str), "a" (syscall_t::PRINT));
+}
+
+void test_ide()
+{
+    os()->uart()->puts("test ide\n");
+
+    io_buffer_t buffer;
+    memset(buffer.m_buffer, 0, 512);
+    request_t req;
+    req.init(0, 0, request_t::CMD_READ, &buffer);
+    os()->ide()->add_request(&req);
+
+    while (!buffer.m_done) {
+        halt();
+    }
+
+    os()->uart()->puts("test ide, read done\n");
+
+    for (int i = 0; i < SECT_SIZE/2; i++) {
+        if (i % 8 == 0) {
+            os()->console()->kprintf(PINK, "\n");
+        }
+        os()->console()->kprintf(PINK, "%4x ", ((uint16 *)buffer.m_buffer)[i]);
+    }
+    os()->console()->kprintf(PINK, "\n");
 }
 
 void babyos_t::init()
@@ -155,12 +185,18 @@ void babyos_t::init()
 
     /*keyboard */
     m_keyboard.init();
+    uart()->puts("keyboard init done\n");
+
+    /* ide */
+    m_ide.init(0);
+    uart()->puts("ide init done\n");
 
     /* start interrupt */
     sti();
     uart()->puts("sti done\n");
 
     test_syscall();
+    test_ide();
 }
 
 void babyos_t::run()
@@ -191,3 +227,24 @@ void babyos_t::update(uint64 tick)
     }
 }
 
+void babyos_t::panic(const char* s)
+{
+    cli();
+    m_console.kprintf(RED, "[BABYOS PANICED], %s\n", s);
+    while (1) {
+        halt();
+    }
+}
+
+object_pool_t* babyos_t::get_obj_pool(uint32 type)
+{
+    if (type >= MAX_POOL) {
+        return NULL;
+    }
+    return &m_pools[type];
+}
+
+object_pool_t*  babyos_t::get_obj_pool_of_size()
+{
+    return m_pool_of_size;
+}
