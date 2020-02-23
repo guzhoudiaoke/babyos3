@@ -61,8 +61,6 @@ void ide_t::init(uint32 dev)
 
 void ide_t::add_request(request_t* req)
 {
-    os()->uart()->kprintf("add request to ide\n");
-
     if (m_current == NULL) {
         m_current = req;
         do_request();
@@ -77,18 +75,12 @@ void ide_t::add_request(request_t* req)
 
 void ide_t::do_request()
 {
-    os()->uart()->kprintf("do request\n");
-
     if (m_current == NULL) {
         return;
     }
 
-    os()->uart()->kprintf("after check\n");
-
     uint32 lba = m_current->m_lba;
     wait();
-
-    os()->uart()->kprintf("after wait\n");
 
     outb(0x3f6, 0);     // generate interrupt
     outb(0x1f2, 1);     // sector num
@@ -98,26 +90,18 @@ void ide_t::do_request()
     outb(0x1f6, 0xe0 | ((m_current->m_dev & 0x1) << 4) | ((lba >> 24) & 0xff));
 
     if (m_current->m_cmd == request_t::CMD_READ) {
-        os()->uart()->kprintf("read0\n");
         outb(0x1f7, IO_CMD_READ);
-        os()->uart()->kprintf("read1\n");
     }
     else {
         outb(0x1f7, IO_CMD_WRITE);
         outsl(0x1f0, m_current->m_buffer->m_buffer, SECT_SIZE/4);
-        os()->uart()->kprintf("write\n");
     }
-
-    os()->uart()->kprintf("after do request\n");
 }
 
 void ide_t::end_request()
 {
-    os()->uart()->kprintf("end request\n");
-
     if (m_current->m_cmd == request_t::CMD_READ) {
         insl(0x1f0, m_current->m_buffer->m_buffer, SECT_SIZE/4);
-        os()->uart()->kprintf("read buffer\n");
     }
 
     m_current->m_buffer->done();
@@ -145,7 +129,6 @@ void ide_t::wait()
 
 void ide_t::do_irq()
 {
-    os()->uart()->kprintf("ide do irq\n");
     end_request();
 }
 

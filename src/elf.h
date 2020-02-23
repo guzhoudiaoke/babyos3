@@ -27,8 +27,10 @@
 #define _ELF_H_
 
 #include "types.h"
+#include "traps.h"
 
-// these structs copy from linux kernel 
+
+// these structs copy from linux kernel
 // include/uapi/linux/elf.h
 
 #define EI_NIDENT	16
@@ -74,6 +76,13 @@ typedef struct elf64_phdr {
     Elf64_Xword p_memsz;		/* Segment size in memory */
     Elf64_Xword p_align;		/* Segment alignment, file & memory */
 } elf64_phdr_t;
+
+
+class elf_t {
+public:
+    static int32 load(trap_frame_t* frame, const char* path);
+};
+
 
 #endif
 

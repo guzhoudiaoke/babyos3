@@ -61,6 +61,7 @@ void uart_t::early_init()
     }
 
     this->exist = true;
+    m_lock.init();
 }
 
 void uart_t::init()
@@ -83,10 +84,15 @@ void uart_t::putc(int c)
 
 void uart_t::puts(const char* s)
 {
+    uint64 flag = 0;
+    m_lock.lock_irqsave(flag);
+
     const char* p = s;
     for(; *p != '\0'; p++) {
         putc(*p);
     }
+
+    m_lock.unlock_irqrestore(flag);
 }
 
 /* only support %d %u %x %p %c %s, and seems enough for now */
@@ -97,6 +103,9 @@ void uart_t::kprintf(const char *fmt, ...)
         return;
     }
 
+    uint64 flag = 0;
+    m_lock.lock_irqsave(flag);
+
     memset(buffer, 0, c_buffer_size);
     va_list ap;
     va_start(ap, fmt);
@@ -106,4 +115,6 @@ void uart_t::kprintf(const char *fmt, ...)
     for (int i = 0; i < total; i++) {
         putc(buffer[i]);
     }
+
+    m_lock.unlock_irqrestore(flag);
 }

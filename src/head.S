@@ -37,7 +37,7 @@ _start:
 /*
  * function to set boot page table
  * map [0, 4GB) -> [0, 4GB)
- * map [0xffffffff80100000, 0xffffffffffffffff] -> [0, 2GB)
+ * map [0xffffffff80000000, 0xffffffffffffffff] -> [0, 2GB)
  * map [0xffff800000000000, 0xffff800000000000+4GB] -> [0, 4GB)
  */
 setup_page_table:

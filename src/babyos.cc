@@ -31,6 +31,11 @@
 static babyos_t babyos;
 
 
+void test_ide();
+void test_syscall();
+void test_fs();
+
+
 babyos_t* babyos_t::get_instance()
 {
     return &babyos;
@@ -99,6 +104,218 @@ ide_t* babyos_t::ide()
     return &m_ide;
 }
 
+process_mgr_t* babyos_t::process_mgr()
+{
+    return &m_process_mgr;
+}
+
+timer_mgr_t* babyos_t::timer_mgr()
+{
+    return &m_timer_mgr;
+}
+
+block_dev_t* babyos_t::block_dev()
+{
+    return &m_block_dev;
+}
+
+dev_op_t* babyos_t::get_dev(uint32 type)
+{
+    if (type >= MAX_DEV) {
+        return NULL;
+    }
+    return &m_devices[type];
+}
+
+file_system_t* babyos_t::fs()
+{
+    return &m_fs;
+}
+
+
+
+void babyos_t::init()
+{
+    m_panic = false;
+    delay_t::init(1000000000ULL);
+
+    /* serial port */
+    m_uart.early_init();
+    uart()->puts("Hello babyos..\n");
+
+    /* bootmem */
+    m_bootmem.init();
+    uart()->puts("boot mem init done\n");
+
+    /* buddy */
+    m_buddy.init();
+    uart()->puts("buddy init done\n");
+
+    /* pools */
+    init_pools();
+
+    /* VBE */
+    m_vbe.init();
+    uart()->puts("VBE init done\n");
+
+    /* console */
+    m_console.init();
+    uart()->puts("console init done\n");
+    console()->kprintf(YELLOW, "Welcome to babyos!\n");
+
+    /* 8259a */
+    m_i8259a.init();
+    uart()->puts("8259a init done\n");
+
+    /* 8254 */
+    m_i8254.init();
+    uart()->puts("8254 init done\n");
+
+    /* cpu */
+    m_cpu.init();
+    m_cpu.startup();
+    uart()->puts("cpu startup done\n");
+
+    /* rtc */
+    m_rtc.init();
+    uart()->puts("rtc init done\n");
+
+    /*keyboard */
+    m_keyboard.init();
+    uart()->puts("keyboard init done\n");
+
+    /* ide */
+    m_ide.init(1);
+    uart()->puts("ide init done\n");
+
+    /* block dev */
+    m_block_dev.init(1);
+    uart()->puts("block dev init done\n");
+
+    /* fs */
+    m_fs.init();
+    uart()->puts("fs init done\n");
+
+    /* timer manager */
+    m_timer_mgr.init();
+
+    /* process manager */
+    m_process_mgr.init();
+
+    /* start interrupt */
+    sti();
+    uart()->puts("sti done\n");
+
+    /* start the first user process: init */
+    start_init_proc();
+
+    //test_syscall();
+    //test_ide();
+    //test_fs();
+}
+
+void babyos_t::start_init_proc()
+{
+    current->set_cwd(os()->fs()->get_root());
+
+    int32 ret = 0;
+    __asm__ volatile("int $0x80" : "=a" (ret) : "a" (syscall_t::FORK));
+
+    if (ret == 0) {
+        os()->console()->kprintf(CYAN, "fork return, ret = 0, this is: %p, pid: %u, will do exec\n",
+                                 current, current->m_pid);
+        __asm__ volatile("int $0x80"
+                         : "=a" (ret)
+                         : "a" (syscall_t::EXEC), "D" ("/bin/init"), "S" (0));
+
+        os()->panic("exec return!\n");
+    }
+    else if (ret > 0) {
+        os()->console()->kprintf(GREEN, "fork return ret = %d, this is: %p, pid = %u\n",
+                                 ret, current, current->m_pid);
+    }
+    else {
+        os()->panic("fork failed\n");
+    }
+}
+
+void babyos_t::run()
+{
+    while (true) {
+        if (m_panic) {
+            cli();
+            while (1) {
+                halt();
+            }
+        }
+
+        while (process_mgr()->get_run_queue()->empty()) {
+            nop();
+        }
+        sti();
+        cpu()->schedule();
+    }
+}
+
+void show_time_now()
+{
+    uint32 year, month, day, h, m, s;
+    year = os()->rtc()->year();
+    month = os()->rtc()->month();
+    day = os()->rtc()->day();
+    h = os()->rtc()->hour();
+    m = os()->rtc()->minute();
+    s = os()->rtc()->second();
+    os()->uart()->kprintf("%d-%d-%d %2d:%2d:%2d\n", 2000+year, month, day, h, m, s);
+}
+
+void babyos_t::update(uint64 tick)
+{
+    cpu()->update();
+    rtc()->update();
+    timer_mgr()->update();
+
+    if (tick % 100 == 0) {
+        show_time_now();
+    }
+}
+
+void babyos_t::panic(const char* s)
+{
+    cli();
+    m_console.kprintf(RED, "[BABYOS PANICED], %s\n", s);
+    while (1) {
+        halt();
+    }
+}
+
+object_pool_t* babyos_t::get_obj_pool(uint32 type)
+{
+    if (type >= MAX_POOL) {
+        return NULL;
+    }
+    return &m_pools[type];
+}
+
+object_pool_t* babyos_t::get_obj_pool_of_size()
+{
+    return m_pool_of_size;
+}
+
+void babyos_t::init_pools()
+{
+    m_pools[VMA_POOL].init(sizeof(vm_area_t));
+    //m_pools[PIPE_POOL].init(sizeof(pipe_t));
+    m_pools[TIMER_POOL].init(sizeof(timer_t));
+
+    for (uint32 i = 1; i <= SMALL_POOL_SIZE; i++) {
+        m_pool_of_size[i].init(i);
+    }
+}
+
+
+
+/********************************************************************/
 
 void test_buddy()
 {
@@ -143,108 +360,27 @@ void test_ide()
     os()->console()->kprintf(PINK, "\n");
 }
 
-void babyos_t::init()
+void test_fs()
 {
-    /* serial port */
-    m_uart.early_init();
-    uart()->puts("Hello babyos..\n");
+    current->set_cwd(os()->fs()->get_root());
 
-    /* bootmem */
-    m_bootmem.init();
-    uart()->puts("boot mem init done\n");
-
-    /* buddy */
-    m_buddy.init();
-    uart()->puts("buddy init done\n");
-
-    /* VBE */
-    m_vbe.init();
-    uart()->puts("VBE init done\n");
-
-    /* console */
-    m_console.init();
-    uart()->puts("console init done\n");
-    console()->kprintf(YELLOW, "Welcome to babyos!\n");
-
-    /* 8259a */
-    m_i8259a.init();
-    uart()->puts("8259a init done\n");
-
-    /* 8254 */
-    m_i8254.init();
-    uart()->puts("8254 init done\n");
-
-    /* cpu */
-    m_cpu.init();
-    m_cpu.startup();
-    uart()->puts("cpu startup done\n");
-
-    /* rtc */
-    m_rtc.init();
-    uart()->puts("rtc init done\n");
-
-    /*keyboard */
-    m_keyboard.init();
-    uart()->puts("keyboard init done\n");
-
-    /* ide */
-    m_ide.init(0);
-    uart()->puts("ide init done\n");
-
-    /* start interrupt */
-    sti();
-    uart()->puts("sti done\n");
-
-    test_syscall();
-    test_ide();
-}
-
-void babyos_t::run()
-{
-    while (true) {
-        halt();
+    os()->uart()->kprintf("before open\n");
+    int fd = os()->fs()->do_open("/bin/test", file_t::MODE_RDWR);
+    os()->uart()->kprintf("after open: %d\n", fd);
+    if (fd < 0) {
+        os()->panic("BUG on open file test!\n");
     }
-}
 
-void show_time_now()
-{
-    uint32 year, month, day, h, m, s;
-    year = os()->rtc()->year();
-    month = os()->rtc()->month();
-    day = os()->rtc()->day();
-    h = os()->rtc()->hour();
-    m = os()->rtc()->minute();
-    s = os()->rtc()->second();
-    os()->uart()->kprintf("%d-%d-%d %2d:%2d:%2d\n", 2000+year, month, day, h, m, s);
-}
-
-void babyos_t::update(uint64 tick)
-{
-    rtc()->update();
-
-    if (tick % 100 == 0) {
-        show_time_now();
+    // 2. read elf from hard disk
+    char buf[2048];
+    memset(buf, 0, 2048);
+    os()->uart()->kprintf("before read: %d\n", fd);
+    if (os()->fs()->do_read(fd, buf, 2048) < 0) {
+        os()->panic("BUG on read file test!\n");
     }
+
+    os()->uart()->kprintf("after read: %d\n", fd);
+    os()->console()->kprintf(YELLOW, "\n\nThe content of /bin/test\n");
+    os()->console()->kprintf(CYAN, "%s", buf);
 }
 
-void babyos_t::panic(const char* s)
-{
-    cli();
-    m_console.kprintf(RED, "[BABYOS PANICED], %s\n", s);
-    while (1) {
-        halt();
-    }
-}
-
-object_pool_t* babyos_t::get_obj_pool(uint32 type)
-{
-    if (type >= MAX_POOL) {
-        return NULL;
-    }
-    return &m_pools[type];
-}
-
-object_pool_t*  babyos_t::get_obj_pool_of_size()
-{
-    return m_pool_of_size;
-}

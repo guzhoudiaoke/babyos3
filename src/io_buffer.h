@@ -29,6 +29,7 @@
 
 #include "types.h"
 #include "kernel.h"
+#include "sem.h"
 
 
 class io_buffer_t {
@@ -43,8 +44,8 @@ public:
 public:
     uint32          m_lba;
     uint32          m_done;
-    //semaphore_t     m_sem;
-    //semaphore_t     m_sem_wait_done;
+    semaphore_t     m_sem;
+    semaphore_t     m_sem_wait_done;
     uint8           m_buffer[SECT_SIZE];
 };
 

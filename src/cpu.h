@@ -29,6 +29,7 @@
 #include "types.h"
 #include "descriptor.h"
 #include "traps.h"
+#include "process.h"
 
 
 class cpu_t {
@@ -38,13 +39,21 @@ public:
 
     void init();
     void startup();
+    void update();
+
     void do_common_isr(trap_frame_t* frame);
+    process_t* get_idle_process();
+    void schedule();
+    void schedule_tail(process_t* proc);
+    tss_t* tss();
+
 
 private:
     void init_gdt();
     void init_idt();
     void init_tss();
     void init_isrs();
+    void init_idle();
 
     void do_exception(trap_frame_t* frame);
     void do_interrupt(uint64 trapno);
@@ -55,6 +64,9 @@ private:
     global_descriptor_t  m_gdt[GDT_LEN];
     gate_descriptor_s    m_idt[IDT_LEN];
     tss_t			     m_tss;
+
+    uint8*               m_kstack;
+    process_t*           m_idle;
 };
 
 

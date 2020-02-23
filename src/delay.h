@@ -29,9 +29,9 @@
 
 class delay_t {
 public:
-    static void init(uint32 freq);
-    static void ms_delay(uint32 ms);
-    static void us_delay(uint32 us);
+    static void init(uint64 freq);
+    static void ms_delay(uint64 ms);
+    static void us_delay(uint64 us);
 
 private:
     static void rdtsc_delay(uint64 delta);

@@ -70,8 +70,10 @@ typedef struct gate_descriptor_s {
 } gate_descriptor_t;
 
 
-/* tss struct defined in linux,
-   arch/x86/include/asm/processor.h */
+/*
+ * tss struct defined in linux,
+ * arch/x86/include/asm/processor.h
+ */
 typedef struct tss_hw_s {
     uint32          reserved1;
     uint64          sp0;

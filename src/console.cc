@@ -32,6 +32,50 @@ const color_ref_t c_background_color = RGB(0x40, 0, 0x30);
 const color_ref_t c_cursor_color     = RGB(0xff, 0xff, 0x00);
 
 
+
+static int console_read(inode_t* inode, void* buf, int size)
+{
+    os()->uart()->kprintf("console read: %p %d\n", buf, size);
+    return os()->console()->read(buf, size);
+}
+
+static int console_write(inode_t* inode, void* buf, int size)
+{
+    return os()->console()->write(buf, size);
+}
+
+/****************************************************************/
+
+void input_buffer_t::init()
+{
+    m_read_index = 0;
+    m_write_index = 0;
+    m_edit_index = 0;
+    memset(m_buffer, 0, BUFFER_SIZE);
+}
+
+void input_buffer_t::input(char ch)
+{
+    if (ch == '\b') {
+        if (m_edit_index == m_write_index) {
+            return;
+        }
+        m_edit_index--;
+    }
+    else if (ch == '\n') {
+        m_buffer[m_edit_index++ % BUFFER_SIZE] = ch;
+        m_write_index = m_edit_index;
+        os()->console()->wakeup_reader();
+    }
+    else {
+        m_buffer[m_edit_index++ % BUFFER_SIZE] = ch;
+    }
+    os()->console()->write(&ch, 1);
+}
+
+/****************************************************************/
+
+
 console_t::console_t()
 {
 }
@@ -45,7 +89,16 @@ void console_t::init()
     m_col_num = os()->vbe()->width() / c_asc16_width;
     m_row     = 0;
     m_col     = 0;
+
+    m_tick_to_update = HZ;
     m_show_cursor = true;
+
+    m_lock.init();
+    m_input_buffer.init();
+    m_wait_queue.init();
+
+    os()->get_dev(DEV_CONSOLE)->read = console_read;
+    os()->get_dev(DEV_CONSOLE)->write = console_write;
 
     draw_background();
     draw_cursor();
@@ -176,6 +229,9 @@ void console_t::kprintf(color_ref_t color, const char *fmt, ...)
         return;
     }
 
+    uint64 flags;
+    m_lock.lock_irqsave(flags);
+
     memset(buffer, 0, c_buffer_size);
     va_list ap;
     va_start(ap, fmt);
@@ -185,5 +241,72 @@ void console_t::kprintf(color_ref_t color, const char *fmt, ...)
     for (int i = 0; i < total; i++) {
         putc(buffer[i], color);
     }
+
+    m_lock.unlock_irqrestore(flags);
+}
+
+void console_t::update()
+{
+    if (--m_tick_to_update != 0) {
+        return;
+    }
+
+    /* reset tick to update */
+    m_tick_to_update = HZ;
+    m_show_cursor = !m_show_cursor;
+    draw_cursor();
+}
+
+void console_t::do_input(char ch)
+{
+    if (ch != 0) {
+        m_tick_to_update = HZ;
+        m_show_cursor = true;
+
+        if (ch == '\t') {
+            for (uint32 i = 0; i < (4 - m_col % 4); i++) {
+                m_input_buffer.input(' ');
+            }
+        }
+        else {
+            m_input_buffer.input(ch);
+        }
+    }
+}
+
+int console_t::read(void* buf, int size)
+{
+    char *p = (char *) buf;
+    int left = size;
+    while (left > 0) {
+        if (m_input_buffer.m_read_index == m_input_buffer.m_write_index) {
+            current->sleep_on(&m_wait_queue);
+        }
+        char c = m_input_buffer.m_buffer[m_input_buffer.m_read_index++ % BUFFER_SIZE];
+        *p++ = c;
+        --left;
+        if (c == '\n') {
+            break;
+        }
+    }
+
+    return size - left;
+}
+
+int console_t::write(void* buf, int size)
+{
+    uint64 flags;
+    m_lock.lock_irqsave(flags);
+    for (int i = 0; i < size; i++) {
+        putc(((char *) buf)[i], WHITE);
+    }
+    m_lock.unlock_irqrestore(flags);
+
+    return size;
+}
+
+void console_t::wakeup_reader()
+{
+    m_wait_queue.wake_up();
 }
 

@@ -29,6 +29,21 @@
 #include "types.h"
 #include "color.h"
 #include "string.h"
+#include "spinlock.h"
+#include "waitqueue.h"
+
+
+#define BUFFER_SIZE     1024
+typedef struct input_buffer_s {
+    void init();
+    void input(char ch);
+
+    unsigned    m_read_index;
+    unsigned    m_write_index;
+    unsigned    m_edit_index;
+    char        m_buffer[BUFFER_SIZE];
+} input_buffer_t;
+
 
 
 class console_t {
@@ -62,6 +77,9 @@ private:
 	uint32          m_col;
     uint32          m_tick_to_update;
     bool            m_show_cursor;
+    spinlock_t      m_lock;
+    input_buffer_t  m_input_buffer;
+    wait_queue_t    m_wait_queue;
 };
 
 

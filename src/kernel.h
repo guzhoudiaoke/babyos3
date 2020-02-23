@@ -35,7 +35,7 @@
 #define BOOT_PML4           (0x3000)
 #define BOOT_PD_PTR0        (0x4000)
 #define BOOT_PG_DIRS        (0x5000)    /* 4 page dirs, [0x5000, 0x9000) */
-#define BOOT_STACK_BOTTOM   (0xd000)    /* size 16kb,   [0x9000, 0xd000) */
+#define BOOT_STACK_BOTTOM   (0xe000)    /* size 8kb,   [0xc000, 0xe000) */
 
 /* video info */
 #define BOOT_INFO_ADDR		(0xe000)    /* 56k, boot info address, should under 64k */
@@ -80,7 +80,19 @@
 #define KERNEL_LOAD_BASE    0xffffffff80000000ULL
 #define KERNEL_LOAD_EXT     0x0000000000100000ULL
 #define KERNEL_LOAD_ADDR    (KERNEL_LOAD_BASE + KERNEL_LOAD_EXT)
+
 #define KERNEL_STACK_BOTTOM (KERNEL_LOAD_BASE + BOOT_STACK_BOTTOM)
+//#define KERNEL_STACK_BOTTOM 0xffffffff8000d000ULL
+//#define KERNEL_STACK_BOTTOM 0xffffffff80100000ULL
+#define KERNEL_STACK_SIZE   (8192)
+
+
+
+
+/* kernel base address */
+#define KERNEL_BASE         (0xffff800000000000ull)
+#define USER_STACK_TOP      (0x0000800000000000ull)
+
 
 
 #endif

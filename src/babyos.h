@@ -40,6 +40,10 @@
 #include "keyboard.h"
 #include "ide.h"
 #include "pool.h"
+#include "process_mgr.h"
+#include "timer_mgr.h"
+#include "block_dev.h"
+#include "fs.h"
 
 
 enum pool_type_e {
@@ -70,37 +74,51 @@ public:
     object_pool_t*  get_obj_pool(uint32 type);
     object_pool_t*  get_obj_pool_of_size();
 
-    uart_t*     uart();
-    vbe_t*      vbe();
-    console_t*  console();
-    bootmem_t*  bootmem();
-    buddy_t*    buddy();
-    i8259a_t*   i8259a();
-    i8254_t*    i8254();
-    cpu_t*      cpu();
-    rtc_t*      rtc();
-    keyboard_t* keyboard();
-    ide_t*      ide();
+    uart_t*         uart();
+    vbe_t*          vbe();
+    console_t*      console();
+    bootmem_t*      bootmem();
+    buddy_t*        buddy();
+    i8259a_t*       i8259a();
+    i8254_t*        i8254();
+    cpu_t*          cpu();
+    rtc_t*          rtc();
+    keyboard_t*     keyboard();
+    ide_t*          ide();
+    process_mgr_t*  process_mgr();
+    timer_mgr_t*    timer_mgr();
+    block_dev_t*    block_dev();
+    dev_op_t*       get_dev(uint32 type);
+    file_system_t*  fs();
+
+
 
 private:
-    void        init_pools();
+    void            init_pools();
+    void            start_init_proc();
 
 
 private:
-    uart_t     m_uart;
-    bootmem_t  m_bootmem;
-    buddy_t    m_buddy;
-    vbe_t      m_vbe;
-    console_t  m_console;
-    i8259a_t   m_i8259a;
-    i8254_t    m_i8254;
-    cpu_t      m_cpu;
-    rtc_t      m_rtc;
-    keyboard_t m_keyboard;
-    ide_t      m_ide;
+    bool           m_panic;
+    uart_t         m_uart;
+    bootmem_t      m_bootmem;
+    buddy_t        m_buddy;
+    vbe_t          m_vbe;
+    console_t      m_console;
+    i8259a_t       m_i8259a;
+    i8254_t        m_i8254;
+    cpu_t          m_cpu;
+    rtc_t          m_rtc;
+    keyboard_t     m_keyboard;
+    ide_t          m_ide;
+    block_dev_t    m_block_dev;
+    file_system_t  m_fs;
 
+    process_mgr_t  m_process_mgr;
+    timer_mgr_t    m_timer_mgr;
     object_pool_t  m_pools[MAX_POOL];
     object_pool_t  m_pool_of_size[SMALL_POOL_SIZE+1];
+    dev_op_t       m_devices[MAX_DEV];
 };
 
 #define os() babyos_t::get_instance()

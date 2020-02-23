@@ -66,7 +66,7 @@ void* object_pool_t::alloc_from_pool()
     uint64 flags;
     m_lock.lock_irqsave(flags);
 	if (m_free_list == NULL) {
-		uint8* mem = (uint8 *) os()->buddy()->alloc_pages(0);
+		uint8* mem = (uint8 *) PA2VA(os()->buddy()->alloc_pages(0));
 		uint8* end = mem + PAGE_SIZE;
 		while (mem + m_obj_size <= end) {
 			free_object_nolock(mem);

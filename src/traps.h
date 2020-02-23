@@ -74,4 +74,17 @@ typedef struct trap_frame_s {
 } trap_frame_t;
 
 
+typedef struct fork_frame_s {
+    uint64 r15;
+    uint64 r14;
+    uint64 r13;
+    uint64 r12;
+    uint64 rbx;
+    uint64 rbp;
+    uint64 ret_addr;
+
+    trap_frame_t trap_frame;
+} fork_frame_t;
+
+
 #endif

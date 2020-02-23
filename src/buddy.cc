@@ -134,6 +134,7 @@ uint64 buddy_t::alloc_pages(uint32 order)
     uint32 new_order = order;
     do {
         free_list_t* next = queue->next;
+        os()->uart()->kprintf("alloc pages, next: %p, new_order: %u\n", next, new_order);
         if (queue != next) {
             queue->next = next->next;
             next->next->prev = queue;
@@ -144,6 +145,7 @@ uint64 buddy_t::alloc_pages(uint32 order)
         queue++;
     } while (new_order <= MAX_ORDER);
 
+    os()->uart()->kprintf("!!!!alloc_pages failed\n");
     return 0;
 }
 

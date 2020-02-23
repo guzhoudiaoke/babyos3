@@ -29,9 +29,22 @@
 #include "types.h"
 
 
-#define local_irq_save(x)	    __asm__ __volatile__("pushfq ; popq %0 ; cli":"=g" (x): /* no input */ :"memory")
-#define restore_flags(x) 	    __asm__ __volatile__("pushq %0 ; popfq": /* no output */ :"g" (x):"memory", "cc")
-#define local_irq_restore(x)	restore_flags(x)
+#define local_irq_save(x)	\
+    __asm__ __volatile__(   \
+        "pushfq ; popq %0 ; cli" \
+        :"=g" (x)           \
+        : /* no input */    \
+        :"memory")
+
+#define restore_flags(x)    \
+    __asm__ __volatile__(   \
+        "pushq %0 ; popfq"  \
+        : /* no output */   \
+        :"g" (x)            \
+        :"memory", "cc")
+
+#define local_irq_restore(x) \
+    restore_flags(x)
 
 
 class spinlock_t {
@@ -40,7 +53,7 @@ public:
     ~spinlock_t();
 
     void init();
-    uint32 holding();
+    bool holding();
     void lock();
     void unlock();
 

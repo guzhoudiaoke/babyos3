@@ -26,6 +26,7 @@
 #include "rtc.h"
 #include "i8254.h"
 #include "x86.h"
+#include "babyos.h"
 
 
 rtc_t::rtc_t()

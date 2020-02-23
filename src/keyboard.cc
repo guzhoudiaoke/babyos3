@@ -105,7 +105,8 @@ void keyboard_t::do_irq()
 	uint8 scan_code = inb(0x60);       /* read scan code */
     char ch = parse_scan_code(scan_code);
     if (ch != '\0') {
-        os()->console()->kprintf(WHITE, "%c", ch);
+        //os()->console()->kprintf(WHITE, "%c", ch);
+        os()->console()->do_input(ch);
     }
 
 	outb(0x20, 0x20);

@@ -25,6 +25,10 @@
 #ifndef _UART_H_
 #define _UART_H_
 
+
+#include "spinlock.h"
+
+
 class uart_t {
 public:
     uart_t();
@@ -37,7 +41,8 @@ public:
     void kprintf(const char *fmt, ...);
 
 private:
-    bool exist;
+    bool       exist;
+    spinlock_t m_lock;
 };
 
 #endif

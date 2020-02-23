@@ -9,3 +9,15 @@ kernel
 GPATH
 GRTAGS
 GTAGS
+init
+shell
+rm
+mkdir
+ls
+ln
+cat
+cp
+mv
+ping
+tags
+cscope.*

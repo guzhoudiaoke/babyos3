@@ -57,13 +57,18 @@
 .global isr_vector
 .global ret_from_isr
 .global ret_from_fork
+.global switch_to_asm
+
 
 
 need_resched = 0
 sig_pending  = 4
 
+frame_cs = (18*8)
+
 
 #define SAVE_ALL                  \
+    cld                       ;   \
     push %r15                 ;   \
 	push %r14                 ;   \
 	push %r13                 ;   \
@@ -99,12 +104,68 @@ sig_pending  = 4
 	pop %r15                  ;   \
 
 
+#define GET_CURRENT(reg)         \
+	movq $-8192,reg          ;   \
+	andq %rsp,  reg          ;   \
+
+
+/*
+ * %rdi: prev task
+ * %rsi: next task
+ * %rdx: &prev->context->rsp
+ * %rcx: &next->context->rsp
+ */
+switch_to_asm:
+	/*
+	 * Save callee-saved registers
+	 * This must match the order in inactive_task_frame
+	 */
+	pushq	%rbp
+	pushq	%rbx
+	pushq	%r12
+	pushq	%r13
+	pushq	%r14
+	pushq	%r15
+
+	/* switch stack */
+	movq	%rsp, (%rdx)
+	movq	(%rcx), %rsp
+
+	/* restore callee-saved registers */
+	popq	%r15
+	popq	%r14
+	popq	%r13
+	popq	%r12
+	popq	%rbx
+	popq	%rbp
+
+	jmp	__switch_to
+
+
+reschedule:
+	call    schedule
+	jmp	    restore_all
+
+ret_from_fork:
+    movq    %rax,           %rdi
+	call	schedule_tail
+    movq    %rsp,           %rdi
+	jmp		restore_all
+
 common_interrupt:
     SAVE_ALL
-    mov  %rsp, %rdi
-	call do_common_isr
+    mov     %rsp,           %rdi
+	call    do_common_isr
 ret_from_intr:
-	#cli
+    movb    frame_cs(%rsp), %al
+    testb   $0x3,           %al
+    jz      restore_all
+
+    GET_CURRENT(%rbx)
+    cli
+    cmpl    $0,             need_resched(%rbx)
+    jne     reschedule
+
 restore_all:
 	RESTORE_ALL
 	add     $16,            %rsp

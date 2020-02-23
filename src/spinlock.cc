@@ -39,7 +39,7 @@ void spinlock_t::init()
     m_locked = 0;
 }
 
-uint32 spinlock_t::holding()
+bool spinlock_t::holding()
 {
     return (m_locked == 1);
 }
@@ -105,3 +105,4 @@ locker_t::~locker_t()
 }
 
 /********************************************************************************************/
+

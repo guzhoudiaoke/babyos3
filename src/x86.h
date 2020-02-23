@@ -142,11 +142,12 @@ static inline void halt(void)
         __asm__ volatile("hlt");
 }
 
-#define rdtsc(low, high) \
-    __asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high))
-
-#define rdtsc64(val) \
-    __asm__ __volatile__("rdtsc" : "=A" (val))
+static inline uint64 rdtsc()
+{
+    uint32 low, high;
+    __asm__ __volatile__("rdtsc" : "=a" (low), "=d" (high));
+    return ((uint64) high << 32) | low;
+}
 
 static inline void nop(void)
 {
@@ -208,7 +209,7 @@ static inline uint32 xchg(volatile uint32 *addr, uint32 newval)
 }
 
 
-#define mb() 	__asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
+#define mb() 	__asm__ __volatile__ ("lock; addq $0,0(%%rsp)": : :"memory")
 #define rmb()	mb()
 #define wmb()	__asm__ __volatile__ ("": : :"memory")
 

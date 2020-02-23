@@ -122,12 +122,14 @@ void vbe_t::clip(rect_t* rect)
 
 void vbe_t::fill_rectangle(rect_t rect, color_ref_t color)
 {
-    //for (uint32 y = 0; y < rect.height; ++y)
-    //{
-    //    for (uint32 x = 0; x < rect.width; ++x) {
-    //        set_pixel(rect.left + x, rect.top + y, color);
-    //    }
-    //}
+#if 0
+    for (uint32 y = 0; y < rect.height; ++y)
+    {
+        for (uint32 x = 0; x < rect.width; ++x) {
+            set_pixel(rect.left + x, rect.top + y, color);
+        }
+    }
+#endif
 
     clip(&rect);
     if (rect.width == 0 || rect.height == 0) {

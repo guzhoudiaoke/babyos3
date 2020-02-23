@@ -32,6 +32,12 @@
 
 
 extern uint64 isr_vector[];
+extern process_t* switch_to_asm(process_t* prev,
+                                process_t* next,
+                                uint64* prev_context_esp,
+                                uint64* next_context_esp) __asm__ ("switch_to_asm");
+
+
 
 static const char* exception_msg[] = {
     "int0  #DE divide error",
@@ -60,6 +66,39 @@ extern "C" void do_common_isr(trap_frame_t* frame)
     os()->cpu()->do_common_isr(frame);
 }
 
+extern "C" void schedule()
+{
+    os()->cpu()->schedule();
+}
+
+
+extern "C" void schedule_tail(process_t* proc)
+{
+    os()->cpu()->schedule_tail(proc);
+}
+
+extern "C" process_t* __switch_to(process_t* prev, process_t* next)
+{
+    tss_t* tss = os()->cpu()->tss();
+    tss->x86_tss.sp0 = (uint64)next->m_kstack;
+
+    os()->uart()->kprintf("switch %p(%d) -> %p(%d)\n", prev, prev->m_pid, next, next->m_pid);
+    return prev;
+}
+
+
+#define switch_to(prev, next, last)                             \
+    do {                                                        \
+        ((last) = switch_to_asm(                                \
+            (prev),                                             \
+            (next),                                             \
+            &(prev)->m_context.rsp,                             \
+            &(next)->m_context.rsp)                             \
+            );                                                  \
+    } while (0)
+
+
+/***************************************************************************/
 
 
 cpu_t::cpu_t()
@@ -72,6 +111,8 @@ cpu_t::~cpu_t()
 
 void cpu_t::init()
 {
+    m_kstack = (uint8 *) (KERNEL_STACK_BOTTOM);
+    m_idle = (process_t *) (m_kstack - KERNEL_STACK_SIZE);
 }
 
 void cpu_t::startup()
@@ -79,15 +120,16 @@ void cpu_t::startup()
     init_gdt();
     init_idt();
     init_tss();
+    init_idle();
 }
 
 void cpu_t::init_gdt()
 {
     set_global_descriptor(&m_gdt[SEG_NULL],  0x0000000000000000ULL);
-    set_global_descriptor(&m_gdt[SEG_KCODE], 0x00af9a0000000000ULL);
-    set_global_descriptor(&m_gdt[SEG_KDATA], 0x00cf920000000000ULL);
-    set_global_descriptor(&m_gdt[SEG_UCODE], 0x00cffa0000000000ULL);
-    set_global_descriptor(&m_gdt[SEG_UDATA], 0x00cff20000000000ULL);
+    set_global_descriptor(&m_gdt[SEG_KCODE], 0x0020980000000000ULL);
+    set_global_descriptor(&m_gdt[SEG_KDATA], 0x0000920000000000ULL);
+    set_global_descriptor(&m_gdt[SEG_UCODE], 0x0020f80000000000ULL);
+    set_global_descriptor(&m_gdt[SEG_UDATA], 0x0000f20000000000ULL);
 
     lgdt(m_gdt, sizeof(uint64) * (GDT_LEN));
 }
@@ -97,10 +139,9 @@ void cpu_t::init_tss()
     memset(&m_tss, 0, sizeof(tss_t));
 
     /* set kstack */
-    uint64 kstack = (uint64) PA2VA(os()->buddy()->alloc_pages(3));
-    m_tss.x86_tss.sp0 = kstack;
-    m_tss.x86_tss.sp1 = kstack;
-    m_tss.x86_tss.sp2 = kstack;
+    m_tss.x86_tss.sp0 = (uint64) m_kstack;
+    m_tss.x86_tss.sp1 = (uint64) m_kstack;
+    m_tss.x86_tss.sp2 = (uint64) m_kstack;
 
     /* set interrupt stack table */
     uint64 ist = (uint64) PA2VA(os()->buddy()->alloc_pages(3));
@@ -148,15 +189,16 @@ void cpu_t::init_isrs()
 void cpu_t::do_exception(trap_frame_t* frame)
 {
     uint64 trapno = frame->trapno;
+
     if (trapno <= 0x10) {
         if (trapno == INT_PF) {
-            //current->m_vmm.do_page_fault(frame);
+            current->m_vmm.do_page_fault(frame);
             return;
         }
 
-        os()->console()->kprintf(RED, "Exception: %s\n", exception_msg[trapno]);
-        //os()->console()->kprintf(RED, "current: %p, pid: %p\n", current, current->m_pid);
-        os()->console()->kprintf(RED, "errno: %x, eip: %x, cs: %x, esp: %x\n",
+        os()->console()->kprintf(RED, "Exception: %s, current: %p, errno: %x, rip: %p, cs: %p, rsp: %p\n",
+                                 exception_msg[trapno], current, frame->err, frame->rip, frame->cs, frame->rsp);
+        os()->uart()->kprintf("errno: %x, rip: %p, cs: %p, rsp: %p\n",
                                  frame->err, frame->rip, frame->cs, frame->rsp);
     }
     else {
@@ -188,7 +230,6 @@ void cpu_t::do_interrupt(uint64 trapno)
 
 void cpu_t::do_syscall(trap_frame_t* frame)
 {
-    os()->uart()->puts("do syscall\n");
     syscall_t::do_syscall(frame);
 }
 
@@ -203,6 +244,102 @@ void cpu_t::do_common_isr(trap_frame_t* frame)
     }
     else {
         do_interrupt(trapno);
+    }
+}
+
+void cpu_t::init_idle()
+{
+    os()->uart()->kprintf("init idle: %p\n", m_idle);
+
+    m_idle->m_pid = 0;
+    m_idle->m_kstack = m_kstack;
+    memset(&m_idle->m_context, 0, sizeof(context_t));
+    strcpy(m_idle->m_name, "idle");
+    m_idle->m_state = process_t::RUNNING;
+    m_idle->m_context.rsp = ((uint64) m_kstack);
+    m_idle->m_timeslice = 2;
+    m_idle->m_need_resched = 0;
+    //m_idle->m_sig_queue.init(os()->get_obj_pool_of_size());
+    //m_idle->m_sig_pending = 0;
+    //m_idle->m_signal.init();
+
+    m_idle->m_vmm.init();
+    m_idle->m_vmm.set_pml4_table(os()->bootmem()->get_pml4());
+    m_idle->m_children.init(os()->get_obj_pool_of_size());
+    m_idle->m_wait_child.init();
+    for (int i = 0; i < MAX_OPEN_FILE; i++) {
+        m_idle->m_files[i] = NULL;
+    }
+}
+
+process_t* cpu_t::get_idle_process()
+{
+    return m_idle;
+}
+
+void cpu_t::schedule()
+{
+    process_t* prev = current;
+    process_t* next = m_idle;
+
+    list_t<process_t *>* run_queue = os()->process_mgr()->get_run_queue();
+    spinlock_t* rq_lock = os()->process_mgr()->get_rq_lock();
+    uint64 flags;
+    rq_lock->lock_irqsave(flags);
+
+    list_t<process_t *>::iterator it = run_queue->begin();
+    while (it != run_queue->end()) {
+        process_t* p = *it;
+        if (p->m_state == process_t::RUNNING && p->m_has_cpu == 0) {
+            next = p;
+            run_queue->erase(it);
+            break;
+        }
+        it++;
+    }
+
+    prev->m_need_resched = 0;
+    if (next == prev) {
+        rq_lock->unlock_irqrestore(flags);
+        return;
+    }
+
+    if (prev != next && prev->m_pid != 0 && prev->m_state == process_t::RUNNING) {
+        if (run_queue->find(prev) == run_queue->end()) {
+            run_queue->push_back(prev);
+        }
+    }
+
+    next->m_has_cpu = 1;
+    rq_lock->unlock_irqrestore(flags);
+
+    /* switch mm */
+    set_cr3(VA2PA(next->m_vmm.get_pml4_table()));
+
+    /* switch registers and stack */
+    switch_to(prev, next, prev);
+
+    schedule_tail(prev);
+}
+
+void cpu_t::schedule_tail(process_t* proc)
+{
+    proc->lock();
+    proc->m_has_cpu = 0;
+    proc->unlock();
+    mb();
+}
+
+tss_t* cpu_t::tss()
+{
+    return &m_tss;
+}
+
+void cpu_t::update()
+{
+    if (--current->m_timeslice == 0) {
+        current->m_need_resched = 1;
+        current->m_timeslice = 2;
     }
 }
 

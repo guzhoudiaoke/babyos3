@@ -69,12 +69,12 @@ public:
         iterator& operator --() {
             m_ptr = m_ptr->m_prev;
         }
-        iterator& operator ++(int) {
+        iterator operator ++(int) {
             list_t::iterator it(m_ptr);
             m_ptr = m_ptr->m_next;
             return it;
         }
-        iterator& operator --(int) {
+        iterator operator --(int) {
             list_t::iterator it(m_ptr);
             m_ptr = m_ptr->m_prev;
             return it;
@@ -149,6 +149,7 @@ public:
             push_back(p->m_data);
             p = p->m_next;
         }
+        return *this;
     }
 
     list_node_t<T>* alloc_node(const T& data) {

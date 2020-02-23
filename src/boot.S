@@ -153,8 +153,9 @@ save_video_info:
 	ret
 
 
-
-/* function to get memory info by 0xe820 */
+/*
+ * function to get memory info by 0xe820
+ */
 get_mem_info:
     xorl    %eax,           %eax
 	movw	%ax,			%es

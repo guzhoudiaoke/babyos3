@@ -11,6 +11,8 @@ CPPFLAGS += -mcmodel=kernel -fno-pic -static -fno-builtin -fno-strict-aliasing
 CPPFLAGS += -MD -fno-omit-frame-pointer -ffreestanding -fno-common -nostdlib
 CPPFLAGS += -gdwarf-2 -DX64 -mtls-direct-seg-refs -mno-red-zone
 ASFLAGS  = -g -m64
+QEMU     = qemu-system-x86_64
+NAME     = babyos3
 
 
 OBJS = \
@@ -36,27 +38,55 @@ OBJS = \
 		ide.o \
 		pool.o \
 		io_buffer.o \
+		process.o \
+		process_mgr.o \
+		timer.o \
+		timer_mgr.o \
+		waitqueue.o \
+		vm.o \
+		elf.o \
+		fs.o \
+		inode.o \
+		block_dev.o \
+		file_table.o \
+		file.o \
+		sem.o \
+
+USERAPP = \
+		init \
+		shell \
+		ls \
+		cat \
+		ln \
+		mkdir \
+		rm \
+		cp \
+		mv \
 
 
 BOOTSIZE   = 1
 LOADERSIZE = 3
-KERNELSIZE = 800
+KERNELSIZE = 1024
 FONTSIZE   = 8
 FONTLBA    = 2048
 FLOPPYSIZE = 1024
 DISKSIZE   = 4096
-babyos: boot loader kernel
+FSSIZE     = 4096
+babyos: boot loader kernel ${USERAPP}
 	../tool/checksize boot   ${BOOTSIZE}
 	../tool/checksize loader ${LOADERSIZE}
 	../tool/checksize kernel ${KERNELSIZE}
 
 	dd if=/dev/zero of=boot.img    ibs=512 seek=0 count=${FLOPPYSIZE}
 	dd if=/dev/zero of=baby_hd.img ibs=512 seek=0 count=${DISKSIZE}
+	dd if=/dev/zero of=fs.img      ibs=512 seek=0 count=${FSSIZE}
 
 	dd if=boot              of=boot.img    ibs=512 seek=0 			  	count=${BOOTSIZE}   conv=notrunc
 	dd if=loader            of=baby_hd.img ibs=512 seek=0 			  	count=${LOADERSIZE} conv=notrunc
 	dd if=kernel            of=baby_hd.img ibs=512 seek=${LOADERSIZE} 	count=${KERNELSIZE} conv=notrunc
 	dd if=../res/font/ASC16 of=baby_hd.img ibs=512 seek=${FONTLBA}      count=${FONTSIZE}   conv=notrunc
+
+	../tool/mkfs ./init ./shell ./ls ./cat ./cat ./ln ./mkdir ./rm ./cp ./mv
 
 
 boot: boot.S
@@ -72,6 +102,54 @@ loader: head.S loadmain.cc
 kernel: ${OBJS} kernel.ld
 	${LD} ${LDFLAGS} -T kernel.ld -o kernel ${OBJS}
 
+
+userlib.o: userlib.cc
+	${CPP} ${CPPFLAGS} -O -c userlib.cc
+
+init: init.cc userlib.o
+	${CPP} ${CPPFLAGS} -O -c init.cc
+	${LD} ${LDFLAGS} -e main -Ttext 0x1000 -o init init.o userlib.o
+
+shell: shell.cc userlib.o
+	${CPP} ${CPPFLAGS} -O -c shell.cc
+	${LD} ${LDFLAGS} -e main -Ttext 0x1000 -o shell shell.o userlib.o
+
+ls: ls.cc userlib.o
+	${CPP} ${CPPFLAGS} -O -c ls.cc
+	${LD} ${LDFLAGS} -e main -Ttext 0x1000 -o ls ls.o userlib.o
+
+ln: ln.cc userlib.o
+	${CPP} ${CPPFLAGS} -O -c ln.cc
+	${LD} ${LDFLAGS} -e main -Ttext 0x1000 -o ln ln.o userlib.o
+
+rm: rm.cc userlib.o
+	${CPP} ${CPPFLAGS} -O -c rm.cc
+	${LD} ${LDFLAGS} -e main -Ttext 0x1000 -o rm rm.o userlib.o
+
+cat: cat.cc userlib.o
+	${CPP} ${CPPFLAGS} -O -c cat.cc
+	${LD} ${LDFLAGS} -e main -Ttext 0x1000 -o cat cat.o userlib.o
+
+mkdir: mkdir.cc userlib.o
+	${CPP} ${CPPFLAGS} -O -c mkdir.cc
+	${LD} ${LDFLAGS} -e main -Ttext 0x1000 -o mkdir mkdir.o userlib.o
+
+cp: cp.cc userlib.o
+	${CPP} ${CPPFLAGS} -O -c cp.cc
+	${LD} ${LDFLAGS} -e main -Ttext 0x1000 -o cp cp.o userlib.o
+
+mv: mv.cc userlib.o
+	${CPP} ${CPPFLAGS} -O -c mv.cc
+	${LD} ${LDFLAGS} -e main -Ttext 0x1000 -o mv mv.o userlib.o
+
+ping: ping.cc userlib.o
+	${CPP} ${CPPFLAGS} -O -c ping.cc
+	${LD} ${LDFLAGS} -e main -Ttext 0x1000 -o ping ping.o userlib.o
+
+
+
+
+
 %.o: %.c
 	$(CPP) $(CPPFLAGS) -c $< -o  $@
 
@@ -81,3 +159,10 @@ kernel: ${OBJS} kernel.ld
 
 clean:
 	rm -f boot loader kernel *.o *.img *.elf *.d
+
+qemu: boot.img baby_hd.img fs.img
+	${QEMU} -fda boot.img -hda baby_hd.img -hdb fs.img -serial mon:stdio -m 4 -name ${NAME}
+
+
+qemudebug: boot.img baby_hd.img fs.img
+	${QEMU} -fda boot.img -hda baby_hd.img -hdb fs.img -serial mon:stdio -m 4 -name ${NAME} -s -S

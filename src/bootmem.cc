@@ -251,3 +251,9 @@ uint64 bootmem_t::get_end_usable_pa()
 {
     return m_end_pa;
 }
+
+pml4e_t* bootmem_t::get_pml4()
+{
+    os()->uart()->kprintf("bootmem pml4: %p\n", PA2VA(m_pml4_pa));
+    return (pml4e_t *) PA2VA(m_pml4_pa);
+}

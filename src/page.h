@@ -51,10 +51,7 @@
 #define PTRS_PER_PDE        512
 #define PTRS_PER_PDPE       512
 #define PTRS_PER_PML4E      512
-
-
-/* kernel base address */
-#define KERNEL_BASE         (0xffff800000000000ull)
+#define PML4E_PER_PAGE      512
 
 
 /* kernel va->pa, pa->va */

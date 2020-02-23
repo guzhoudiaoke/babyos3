@@ -43,6 +43,7 @@ public:
     boot_info_t* get_boot_info();
     uint64 get_start_usable_pa();
     uint64 get_end_usable_pa();
+    pml4e_t* get_pml4();
 
 
 private:

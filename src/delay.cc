@@ -28,10 +28,10 @@
 
 
 bool   delay_t::s_inited = 0;
-uint64 delay_t::s_cpu_freq = 1000000000ull;
-uint64 delay_t::s_cpu_freq_mhz = delay_t::s_cpu_freq/1000000;
+uint64 delay_t::s_cpu_freq = 0;
+uint64 delay_t::s_cpu_freq_mhz = 0;
 
-void delay_t::init(uint32 freq)
+void delay_t::init(uint64 freq)
 {
     if (!s_inited) {
         s_cpu_freq = freq;
@@ -40,12 +40,12 @@ void delay_t::init(uint32 freq)
     }
 }
 
-void delay_t::ms_delay(uint32 ms)
+void delay_t::ms_delay(uint64 ms)
 {
     us_delay(ms*1000);
 }
 
-void delay_t::us_delay(uint32 us)
+void delay_t::us_delay(uint64 us)
 {
     rdtsc_delay((uint64) us * s_cpu_freq_mhz);
 }
@@ -53,10 +53,10 @@ void delay_t::us_delay(uint32 us)
 void delay_t::rdtsc_delay(uint64 delta)
 {
     uint64 prev, now;
-    rdtsc64(prev);
+    prev = rdtsc();
     do {
         nop();
-        rdtsc64(now);
+        now = rdtsc();
     } while (now - prev < delta);
 }
 

@@ -41,9 +41,9 @@ public:
         EXIT,
         WAIT,
         SLEEP,
-        SIGNAL,
-        SIGRET,
-        KILL,
+        //SIGNAL,
+        //SIGRET,
+        //KILL,
         OPEN,
         CLOSE,
         READ,
@@ -65,34 +65,34 @@ public:
 
 public:
     static void  do_syscall(trap_frame_t* frame);
-    static int64 sys_print(trap_frame_t* frame);
-    //static int64 sys_fork(trap_frame_t* frame);
-    //static int64 sys_exec(trap_frame_t* frame);
-    //static int64 sys_mmap(trap_frame_t* frame);
-    //static int64 sys_exit(trap_frame_t* frame);
-    //static int64 sys_wait(trap_frame_t* frame);
-    //static int64 sys_sleep(trap_frame_t* frame);
+    static int32 sys_print(trap_frame_t* frame);
+    static int32 sys_fork(trap_frame_t* frame);
+    static int32 sys_exec(trap_frame_t* frame);
+    static int32 sys_mmap(trap_frame_t* frame);
+    static int32 sys_exit(trap_frame_t* frame);
+    static int32 sys_wait(trap_frame_t* frame);
+    static int32 sys_sleep(trap_frame_t* frame);
     //static int64 sys_signal(trap_frame_t* frame);
     //static int64 sys_sigret(trap_frame_t* frame);
     //static int64 sys_kill(trap_frame_t* frame);
-    //static int64 sys_open(trap_frame_t* frame);
-    //static int64 sys_close(trap_frame_t* frame);
-    //static int64 sys_read(trap_frame_t* frame);
-    //static int64 sys_write(trap_frame_t* frame);
-    //static int64 sys_link(trap_frame_t* frame);
-    //static int64 sys_unlink(trap_frame_t* frame);
-    //static int64 sys_mkdir(trap_frame_t* frame);
-    //static int64 sys_mknod(trap_frame_t* frame);
-    //static int64 sys_dup(trap_frame_t* frame);
-    //static int64 sys_stat(trap_frame_t* frame);
-    //static int64 sys_chdir(trap_frame_t* frame);
+    static int32 sys_open(trap_frame_t* frame);
+    static int32 sys_close(trap_frame_t* frame);
+    static int32 sys_read(trap_frame_t* frame);
+    static int32 sys_write(trap_frame_t* frame);
+    static int32 sys_link(trap_frame_t* frame);
+    static int32 sys_unlink(trap_frame_t* frame);
+    static int32 sys_mkdir(trap_frame_t* frame);
+    static int32 sys_mknod(trap_frame_t* frame);
+    static int32 sys_dup(trap_frame_t* frame);
+    static int32 sys_stat(trap_frame_t* frame);
+    static int32 sys_chdir(trap_frame_t* frame);
     //static int64 sys_pipe(trap_frame_t* frame);
     //static int64 sys_send_to(trap_frame_t* frame);
     //static int64 sys_recv_from(trap_frame_t* frame);
     //static int64 sys_socket(trap_frame_t* frame);
 
 private:
-    static int64 (*s_system_call_table[])(trap_frame_t* frame);
+    static int32 (*s_system_call_table[])(trap_frame_t* frame);
     static uint64 get_argument(trap_frame_t* frame, uint32 index);
 };
 

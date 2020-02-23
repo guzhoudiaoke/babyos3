@@ -42,29 +42,29 @@ typedef struct video_info_s {
 
 
 /*
-Offset in Bytes		Name		       Description
-0	                BaseAddrLow        Low 32 Bits of Base Address
-4	                BaseAddrHigh	   High 32 Bits of Base Address
-8	                LengthLow		   Low 32 Bits of Length in Bytes
-12	                LengthHigh		   High 32 Bits of Length in Bytes
-16	                Type		       Address type of  this range.
-The BaseAddrLow and BaseAddrHigh together are the 64 bit BaseAddress of this range.
-The BaseAddress is the physical address of the start of the range being specified.
-The LengthLow and LengthHigh together are the 64 bit Length of this range.
-The Length is the physical contiguous length in bytes of a range being specified.
+ *   Offset in Bytes	Name	           Description
+ *   0	                BaseAddrLow        Low 32 Bits of Base Address
+ *   4	                BaseAddrHigh	   High 32 Bits of Base Address
+ *   8	                LengthLow		   Low 32 Bits of Length in Bytes
+ *   12	                LengthHigh		   High 32 Bits of Length in Bytes
+ *   16	                Type		       Address type of  this range.
+ *   The BaseAddrLow and BaseAddrHigh together are the 64 bit BaseAddress of this range.
+ *   The BaseAddress is the physical address of the start of the range being specified.
+ *   The LengthLow and LengthHigh together are the 64 bit Length of this range.
+ *   The Length is the physical contiguous length in bytes of a range being specified.
 
-The Type field describes the usage of the described address range as defined in the table below.
+ *   The Type field describes the usage of the described address range as defined in the table below.
 
-Value	Pneumonic		        Description
-1	    AddressRangeMemory	    This run is available RAM usable by the operating system.
-2	    AddressRangeReserved	This run of addresses is in use or reserved
-				                by the system, and must not be used by the
-				                operating system.
-Other	Undefined		        Undefined - Reserved for future use.  Any
-                                range of this type must be treated by the
-                                OS as if the type returned was
-                                AddressRangeReserved.
-*/
+ *   Value	Pneumonic		        Description
+ *   1	    AddressRangeMemory	    This run is available RAM usable by the operating system.
+ *   2	    AddressRangeReserved	This run of addresses is in use or reserved
+ *                                  by the system, and must not be used by the
+ *                                  operating system.
+ *   Other	Undefined		        Undefined - Reserved for future use.  Any
+ *                                  range of this type must be treated by the
+ *                                  OS as if the type returned was
+ *                                  AddressRangeReserved.
+ */
 typedef struct address_range_s {
 	uint32	base_addr_low;
 	uint32	base_addr_high;

@@ -37,12 +37,16 @@ typedef short          int16;
 typedef int            int32;
 typedef long           int64;
 
+typedef uint32         pid_t;
+
+
 typedef struct rect_s {
     int32 left;
     int32 top;
     uint32 width;
     uint32 height;
 } rect_t;
+
 
 
 #endif
