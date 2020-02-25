@@ -82,7 +82,9 @@ extern "C" process_t* __switch_to(process_t* prev, process_t* next)
     tss_t* tss = os()->cpu()->tss();
     tss->x86_tss.sp0 = (uint64)next->m_kstack;
 
-    os()->uart()->kprintf("switch %p(%d) -> %p(%d)\n", prev, prev->m_pid, next, next->m_pid);
+    //os()->uart()->kprintf("switch %p(%d), %p -> %p(%d), %p\n",
+    //                      prev, prev->m_pid, prev->m_context.rsp, next, next->m_pid, next->m_context.rsp);
+
     return prev;
 }
 

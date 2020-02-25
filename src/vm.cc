@@ -168,7 +168,7 @@ pml4e_t* vmm_t::copy_pml4_table(pml4e_t* pml4_table)
 failed:
     os()->panic("failed to copy pml4 table, panic for now\n");
 
-    // TODO: destroy allocated memory
+    /* TODO: destroy allocated memory */
     return NULL;
 }
 
@@ -368,6 +368,7 @@ uint32 vmm_t::remove_vma(vm_area_t* vma, vm_area_t* prev)
     else {
         m_mmap = vma->m_next;
     }
+
     os()->get_obj_pool(VMA_POOL)->free_object(vma);
 
     return 0;
@@ -430,12 +431,9 @@ int32 vmm_t::do_munmap(uint64 addr, uint64 len)
 
 int32 vmm_t::do_protection_fault(vm_area_t* vma, uint64 addr, bool write)
 {
-    uint64 pa = vmm_t::va_to_pa((void *)addr);
-    os()->uart()->kprintf("do protection fault, addr: %p, pa: %p\n", addr, pa);
-
+    uint64 pa = vmm_t::va_to_pa(current->m_vmm.get_pml4_table(), (void *)addr);
     if (pa == -1ull) {
         os()->console()->kprintf(RED, "protection fault, no physical page found\n");
-        os()->uart()->kprintf("do protection fault done -2, addr: %p, pa: %p\n", addr, pa);
         return -1;
     }
 
@@ -443,25 +441,22 @@ int32 vmm_t::do_protection_fault(vm_area_t* vma, uint64 addr, bool write)
     if (write && !(vma->m_flags & VM_WRITE)) {
         os()->console()->kprintf(RED, "protection fault, ref count: %u!\n",
                 os()->buddy()->get_page_ref(pa));
-        os()->uart()->kprintf("do protection fault done -1, addr: %p, pa: %p\n", addr, pa);
         return -1;
     }
 
     /* not shared */
     if (os()->buddy()->get_page_ref(pa) == 1) {
         make_pte_write((void *) addr);
-        os()->uart()->kprintf("do protection fault done 0, addr: %p, pa: %p\n", addr, pa);
         return 0;
     }
 
     /* this page is shared, now only COW can share page */
     uint64 p = os()->buddy()->alloc_pages(0);
-    memcpy(PA2VA(p), PA2VA(pa), PAGE_SIZE);
+    memcpy(PA2VA(p), PA2VA(pa & PAGE_MASK), PAGE_SIZE);
 
     os()->buddy()->free_pages(pa, 0);
     vmm_t::map_pages(m_pml4_table, (void*) addr, p, PAGE_SIZE, PTE_W | PTE_U);
 
-    os()->uart()->kprintf("do protection fault done 1, addr: %p, pa: %p\n", addr, pa);
     return 0;
 }
 
@@ -480,23 +475,16 @@ uint32 vmm_t::do_page_fault(trap_frame_t* frame)
     uint64 addr = 0x0;
     __asm__ volatile("movq %%cr2, %0" : "=r" (addr));
 
-    os()->uart()->kprintf("do_page_fault process: %p %u, addr: %p, err: %p,"
-                          "cs: %p, rip: %p, rsp: %p\n",
-                          current, current->m_pid, addr,
-                          frame->err, frame->cs, frame->rip, frame->rsp);
-
     vm_area_t* vma = find_vma(addr);
 
     /* not find the vma or out of range */
     if (vma == NULL || vma->m_start > addr) {
         if (frame->err & 0x4) {
-            if (vma != NULL && (vma->m_flags & VM_STACK) && addr + 32 >= frame->rsp) {
-                os()->uart()->kprintf("expand stack\n");
+            if (vma != NULL && (vma->m_flags & VM_STACK) && addr + 64 >= frame->rsp) {
                 expand_stack(vma, addr);
                 goto good_area;
             }
         }
-
 
         goto sig_segv;
     }
@@ -514,11 +502,6 @@ good_area:
         vmm_t::map_pages(m_pml4_table, (void*) addr, pa, PAGE_SIZE, PTE_W | PTE_U);
     }
 
-
-    os()->uart()->kprintf("do_page_fault success, cpu: %u, process: %p %u, addr: %p, err: %lx,"
-                          "cs: %p, rip: %p, rsp: %p\n",
-                          os()->cpu(), current, current->m_pid, addr, frame->err,
-                          frame->cs, frame->rip, frame->rsp);
     return 0;
 
 sig_segv:
@@ -541,7 +524,6 @@ pml4e_t* vmm_t::get_pml4_table()
 
 void vmm_t::set_pml4_table(pml4e_t* pml4_table)
 {
-    os()->uart()->kprintf("set pml4: %p\n", pml4_table);
     m_pml4_table = pml4_table;
 }
 
@@ -581,8 +563,6 @@ void vmm_t::make_pte_write(void* va)
 
 int32 vmm_t::expand_stack(vm_area_t* vma, uint64 addr)
 {
-    os()->uart()->kprintf("do expand stack\n");
-
     addr &= PAGE_MASK;
     vma->m_start = addr;
 
@@ -593,7 +573,7 @@ void vmm_t::free_page_range(uint64 start, uint64 end)
 {
     uint64 addr = start & PAGE_MASK;
     while (addr < end) {
-        uint64 pa = vmm_t::va_to_pa((void *) addr);
+        uint64 pa = vmm_t::va_to_pa(current->m_vmm.get_pml4_table(), (void *) addr);
         if (pa != -1ull) {
             os()->buddy()->free_pages(pa, 0);
         }
@@ -677,8 +657,6 @@ void vmm_t::release()
 
 void vmm_t::map_pages(pml4e_t *pml4_table, void *va, uint64 pa, uint64 size, uint32 perm)
 {
-    os()->uart()->kprintf("map %p to %p, size: %lx\n", va, pa, size);
-
     uint8 *v = (uint8 *) (((uint64)va) & PAGE_MASK);
     uint8 *e = (uint8 *) (((uint64)va + size) & PAGE_MASK);
     pa = (pa & PAGE_MASK);
@@ -687,12 +665,6 @@ void vmm_t::map_pages(pml4e_t *pml4_table, void *va, uint64 pa, uint64 size, uin
         pdpe_t* pdp_table = get_pdp_table(pml4_table, v);
         pde_t* pd_table = get_pd_table(pdp_table, v);
         pte_t* page_table = get_page_table(pd_table, v);
-
-        os()->uart()->kprintf("%16lx, pml4_table[%3d]=%16lx, pdp_table[%3d]=%16lx, pd_table[%3d]=%16lx\n",
-                              v,
-                              PML4E_INDEX(v), pml4_table[PML4E_INDEX(v)],
-                              PDPE_INDEX(v), pdp_table[PDPE_INDEX(v)],
-                              PDE_INDEX(v), pd_table[PDE_INDEX(v)]);
 
         for (uint32 i = PTE_INDEX(v); i < PTRS_PER_PDE; i++) {
             if (v >= e) {
@@ -758,13 +730,12 @@ pte_t* vmm_t::get_page_table(pde_t* pd_table, void* v)
     return page_table;
 }
 
-uint64 vmm_t::va_to_pa(void* va)
+uint64 vmm_t::va_to_pa(pml4e_t* pml4_table, void* va)
 {
     if ((uint64) va >= KERNEL_BASE) {
         return VA2PA(va);
     }
 
-    pml4e_t* pml4_table = current->m_vmm.get_pml4_table();
     pml4e_t pml4e = pml4_table[PML4E_INDEX(va)];
     if (!(pml4e & PTE_P)) {
         return -1;

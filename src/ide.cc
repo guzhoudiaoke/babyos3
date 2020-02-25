@@ -69,6 +69,7 @@ void ide_t::add_request(request_t* req)
         uint64 flags;
         m_lock.lock_irqsave(flags);
         m_req_list.push_back(req);
+        os()->uart()->puts("push_back\n");
         m_lock.unlock_irqrestore(flags);
     }
 }

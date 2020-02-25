@@ -86,7 +86,7 @@ public:
 
     void   release();
 
-    static uint64 va_to_pa(void* va);
+    static uint64 va_to_pa(pml4e_t *pml4_table, void* va);
     static void map_pages(pml4e_t *pml4_table, void *va, uint64 pa, uint64 size, uint32 perm);
 
 

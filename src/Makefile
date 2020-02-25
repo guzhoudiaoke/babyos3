@@ -161,8 +161,8 @@ clean:
 	rm -f boot loader kernel *.o *.img *.elf *.d
 
 qemu: boot.img baby_hd.img fs.img
-	${QEMU} -fda boot.img -hda baby_hd.img -hdb fs.img -serial mon:stdio -m 4 -name ${NAME}
+	${QEMU} -fda boot.img -hda baby_hd.img -hdb fs.img -serial mon:stdio -m 128 -name ${NAME}
 
 
 qemudebug: boot.img baby_hd.img fs.img
-	${QEMU} -fda boot.img -hda baby_hd.img -hdb fs.img -serial mon:stdio -m 4 -name ${NAME} -s -S
+	${QEMU} -fda boot.img -hda baby_hd.img -hdb fs.img -serial mon:stdio -m 128 -name ${NAME} -s -S

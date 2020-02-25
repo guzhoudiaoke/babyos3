@@ -89,14 +89,19 @@ void do_cmd(const char* cmd_line)
 {
     parse_cmd_line(cmd_line, command, &argument);
     int32 pid = userlib_t::fork();
+    userlib_t::printf("shell fork return: %d\n", pid);
     if (pid == 0) {
         int ret = userlib_t::exec(command, &argument);
+
+        userlib_t::printf("ERROR: shell exec returned: %d\n", pid);
         if (ret < 0) {
             userlib_t::exit(-1);
         }
     }
 
+    userlib_t::printf("will wait child\n");
     userlib_t::wait(pid);
+    userlib_t::printf("after wait child\n");
 }
 
 // only for test

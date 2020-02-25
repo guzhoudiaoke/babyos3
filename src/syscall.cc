@@ -97,7 +97,7 @@ int32 syscall_t::sys_print(trap_frame_t* frame)
 {
     color_ref_t color = (color_ref_t) get_argument(frame, 0);
     char buffer[512] = {0};
-    char* va = (char *)PA2VA(vmm_t::va_to_pa((void *)get_argument(frame, 1)));
+    char* va = (char *)PA2VA(vmm_t::va_to_pa(current->m_vmm.get_pml4_table(), (void *)get_argument(frame, 1)));
 
     strcpy(buffer, va);
     os()->console()->kprintf(color, "%s", buffer);
@@ -107,9 +107,7 @@ int32 syscall_t::sys_print(trap_frame_t* frame)
 
 int32 syscall_t::sys_fork(trap_frame_t* frame)
 {
-    os()->uart()->kprintf("fork, current: %p\n", current);
     process_t* proc = current->fork(frame);
-    os()->uart()->kprintf("fork done, proc: %p, %u\n", proc, proc->m_pid);
     return proc == NULL ? -1 : proc->m_pid;
 }
 
@@ -140,7 +138,6 @@ int32 syscall_t::sys_wait(trap_frame_t* frame)
 int32 syscall_t::sys_sleep(trap_frame_t* frame)
 {
     uint32 ticks = get_argument(frame, 0) * HZ;
-    os()->uart()->kprintf("sys sleep: second: %u, ticks: %u", get_argument(frame, 0), ticks);
     current->sleep(ticks);
     return 0;
 }
@@ -182,7 +179,6 @@ int32 syscall_t::sys_read(trap_frame_t* frame)
     int fd = (int) get_argument(frame, 0);
     char* buf = (char *) get_argument(frame, 1);
     uint64 size = get_argument(frame, 2);
-    os()->uart()->kprintf("sys read: fd: %d, buf: %p, size: %lu\n", fd, buf, size);
     return os()->fs()->do_read(fd, buf, size);
 }
 
@@ -191,7 +187,6 @@ int32 syscall_t::sys_write(trap_frame_t* frame)
     int fd = (int) get_argument(frame, 0);
     char* buf = (char *) get_argument(frame, 1);
     uint64 size = get_argument(frame, 2);
-    os()->uart()->kprintf("sys_write: fd=%d, buf=%p, size=%lx\n", fd, buf, size);
     return os()->fs()->do_write(fd, buf, size);
 }
 

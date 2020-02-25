@@ -61,6 +61,8 @@ public:
     uint32 dec_page_ref(uint64 phy_addr);
     uint32 get_page_ref(uint64 phy_addr);
 
+    uint32 get_free_page_num();
+
 
 private:
     void   init_pages();

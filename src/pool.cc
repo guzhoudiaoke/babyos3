@@ -53,8 +53,11 @@ void object_pool_t::free_object_nolock(void* obj)
 	}
 	m_available++;
 }
+
 void object_pool_t::free_object(void* obj)
 {
+    //os()->uart()->kprintf("free object\n");
+
     uint64 flags;
     m_lock.lock_irqsave(flags);
     free_object_nolock(obj);
@@ -63,9 +66,12 @@ void object_pool_t::free_object(void* obj)
 
 void* object_pool_t::alloc_from_pool()
 {
+    //os()->uart()->kprintf("alloc from pool\n");
+
     uint64 flags;
     m_lock.lock_irqsave(flags);
 	if (m_free_list == NULL) {
+        os()->uart()->kprintf("alloc from pool alloc\n");
 		uint8* mem = (uint8 *) PA2VA(os()->buddy()->alloc_pages(0));
 		uint8* end = mem + PAGE_SIZE;
 		while (mem + m_obj_size <= end) {

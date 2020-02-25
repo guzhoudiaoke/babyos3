@@ -75,16 +75,11 @@ static int32 load_elf_binary(elf64_hdr_t* elf, int fd)
         uint64 pa = os()->buddy()->alloc_pages(math_t::log(2, len / PAGE_SIZE));
         vmm_t::map_pages(pml4_table, vaddr, pa, len, PTE_W | PTE_U);
 
-        os()->uart()->kprintf("i: %d, map %p -> %p\n", i, vaddr, pa);
-
         /* read data */
         uint8* va = (uint8 *) PA2VA(pa);
         if (read_file_from(fd, va+offset, ph.p_offset, ph.p_filesz) != 0) {
             return -1;
         }
-
-        os()->uart()->kprintf("va: %p, offset: %p, ph.p_filesz: %p, ph.p_memsz: %p, ph.p_filesz\n",
-                              va, offset, ph.p_filesz, ph.p_memsz, ph.p_filesz);
 
         if (ph.p_memsz > ph.p_filesz) {
             memset(va+offset+ph.p_filesz, 0, ph.p_memsz - ph.p_filesz);
@@ -131,7 +126,6 @@ int32 elf_t::load(trap_frame_t* frame, const char* path)
 
     /* 5. set eip */
     frame->rip = (uint64)(elf.e_entry);
-    os()->uart()->kprintf("load elf set rip: %p\n", frame->rip);
 
 end:
     /* 6. close file */

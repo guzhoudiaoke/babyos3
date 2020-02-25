@@ -99,6 +99,7 @@ private:
     int32       init_user_stack(trap_frame_t* frame, argument_t* arg);
     void        notify_parent();
     void        adope_children();
+    void        close_all_files();
 
 public:
     uint32              m_need_resched;

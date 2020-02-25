@@ -38,6 +38,8 @@ extern void ret_from_fork(void) __asm__("ret_from_fork");
 process_t* process_t::fork(trap_frame_t* frame)
 {
     /* alloc a process_t */
+    os()->uart()->kprintf("free page num: %d\n", os()->buddy()->get_free_page_num());
+
     process_t* p = (process_t *) PA2VA(os()->buddy()->alloc_pages(1));
     if (p == NULL) {
         os()->console()->kprintf(RED, "fork failed\n");
@@ -54,7 +56,6 @@ process_t* process_t::fork(trap_frame_t* frame)
 
     /* vmm */
     p->m_vmm.copy(m_vmm);
-    os()->uart()->kprintf("copy vmm done\n");
 
     /* signal */
     //p->m_signal.copy(m_signal);
@@ -79,7 +80,6 @@ process_t* process_t::fork(trap_frame_t* frame)
 
     /* pid, need check if same with other process */
     p->m_pid = os()->process_mgr()->get_next_pid();
-    os()->uart()->kprintf("pid: %u\n", p->m_pid);
 
     /* change state */
     p->m_state = RUNNING;
@@ -101,104 +101,43 @@ process_t* process_t::fork(trap_frame_t* frame)
     /* add a child for current */
     m_children.push_back(p);
 
-    os()->uart()->kprintf("fork done\n");
     return p;
 }
 
-#if 0
 int32 process_t::init_arguments(trap_frame_t* frame, argument_t* arg)
 {
     if (arg == NULL) {
-        os()->uart()->kprintf("init user stack arg == NULL\n");
+        frame->rdi = 0;
+        frame->rsi = 0;
         return 0;
     }
 
-    // space for args
+    /* space for args */
     for (uint32 i = 0; i < arg->m_argc; i++) {
         frame->rsp -= (strlen(arg->m_argv[i]) + 1);
     }
     frame->rsp -= frame->rsp % 8;
-    frame->rsp -= arg->m_argc * sizeof(char*);  // argv[]
     frame->rsp -= arg->m_argc * sizeof(char**); // argv
-    frame->rsp -= sizeof(uint64);               // argc
     frame->rsp -= sizeof(uint64);               // ret address
 
-    // ret addr
+    /* ret addr */
     uint64 top = frame->rsp;
     *(uint64 *)top = 0xffffffffffffffff;
     top += sizeof(uint64);
 
-    // argc
-    *(uint64 *)top = arg->m_argc;
-    top += sizeof(uint64);
-    os()->uart()->kprintf("argc: %lu\n", arg->m_argc);
-
-    // argv
-    *(uint64 *)top = top + sizeof(char **);
-    top += sizeof(uint64);
-
-    char** argv = (char **) top;
-    char* p = (char *) top + sizeof(char *) * arg->m_argc;
-    for (uint32 i = 0; i < arg->m_argc; i++) {
-        argv[i] = p;
-        strcpy(p, arg->m_argv[i]);
-        p += (strlen(p) + 1);
-
-        os()->uart()->kprintf("argv[%d]: %s\n", i, arg->m_argv[i]);
-    }
-
-    os()->uart()->kprintf("init user stack done\n");
-
-    return 0;
-}
-#endif
-
-int32 process_t::init_arguments(trap_frame_t* frame, argument_t* arg)
-{
-    if (arg == NULL) {
-        os()->uart()->kprintf("init user stack arg == NULL\n");
-        return 0;
-    }
-
-    // space for args
-    for (uint32 i = 0; i < arg->m_argc; i++) {
-        frame->rsp -= (strlen(arg->m_argv[i]) + 1);
-    }
-    frame->rsp -= frame->rsp % 8;
-    //frame->rsp -= arg->m_argc * sizeof(char*);  // argv[]
-    frame->rsp -= arg->m_argc * sizeof(char**); // argv
-    //frame->rsp -= sizeof(uint64);               // argc
-    frame->rsp -= sizeof(uint64);               // ret address
-
-    // ret addr
-    uint64 top = frame->rsp;
-    *(uint64 *)top = 0xffffffffffffffff;
-    top += sizeof(uint64);
-
-    // argc
-    //*(uint64 *)top = arg->m_argc;
-    //top += sizeof(uint64);
+    /* argc */
     frame->rdi = arg->m_argc;
-    os()->uart()->kprintf("argc: %lu\n", arg->m_argc);
 
-    // argv
-    //*(uint64 *)top = top + sizeof(char **);
-    //top += sizeof(uint64);
-
+    /* argv */
     char** argv = (char **) top;
     frame->rsi = (uint64) argv;
-    os()->uart()->kprintf("argv: %p\n", argv);
 
     char* p = (char *) top + sizeof(char *) * arg->m_argc;
     for (uint32 i = 0; i < arg->m_argc; i++) {
-        os()->uart()->kprintf("argv[%d]: %s, %p\n", i, arg->m_argv[i], p);
-
         argv[i] = p;
         strcpy(p, arg->m_argv[i]);
         p += (strlen(p) + 1);
     }
-
-    os()->uart()->kprintf("init user stack done\n");
 
     return 0;
 }
@@ -234,14 +173,11 @@ int32 process_t::init_user_stack(trap_frame_t* frame, argument_t* arg)
 
 int32 process_t::exec(trap_frame_t* frame)
 {
-    os()->uart()->kprintf("exec, current: %p, pid: %u\n", current, current->m_pid);
-
     /* copy process name */
     const char* path = (const char *) frame->rdi;
     strcpy(m_name, path);
 
     /* save arg */
-    os()->uart()->kprintf("exec save arg\n");
     argument_t* arg = NULL;
     if (frame->rsi != 0) {
         arg = (argument_t *) PA2VA(os()->buddy()->alloc_pages(0));
@@ -249,34 +185,27 @@ int32 process_t::exec(trap_frame_t* frame)
     }
 
     /* flush old mmap */
-    os()->uart()->kprintf("exec release old mmap\n");
     current->m_vmm.release();
 
     /* load elf binary */
-    os()->uart()->kprintf("exec load elf:%s\n", m_name);
     if (elf_t::load(frame, m_name) != 0) {
-        os()->uart()->kprintf("exec load elf:%s failed\n", m_name);
         exit();
         return -1;
     }
 
     /* code segment, data segment and so on */
-    os()->uart()->kprintf("exec code seg, data seg and so on\n");
     frame->cs = (SEG_UCODE << 3 | 0x3);
     frame->ss = (SEG_UDATA << 3 | 0x3);
     frame->rflags = 0x200;
 
     /* stack, rsp */
-    os()->uart()->kprintf("exec init user stack\n");
     init_user_stack(frame, arg);
 
     /* free arg */
-    os()->uart()->kprintf("exec free arg\n");
     if (arg != NULL) {
         os()->buddy()->free_pages(VA2PA(arg), 0);
     }
 
-    os()->uart()->kprintf("exec done, rsp: %p, rip: %p\n", frame->rsp, frame->rip);
     return 0;
 }
 
@@ -304,7 +233,6 @@ void process_t::sleep(uint64 ticks)
 void process_t::sleep_on(wait_queue_t* queue)
 {
     queue->add(current);
-    //console()->kprintf(RED, "S%u\t", current->m_pid);
     current->m_state = process_t::SLEEP;
     os()->cpu()->schedule();
     queue->remove(current);
@@ -351,7 +279,8 @@ repeat:
         flag = true;
 
         if (p->m_state != process_t::ZOMBIE) {
-            continue;}
+            continue;
+        }
 
         /* this child has become ZOMBIE, free it */
         os()->process_mgr()->release_process(p);
@@ -376,19 +305,23 @@ end_wait:
     return 0;
 }
 
+void process_t::close_all_files()
+{
+    os()->fs()->put_inode(m_cwd);
+    for (int i = 0; i < MAX_OPEN_FILE; i++) {
+        if (m_files[i] != NULL && m_files[i]->m_type != file_t::TYPE_NONE) {
+            os()->fs()->close_file(m_files[i]);
+        }
+    }
+}
+
 int32 process_t::exit()
 {
-    //console()->kprintf(BLACK, "E%u\t", current->m_pid);
     /* remove the mem resource */
     m_vmm.release();
 
     /* close all opend files */
-    //os()->get_fs()->put_inode(m_cwd);
-    //for (int i = 0; i < MAX_OPEN_FILE; i++) {
-    //    if (m_files[i] != NULL && m_files[i]->m_type != file_t::TYPE_NONE) {
-    //        os()->get_fs()->close_file(m_files[i]);
-    //    }
-    //}
+    close_all_files();
 
     /* adope children to init */
     adope_children();

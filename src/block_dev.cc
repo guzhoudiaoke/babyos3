@@ -94,7 +94,16 @@ void block_dev_t::release_block(io_buffer_t* b)
 {
     uint64 flags;
     m_lock.lock_irqsave(flags);
-    m_used_list.push_back(b);
+
+    list_t<io_buffer_t *>::iterator it = m_used_list.begin();
+    while (it != m_used_list.end() && (*it)->m_lba != b->m_lba) {
+        it++;
+    }
+
+    if (it == m_used_list.end()) {
+        m_used_list.push_back(b);
+    }
+
     m_lock.unlock_irqrestore(flags);
     b->unlock();
 }

@@ -35,7 +35,6 @@ const color_ref_t c_cursor_color     = RGB(0xff, 0xff, 0x00);
 
 static int console_read(inode_t* inode, void* buf, int size)
 {
-    os()->uart()->kprintf("console read: %p %d\n", buf, size);
     return os()->console()->read(buf, size);
 }
 

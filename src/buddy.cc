@@ -56,9 +56,9 @@ buddy_t::~buddy_t()
 void buddy_t::init_pages()
 {
     uint64 mem_end = os()->bootmem()->get_end_usable_pa();
-    uint32 page_num = (uint64) (mem_end) / PAGE_SIZE;
+    uint32 page_num = (uint64) (mem_end + PAGE_SIZE - 1) / PAGE_SIZE;
     uint32 size = page_num * sizeof(page_t);
-    m_pages = (page_t *) PA2VA(os()->bootmem()->mem_alloc(size, 0));
+    m_pages = (page_t *) PA2VA(os()->bootmem()->mem_alloc(size, false));
 
     for (uint32 i = 0; i < page_num; i++) {
         atomic_set(&m_pages[i].ref, 1);
@@ -118,45 +118,48 @@ uint64 buddy_t::expand(free_list_t* addr, uint32 low, uint32 high)
     }
 
     uint64 pa = VA2PA(addr);
-    uint64 p = pa;
-    for (uint32 i = 0; i < math_t::pow(2, low); i++, p += PAGE_SIZE) {
-        inc_page_ref(p);
-    }
+    inc_page_ref(pa);
+    //uint64 p = pa;
+    //for (uint32 i = 0; i < math_t::pow(2, low); i++, p += PAGE_SIZE) {
+    //    inc_page_ref(p);
+    //}
     return pa;
 }
 
 uint64 buddy_t::alloc_pages(uint32 order)
 {
     atomic_sub(math_t::pow(2, order), &m_free_page_num);
-    os()->uart()->kprintf("alloc order: %u, free page num: %u\n", order, atomic_read(&m_free_page_num));
 
     free_list_t* queue = m_free_area.free_list + order;
     uint32 new_order = order;
     do {
         free_list_t* next = queue->next;
-        os()->uart()->kprintf("alloc pages, next: %p, new_order: %u\n", next, new_order);
         if (queue != next) {
             queue->next = next->next;
             next->next->prev = queue;
             mark_used((uint64) VA2PA(next), new_order);
-            return expand(next, order, new_order);
+            uint64 pa = expand(next, order, new_order);
+            if (get_page_ref(pa) != 1) {
+                os()->panic("ref count not 1!!\n");
+            }
+            return pa;
         }
         new_order++;
         queue++;
     } while (new_order <= MAX_ORDER);
 
-    os()->uart()->kprintf("!!!!alloc_pages failed\n");
+    os()->panic("!!!!alloc_pages failed\n");
     return 0;
 }
 
 void buddy_t::free_pages(uint64 pa, uint32 order)
 {
-    // dec the ref count, if it's not 0, don't free the pages
+    uint32 num = math_t::pow(2, order);
     if (!dec_page_ref(pa)) {
         return;
     }
 
-    atomic_add(math_t::pow(2, order), &m_free_page_num);
+    atomic_add(num, &m_free_page_num);
 
     uint64 address = (uint64) pa;
     uint32 index = MAP_NR(address - (uint64)m_free_area.base) >> (1 + order);
@@ -176,7 +179,6 @@ void buddy_t::free_pages(uint64 pa, uint32 order)
         address &= mask;
     }
 
-    //os()->uart()->kprintf("free %p to order: %u\n", pa, order);
     add_to_head(m_free_area.free_list+order, (free_list_t *) PA2VA(address));
 }
 
@@ -190,7 +192,7 @@ uint32 buddy_t::dec_page_ref(uint64 phy_addr)
 {
     page_t* page = &m_pages[phy_addr >> PAGE_SHIFT];
     if (page->ref.counter <= 0) {
-        //os()->panic("ref count <= 0 when dec ref");
+        os()->panic("ref count <= 0 when dec ref");
     }
     return atomic_dec_and_test(&page->ref);
 }
@@ -225,4 +227,9 @@ void buddy_t::dump()
         }
         os()->uart()->kprintf("\n");
     }
+}
+
+uint32 buddy_t::get_free_page_num()
+{
+    return m_free_page_num.counter;
 }

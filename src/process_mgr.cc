@@ -84,6 +84,7 @@ void process_mgr_t::release_process(process_t* proc)
     }
     proc->unlock();
 
+    /* remove from proc list */
     list_t<process_t*>::iterator it = m_proc_list.begin();
     while (it != m_proc_list.end()) {
         if (*it == proc) {
@@ -91,6 +92,17 @@ void process_mgr_t::release_process(process_t* proc)
             break;
         }
         it++;
+    }
+
+    /* remove from children of parent */
+    if (proc->m_parent != NULL) {
+        it = proc->m_parent->m_children.begin();
+        while (it != proc->m_parent->m_children.end()) {
+            if (*it == proc) {
+                proc->m_parent->m_children.erase(it);
+            }
+            it++;
+        }
     }
 
     /* free page dir */
