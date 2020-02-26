@@ -26,6 +26,7 @@
 #include "x86.h"
 #include "delay.h"
 #include "syscall.h"
+#include "pipe.h"
 
 
 static babyos_t babyos;
@@ -305,7 +306,7 @@ object_pool_t* babyos_t::get_obj_pool_of_size()
 void babyos_t::init_pools()
 {
     m_pools[VMA_POOL].init(sizeof(vm_area_t));
-    //m_pools[PIPE_POOL].init(sizeof(pipe_t));
+    m_pools[PIPE_POOL].init(sizeof(pipe_t));
     m_pools[TIMER_POOL].init(sizeof(timer_t));
 
     for (uint32 i = 1; i <= SMALL_POOL_SIZE; i++) {

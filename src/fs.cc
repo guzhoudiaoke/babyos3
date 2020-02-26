@@ -30,6 +30,7 @@
 #include "console.h"
 #include "string.h"
 #include "block_dev.h"
+#include "pipe.h"
 //#include "socket.h"
 
 
@@ -576,10 +577,7 @@ int file_system_t::do_open(const char* path, int mode)
 
     inode->unlock();
     if (fd >= 0) {
-        //file->init(file_t::TYPE_INODE, inode, NULL, 0,
-        //           !(mode & file_t::MODE_WRONLY),
-        //           (mode & file_t::MODE_WRONLY) || (mode & file_t::MODE_RDWR));
-        file->init(file_t::TYPE_INODE, inode, 0,
+        file->init(file_t::TYPE_INODE, inode, NULL, 0,
                    !(mode & file_t::MODE_WRONLY),
                    (mode & file_t::MODE_WRONLY) || (mode & file_t::MODE_RDWR));
     }
@@ -606,7 +604,7 @@ int64 file_system_t::do_read(int fd, void* buffer, uint32 count)
     }
 
     if (file->m_type == file_t::TYPE_PIPE) {
-        //return file->m_pipe->read(buffer, count);
+        return file->m_pipe->read(buffer, count);
     }
     if (file->m_type == file_t::TYPE_SOCKET) {
         //return file->m_socket->read(buffer, count);
@@ -630,7 +628,7 @@ int64 file_system_t::do_write(int fd, void* buffer, uint32 count)
     }
 
     if (file->m_type == file_t::TYPE_PIPE) {
-        //return file->m_pipe->write(buffer, count);
+        return file->m_pipe->write(buffer, count);
     }
     if (file->m_type == file_t::TYPE_SOCKET) {
         //return file->m_socket->write(buffer, count);
@@ -842,71 +840,71 @@ int file_system_t::do_chdir(const char* path)
     return 0;
 }
 
-//int file_system_t::alloc_pipe(file_t*& file_read, file_t*& file_write)
-//{
-//    pipe_t* pipe = NULL;
-//
-//    file_read = alloc_file();
-//    if (file_read == NULL) {
-//        goto failed;
-//    }
-//    file_write = alloc_file();
-//    if (file_write == NULL) {
-//        goto failed;
-//    }
-//
-//    pipe = (pipe_t *) os()->get_obj_pool(PIPE_POOL)->alloc_from_pool();
-//    if (pipe == NULL) {
-//        goto failed;
-//    }
-//
-//    pipe->init();
-//    file_read->init(file_t::TYPE_PIPE, NULL, pipe, 0, 1, 0);
-//    file_write->init(file_t::TYPE_PIPE, NULL, pipe, 0, 0, 1);
-//
-//    return 0;
-//
-//failed:
-//    if (file_read != NULL) {
-//        close_file(file_read);
-//    }
-//    if (file_write != NULL) {
-//        close_file(file_write);
-//    }
-//    if (pipe != NULL) {
-//        os()->get_obj_pool(PIPE_POOL)->free_object((void *) pipe);
-//    }
-//    return -1;
-//}
+int file_system_t::alloc_pipe(file_t*& file_read, file_t*& file_write)
+{
+    pipe_t* pipe = NULL;
 
-//int file_system_t::do_pipe(int fd[2])
-//{
-//    file_t* file_read = NULL;
-//    file_t* file_write = NULL;
-//    int fd_read = -1, fd_write = -1;
-//    if (alloc_pipe(file_read, file_write) < 0) {
-//        return -1;
-//    }
-//
-//    fd_read = current->alloc_fd(file_read);
-//    if (fd_read < 0) {
-//        goto failed;
-//    }
-//    fd_write = current->alloc_fd(file_write);
-//    if (fd_write < 0) {
-//        current->free_fd(fd_read);
-//        goto failed;
-//    }
-//
-//    fd[0] = fd_read;
-//    fd[1] = fd_write;
-//    return 0;
-//
-//failed:
-//    close_file(file_read);
-//    close_file(file_write);
-//    return -1;
-//}
+    file_read = alloc_file();
+    if (file_read == NULL) {
+        goto failed;
+    }
+    file_write = alloc_file();
+    if (file_write == NULL) {
+        goto failed;
+    }
+
+    pipe = (pipe_t *) os()->get_obj_pool(PIPE_POOL)->alloc_from_pool();
+    if (pipe == NULL) {
+        goto failed;
+    }
+
+    pipe->init();
+    file_read->init(file_t::TYPE_PIPE, NULL, pipe, 0, 1, 0);
+    file_write->init(file_t::TYPE_PIPE, NULL, pipe, 0, 0, 1);
+
+    return 0;
+
+failed:
+    if (file_read != NULL) {
+        close_file(file_read);
+    }
+    if (file_write != NULL) {
+        close_file(file_write);
+    }
+    if (pipe != NULL) {
+        os()->get_obj_pool(PIPE_POOL)->free_object((void *) pipe);
+    }
+    return -1;
+}
+
+int file_system_t::do_pipe(int fd[2])
+{
+    file_t* file_read = NULL;
+    file_t* file_write = NULL;
+    int fd_read = -1, fd_write = -1;
+    if (alloc_pipe(file_read, file_write) < 0) {
+        return -1;
+    }
+
+    fd_read = current->alloc_fd(file_read);
+    if (fd_read < 0) {
+        goto failed;
+    }
+    fd_write = current->alloc_fd(file_write);
+    if (fd_write < 0) {
+        current->free_fd(fd_read);
+        goto failed;
+    }
+
+    fd[0] = fd_read;
+    fd[1] = fd_write;
+    return 0;
+
+failed:
+    close_file(file_read);
+    close_file(file_write);
+    return -1;
+}
 
 //int file_system_t::do_send_to(int fd, void* buffer, uint32 count, sock_addr_t* addr)
 //{

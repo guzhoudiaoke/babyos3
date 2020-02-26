@@ -86,10 +86,10 @@ public:
     static int32 sys_dup(trap_frame_t* frame);
     static int32 sys_stat(trap_frame_t* frame);
     static int32 sys_chdir(trap_frame_t* frame);
-    //static int64 sys_pipe(trap_frame_t* frame);
-    //static int64 sys_send_to(trap_frame_t* frame);
-    //static int64 sys_recv_from(trap_frame_t* frame);
-    //static int64 sys_socket(trap_frame_t* frame);
+    static int32 sys_pipe(trap_frame_t* frame);
+    //static int32 sys_send_to(trap_frame_t* frame);
+    //static int32 sys_recv_from(trap_frame_t* frame);
+    //static int32 sys_socket(trap_frame_t* frame);
 
 private:
     static int32 (*s_system_call_table[])(trap_frame_t* frame);

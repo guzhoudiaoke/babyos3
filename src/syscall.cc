@@ -53,7 +53,7 @@ int32 (*syscall_t::s_system_call_table[])(trap_frame_t* frame) = {
     syscall_t::sys_dup,
     syscall_t::sys_stat,
     syscall_t::sys_chdir,
-    //syscall_t::sys_pipe,
+    syscall_t::sys_pipe,
     //syscall_t::sys_send_to,
     //syscall_t::sys_recv_from,
     //syscall_t::sys_socket,
@@ -236,12 +236,12 @@ int32 syscall_t::sys_chdir(trap_frame_t* frame)
     return os()->fs()->do_chdir(path);
 }
 
-//int32 syscall_t::sys_pipe(trap_frame_t* frame)
-//{
-//    int* fd = (int *) frame->ebx;
-//    return os()->get_fs()->do_pipe(fd);
-//}
-//
+int32 syscall_t::sys_pipe(trap_frame_t* frame)
+{
+    int* fd = (int *) get_argument(frame, 0);
+    return os()->fs()->do_pipe(fd);
+}
+
 //int32 syscall_t::sys_socket(trap_frame_t* frame)
 //{
 //    return sys_socket_t::do_sys_socket(frame);

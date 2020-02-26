@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/file.cc
+ *	babyos/kernel/pipe.h
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,33 +19,42 @@
 
 
 /*
- *  2020-02-19		created
+ *  2020-02-26		created
  */
 
 
-#include "file.h"
+#ifndef _PIPE_H_
+#define _PIPE_H_
 
 
-void file_t::init(uint32 type, inode_t* inode, pipe_t* pipe, uint32 offset, uint16 readable, uint16 writeable)
-{
-    m_type = type;
-    m_ref = 1;
-    m_readable = readable;
-    m_writeable = writeable;
-    m_inode = inode;
-    m_pipe = pipe;
-    m_offset = 0;
-    //m_socket = NULL;
-}
+#include "types.h"
+#include "sem.h"
+#include "spinlock.h"
 
-//void file_t::init(uint32 type, socket_t* socket)
-//{
-//    m_type = TYPE_SOCKET;
-//    m_ref = 1;
-//    m_readable = 1;
-//    m_writeable = 1;
-//    m_inode = NULL;
-//    m_pipe = NULL;
-//    m_offset = 0;
-//    m_socket = socket;
-//}
+
+#define PIPE_BUF_SIZE 512
+
+
+class pipe_t {
+public:
+    void  init();
+    int   get_char(char& ch);
+    int   put_char(char ch);
+
+    int32 read(void* buf, uint32 size);
+    int32 write(void* buf, uint32 size);
+    void  close(bool write_end);
+
+private:
+    char        m_buffer[PIPE_BUF_SIZE];
+    uint32      m_read_index;
+    uint32      m_write_index;
+    spinlock_t  m_lock;
+    semaphore_t m_space;    // how many space can use to put
+    semaphore_t m_item;     // how many item can get
+
+    bool        m_readable;
+    bool        m_writable;
+};
+
+#endif

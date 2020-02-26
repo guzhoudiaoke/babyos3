@@ -51,6 +51,7 @@ OBJS = \
 		file_table.o \
 		file.o \
 		sem.o \
+		pipe.o \
 
 USERAPP = \
 		init \

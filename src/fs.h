@@ -87,7 +87,7 @@ public:
     int      do_seek(int fd, uint32 pos);
     int      do_stat(int fd, stat_t* st);
     int      do_chdir(const char* path);
-    //int      do_pipe(int fd[2]);
+    int      do_pipe(int fd[2]);
     //int      do_send_to(int fd, void* buffer, uint32 count, sock_addr_t* addr);
     //int      do_recv_from(int fd, void* buffer, uint32 count, sock_addr_t* addr);
 
@@ -121,7 +121,7 @@ private:
     inode_t* namei(const char* path, int parent, char* name);
     inode_t* create(const char* path, uint16 type, uint16 major, uint16 minor);
 
-    //int      alloc_pipe(file_t*& file_read, file_t*& file_write);
+    int      alloc_pipe(file_t*& file_read, file_t*& file_write);
 
 private:
     uint32          m_dev;

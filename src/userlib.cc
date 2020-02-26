@@ -206,13 +206,13 @@ int userlib_t::stat(const char* path, stat_t* st)
     return ret;
 }
 
-//int userlib_t::pipe(int fd[2])
-//{
-//    uint32 ret = 0;
-//    __asm__ volatile("int $0x80" : "=a" (ret) : "a" (SYS_PIPE), "b" (fd));
-//    return ret;
-//}
-//
+int userlib_t::pipe(int fd[2])
+{
+    uint32 ret = 0;
+    __asm__ volatile("int $0x80" : "=a" (ret) : "a" (syscall_t::PIPE), "D" (fd));
+    return ret;
+}
+
 //int userlib_t::socket(int domain, int type, int protocol)
 //{
 //    uint32 ret = 0;
