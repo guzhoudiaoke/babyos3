@@ -27,11 +27,12 @@
 #ifndef _FS_H_
 #define _FS_H_
 
+
 #include "types.h"
 #include "file.h"
 #include "file_table.h"
 #include "inode.h"
-//#include "sock_addr.h"
+#include "sock_addr.h"
 
 
 #define ROOT_DEV 1
@@ -88,8 +89,8 @@ public:
     int      do_stat(int fd, stat_t* st);
     int      do_chdir(const char* path);
     int      do_pipe(int fd[2]);
-    //int      do_send_to(int fd, void* buffer, uint32 count, sock_addr_t* addr);
-    //int      do_recv_from(int fd, void* buffer, uint32 count, sock_addr_t* addr);
+    int      do_send_to(int fd, void* buffer, uint64 count, sock_addr_t* addr);
+    int      do_recv_from(int fd, void* buffer, uint64 count, sock_addr_t* addr);
 
     inode_t* dup_inode(inode_t* inode);
     void     put_inode(inode_t* inode);

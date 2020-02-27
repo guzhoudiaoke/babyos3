@@ -89,19 +89,18 @@ void do_cmd(const char* cmd_line)
 {
     parse_cmd_line(cmd_line, command, &argument);
     int32 pid = userlib_t::fork();
-    userlib_t::printf("shell fork return: %d\n", pid);
+    //userlib_t::printf("shell fork return: %d\n", pid);
     if (pid == 0) {
         int ret = userlib_t::exec(command, &argument);
-
-        userlib_t::printf("ERROR: shell exec returned: %d\n", pid);
+        //userlib_t::printf("ERROR: shell exec returned: %d\n", pid);
         if (ret < 0) {
             userlib_t::exit(-1);
         }
     }
 
-    userlib_t::printf("will wait child\n");
+    //userlib_t::printf("will wait child\n");
     userlib_t::wait(pid);
-    userlib_t::printf("after wait child\n");
+    //userlib_t::printf("after wait child\n");
 }
 
 // only for test
@@ -149,9 +148,9 @@ static void test_fork_wait_exit(const char* times)
     for (int i = 0; i < t; i++) {
         int32 pid = userlib_t::fork();
         if (pid == 0) {
-            if (i % 100 == 0) {
+            //if (i % 100 == 0) {
                 userlib_t::printf("%u\n", i);
-            }
+            //}
             userlib_t::exit(0);
         }
 
@@ -189,7 +188,6 @@ static void test_pipe()
             userlib_t::read(fd[0], &ch, 1);
             userlib_t::printf("parent read %c from pipe\n", ch);
         }
-
         userlib_t::close(fd[0]);
         userlib_t::wait(pid);
     }
@@ -218,10 +216,10 @@ static void test_pipe()
 //{
 //    int listen_fd = userlib_t::socket(socket_t::AF_LOCAL, 0, 0);
 //    if (listen_fd < 0) {
-//        userlib_t::printf("err, server create socket failed, error %u\n", listen_fd);
+//        userlib_t::printf("err, server create socket failed, error %d\n", listen_fd);
 //        return;
 //    }
-//    userlib_t::printf("server create socket succ: %u\n", listen_fd);
+//    userlib_t::printf("server create socket succ: %d\n", listen_fd);
 //
 //    sock_addr_local_t addr;
 //    addr.m_family = socket_t::AF_LOCAL;
@@ -293,10 +291,10 @@ static void test_pipe()
 //    userlib_t::printf("client connect success\n");
 //    do_client(sock_fd, data);
 //}
-
+//
 //static void test_socket()
 //{
-//    int32 pid1 = -1; 
+//    int32 pid1 = -1;
 //    int32 pid2 = -1;
 //    int32 pid3 = -1;
 //

@@ -29,6 +29,9 @@
 #include "babyos.h"
 #include "string.h"
 #include "x86.h"
+#include "sock_addr.h"
+#include "sys_socket.h"
+
 
 
 int32 (*syscall_t::s_system_call_table[])(trap_frame_t* frame) = {
@@ -54,9 +57,9 @@ int32 (*syscall_t::s_system_call_table[])(trap_frame_t* frame) = {
     syscall_t::sys_stat,
     syscall_t::sys_chdir,
     syscall_t::sys_pipe,
-    //syscall_t::sys_send_to,
-    //syscall_t::sys_recv_from,
-    //syscall_t::sys_socket,
+    syscall_t::sys_send_to,
+    syscall_t::sys_recv_from,
+    syscall_t::sys_socket,
 };
 
 void syscall_t::do_syscall(trap_frame_t* frame)
@@ -242,28 +245,28 @@ int32 syscall_t::sys_pipe(trap_frame_t* frame)
     return os()->fs()->do_pipe(fd);
 }
 
-//int32 syscall_t::sys_socket(trap_frame_t* frame)
-//{
-//    return sys_socket_t::do_sys_socket(frame);
-//}
+int32 syscall_t::sys_socket(trap_frame_t* frame)
+{
+    return sys_socket_t::do_sys_socket(frame);
+}
 
-//int32 syscall_t::sys_send_to(trap_frame_t* frame)
-//{
-//    int32 fd            = frame->ebx;
-//    char* buf           = (char *) frame->ecx;
-//    uint32 size         = frame->edx;
-//    sock_addr_t* addr   = (sock_addr_t *) frame->esi;
-//
-//    return os()->get_fs()->do_send_to(fd, buf, size, addr);
-//}
-//
-//int32 syscall_t::sys_recv_from(trap_frame_t* frame)
-//{
-//    int32 fd            = frame->ebx;
-//    char* buf           = (char *) frame->ecx;
-//    uint32 size         = frame->edx;
-//    sock_addr_t* addr   = (sock_addr_t *) frame->esi;
-//    
-//    return os()->get_fs()->do_recv_from(fd, buf, size, addr);
-//}
+int32 syscall_t::sys_send_to(trap_frame_t* frame)
+{
+    int32 fd            = (int32) get_argument(frame, 0);
+    char* buf           = (char *) get_argument(frame, 1);
+    uint64 size         = (uint64) get_argument(frame, 2);
+    sock_addr_t* addr   = (sock_addr_t *) get_argument(frame, 2);
+
+    return os()->fs()->do_send_to(fd, buf, size, addr);
+}
+
+int32 syscall_t::sys_recv_from(trap_frame_t* frame)
+{
+    int32 fd            = (int32) get_argument(frame, 0);
+    char* buf           = (char *) get_argument(frame, 1);
+    uint64 size         = (uint64) get_argument(frame, 2);
+    sock_addr_t* addr   = (sock_addr_t *) get_argument(frame, 2);
+
+    return os()->fs()->do_recv_from(fd, buf, size, addr);
+}
 

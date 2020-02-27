@@ -213,50 +213,50 @@ int userlib_t::pipe(int fd[2])
     return ret;
 }
 
-//int userlib_t::socket(int domain, int type, int protocol)
-//{
-//    uint32 ret = 0;
-//    __asm__ volatile("int $0x80" 
-//            : "=a" (ret) 
-//            : "a" (SYS_SOCKET), "b" (sys_socket_t::SOCK_SOCKET), "c"(domain), "d" (type), "S" (protocol));
-//    return ret;
-//}
-//
-//int userlib_t::bind(int sockfd, const sock_addr_t* addr)
-//{
-//    uint32 ret = 0;
-//    __asm__ volatile("int $0x80" 
-//            : "=a" (ret) 
-//            : "a" (SYS_SOCKET), "b" (sys_socket_t::SOCK_BIND), "c"(sockfd), "d" (addr));
-//    return ret;
-//}
-//
-//int userlib_t::listen(int sockfd, int backlog)
-//{
-//    uint32 ret = 0;
-//    __asm__ volatile("int $0x80" 
-//            : "=a" (ret) 
-//            : "a" (SYS_SOCKET), "b" (sys_socket_t::SOCK_LISTEN), "c"(sockfd), "d" (backlog));
-//    return ret;
-//}
-//
-//int userlib_t::connect(int sockfd, const sock_addr_t* addr)
-//{
-//    uint32 ret = 0;
-//    __asm__ volatile("int $0x80" 
-//            : "=a" (ret) 
-//            : "a" (SYS_SOCKET), "b" (sys_socket_t::SOCK_CONNECT), "c"(sockfd), "d" (addr));
-//    return ret;
-//}
+int userlib_t::socket(int domain, int type, int protocol)
+{
+    uint32 ret = 0;
+    __asm__ volatile("int $0x80"
+                     : "=a" (ret)
+                     : "a" (syscall_t::SOCKET), "D" (sys_socket_t::SOCK_SOCKET), "S"(domain), "d" (type), "c" (protocol));
+    return ret;
+}
 
-//int userlib_t::accept(int sockfd, sock_addr_t* addr)
-//{
-//    uint32 ret = 0;
-//    __asm__ volatile("int $0x80" 
-//            : "=a" (ret) 
-//            : "a" (SYS_SOCKET), "b" (sys_socket_t::SOCK_ACCEPT), "c"(sockfd), "d" (addr));
-//    return ret;
-//}
+int userlib_t::bind(int sockfd, const sock_addr_t* addr)
+{
+    uint32 ret = 0;
+    __asm__ volatile("int $0x80"
+                     : "=a" (ret)
+                     : "a" (syscall_t::SOCKET), "D" (sys_socket_t::SOCK_BIND), "S"(sockfd), "d" (addr));
+    return ret;
+}
+
+int userlib_t::listen(int sockfd, int backlog)
+{
+    uint32 ret = 0;
+    __asm__ volatile("int $0x80"
+                     : "=a" (ret)
+                     : "a" (syscall_t::SOCKET), "D" (sys_socket_t::SOCK_LISTEN), "S"(sockfd), "d" (backlog));
+    return ret;
+}
+
+int userlib_t::connect(int sockfd, const sock_addr_t* addr)
+{
+    uint32 ret = 0;
+    __asm__ volatile("int $0x80"
+                     : "=a" (ret)
+                     : "a" (syscall_t::SOCKET), "D" (sys_socket_t::SOCK_CONNECT), "S"(sockfd), "d" (addr));
+    return ret;
+}
+
+int userlib_t::accept(int sockfd, sock_addr_t* addr)
+{
+    uint32 ret = 0;
+    __asm__ volatile("int $0x80"
+                     : "=a" (ret)
+                     : "a" (syscall_t::SOCKET), "D" (sys_socket_t::SOCK_ACCEPT), "S"(sockfd), "d" (addr));
+    return ret;
+}
 
 
 /***********************************************************************/

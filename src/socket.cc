@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/file.cc
+ *	babyos/kernel/socket.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,33 +19,22 @@
 
 
 /*
- *  2020-02-19		created
+ *  2020-02-26		created
  */
 
 
-#include "file.h"
+
+#include "socket.h"
+#include "babyos.h"
 
 
-void file_t::init(uint32 type, inode_t* inode, pipe_t* pipe, uint32 offset, uint16 readable, uint16 writeable)
+int32 socket_t::create(uint32 family, uint32 type, uint32 protocol)
 {
-    m_type = type;
-    m_ref = 1;
-    m_readable = readable;
-    m_writeable = writeable;
-    m_inode = inode;
-    m_pipe = pipe;
-    m_offset = 0;
-    m_socket = NULL;
+    m_family    = family;
+    m_type      = type;
+    m_protocol  = protocol;
+    m_state     = SS_UNCONNECTED;
+
+    return 0;
 }
 
-void file_t::init(uint32 type, socket_t* socket)
-{
-    m_type = TYPE_SOCKET;
-    m_ref = 1;
-    m_readable = 1;
-    m_writeable = 1;
-    m_inode = NULL;
-    m_pipe = NULL;
-    m_offset = 0;
-    m_socket = socket;
-}

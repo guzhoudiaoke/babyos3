@@ -9,7 +9,7 @@ LDFLAGS  = -g -m elf_x86_64
 CPPFLAGS = -g -Wall -Werror -fno-exceptions -m64
 CPPFLAGS += -mcmodel=kernel -fno-pic -static -fno-builtin -fno-strict-aliasing
 CPPFLAGS += -MD -fno-omit-frame-pointer -ffreestanding -fno-common -nostdlib
-CPPFLAGS += -gdwarf-2 -DX64 -mtls-direct-seg-refs -mno-red-zone
+CPPFLAGS += -gdwarf-2 -DX64 -mtls-direct-seg-refs -mno-red-zone -fno-rtti
 ASFLAGS  = -g -m64
 QEMU     = qemu-system-x86_64
 NAME     = babyos3
@@ -52,6 +52,11 @@ OBJS = \
 		file.o \
 		sem.o \
 		pipe.o \
+		socket.o \
+		socket_local.o \
+	    sock_ring_buffer.o \
+		sock_addr.o \
+        sys_socket.o \
 
 USERAPP = \
 		init \
@@ -62,17 +67,22 @@ USERAPP = \
 		mkdir \
 		rm \
 		cp \
+		testsocket \
 		mv \
+
+
+USERAPP := ${addprefix ./,${USERAPP}}
 
 
 BOOTSIZE   = 1
 LOADERSIZE = 3
-KERNELSIZE = 1024
+KERNELSIZE = 2048
 FONTSIZE   = 8
 FONTLBA    = 2048
 FLOPPYSIZE = 1024
 DISKSIZE   = 4096
 FSSIZE     = 4096
+
 babyos: boot loader kernel ${USERAPP}
 	../tool/checksize boot   ${BOOTSIZE}
 	../tool/checksize loader ${LOADERSIZE}
@@ -87,7 +97,7 @@ babyos: boot loader kernel ${USERAPP}
 	dd if=kernel            of=baby_hd.img ibs=512 seek=${LOADERSIZE} 	count=${KERNELSIZE} conv=notrunc
 	dd if=../res/font/ASC16 of=baby_hd.img ibs=512 seek=${FONTLBA}      count=${FONTSIZE}   conv=notrunc
 
-	../tool/mkfs ./init ./shell ./ls ./cat ./cat ./ln ./mkdir ./rm ./cp ./mv
+	../tool/mkfs ${USERAPP}
 
 
 boot: boot.S
@@ -147,11 +157,14 @@ ping: ping.cc userlib.o
 	${CPP} ${CPPFLAGS} -O -c ping.cc
 	${LD} ${LDFLAGS} -e main -Ttext 0x1000 -o ping ping.o userlib.o
 
+testsocket: test_local_socket.cc userlib.o
+	${CPP} ${CPPFLAGS} -O -c test_local_socket.cc
+	${LD} ${LDFLAGS} -e main -Ttext 0x1000 -o testsocket test_local_socket.o userlib.o
 
 
 
 
-%.o: %.c
+%.o: %.cc
 	$(CPP) $(CPPFLAGS) -c $< -o  $@
 
 %.o: %.S
@@ -165,5 +178,5 @@ qemu: boot.img baby_hd.img fs.img
 	${QEMU} -fda boot.img -hda baby_hd.img -hdb fs.img -serial mon:stdio -m 128 -name ${NAME}
 
 
-qemudebug: boot.img baby_hd.img fs.img
+qdebug: boot.img baby_hd.img fs.img
 	${QEMU} -fda boot.img -hda baby_hd.img -hdb fs.img -serial mon:stdio -m 128 -name ${NAME} -s -S

@@ -32,8 +32,8 @@
 #include "syscall.h"
 //#include "signal.h"
 #include "fs.h"
-//#include "socket.h"
-//#include "sys_socket.h"
+#include "socket.h"
+#include "sys_socket.h"
 #include "arg.h"
 #include "color.h"
 //#include "dns.h"
@@ -102,14 +102,14 @@ public:
     static int   pipe(int fd[2]);
 
     /* socket */
-    //static int   socket(int domain, int type, int protocol);
-    //static int   bind(int sockfd, const sock_addr_t* addr);
-    //static int   listen(int sockfd, int backlog);
-    //static int   connect(int sockfd, const sock_addr_t* addr);
-    //static int   accept(int sockfd, sock_addr_t* addr);
+    static int   socket(int domain, int type, int protocol);
+    static int   bind(int sockfd, const sock_addr_t* addr);
+    static int   listen(int sockfd, int backlog);
+    static int   connect(int sockfd, const sock_addr_t* addr);
+    static int   accept(int sockfd, sock_addr_t* addr);
 
-    //static int   send_to(int fd, void *buf, uint32 size, sock_addr_t* addr);
-    //static int   recv_from(int fd, void *buf, uint32 size, sock_addr_t* addr);
+    static int   send_to(int fd, void *buf, uint32 size, sock_addr_t* addr);
+    static int   recv_from(int fd, void *buf, uint32 size, sock_addr_t* addr);
 
     /* net */
     static uint16 htons(uint16 n);

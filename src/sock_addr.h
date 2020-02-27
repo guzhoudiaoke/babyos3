@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/file.cc
+ *	babyos/kernel/sock_addr.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,33 +19,44 @@
 
 
 /*
- *  2020-02-19		created
+ *  2020-02-26		created
  */
 
 
-#include "file.h"
 
 
-void file_t::init(uint32 type, inode_t* inode, pipe_t* pipe, uint32 offset, uint16 readable, uint16 writeable)
-{
-    m_type = type;
-    m_ref = 1;
-    m_readable = readable;
-    m_writeable = writeable;
-    m_inode = inode;
-    m_pipe = pipe;
-    m_offset = 0;
-    m_socket = NULL;
-}
+#ifndef _SOCK_ADDR_H_
+#define _SOCK_ADDR_H_
 
-void file_t::init(uint32 type, socket_t* socket)
-{
-    m_type = TYPE_SOCKET;
-    m_ref = 1;
-    m_readable = 1;
-    m_writeable = 1;
-    m_inode = NULL;
-    m_pipe = NULL;
-    m_offset = 0;
-    m_socket = socket;
-}
+
+
+#include "types.h"
+
+#define MAX_LOCAL_PATH      108
+
+
+class sock_addr_t {
+public:
+    uint16 m_family;        /* address family, AF_xxx */
+};
+
+/* socket local */
+class sock_addr_local_t : public sock_addr_t {
+public:
+    bool operator == (const sock_addr_local_t& addr);
+    char m_path[MAX_LOCAL_PATH];
+};
+
+
+/* socket inet */
+class sock_addr_inet_t : public sock_addr_t {
+public:
+    static const uint32 INADDR_ANY = 0;
+
+    bool operator == (const sock_addr_inet_t& addr);
+    uint32 m_ip;
+    uint16 m_port;
+};
+
+
+#endif

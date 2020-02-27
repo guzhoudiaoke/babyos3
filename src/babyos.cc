@@ -27,6 +27,7 @@
 #include "delay.h"
 #include "syscall.h"
 #include "pipe.h"
+#include "sys_socket.h"
 
 
 static babyos_t babyos;
@@ -192,6 +193,10 @@ void babyos_t::init()
     /* block dev */
     m_block_dev.init(1);
     uart()->puts("block dev init done\n");
+
+    /* sock */
+    sys_socket_t::init();
+    uart()->puts("sys socket init done\n");
 
     /* fs */
     m_fs.init();

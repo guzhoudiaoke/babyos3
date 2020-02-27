@@ -28,7 +28,7 @@
 #include "string.h"
 #include "babyos.h"
 #include "pipe.h"
-//#include "socket.h"
+#include "socket.h"
 
 
 
@@ -80,7 +80,7 @@ int file_table_t::free(file_t* file)
         f.m_pipe = NULL;
     }
     else if (f.m_type == file_t::TYPE_SOCKET) {
-        //f.m_socket->release();
+        f.m_socket->release();
     }
     else if (f.m_type == file_t::TYPE_INODE) {
         os()->fs()->put_inode(f.m_inode);

@@ -31,7 +31,7 @@
 #include "string.h"
 #include "block_dev.h"
 #include "pipe.h"
-//#include "socket.h"
+#include "socket.h"
 
 
 void file_system_t::read_super_block(super_block_t* sb)
@@ -607,7 +607,7 @@ int64 file_system_t::do_read(int fd, void* buffer, uint32 count)
         return file->m_pipe->read(buffer, count);
     }
     if (file->m_type == file_t::TYPE_SOCKET) {
-        //return file->m_socket->read(buffer, count);
+        return file->m_socket->read(buffer, count);
     }
     if (file->m_type == file_t::TYPE_INODE) {
         int nbyte = 0;
@@ -631,7 +631,7 @@ int64 file_system_t::do_write(int fd, void* buffer, uint32 count)
         return file->m_pipe->write(buffer, count);
     }
     if (file->m_type == file_t::TYPE_SOCKET) {
-        //return file->m_socket->write(buffer, count);
+        return file->m_socket->write(buffer, count);
     }
     if (file->m_type == file_t::TYPE_INODE) {
         int nbyte = 0;
@@ -703,7 +703,7 @@ failed:
 }
 
 bool file_system_t::dir_empty(inode_t* inode)
-{  
+{
     dir_entry_t de;
     for (uint32 off = 2*sizeof(de); off < inode->m_size; off += sizeof(de)) {
         if (read_inode(inode, &de, off, sizeof(de)) != sizeof(de)) {
@@ -906,31 +906,31 @@ failed:
     return -1;
 }
 
-//int file_system_t::do_send_to(int fd, void* buffer, uint32 count, sock_addr_t* addr)
-//{
-//    file_t* file = current->get_file(fd);
-//    if (file == NULL || file->m_readable == 0) {
-//        return -1;
-//    }
-//
-//    if (file->m_type == file_t::TYPE_SOCKET) {
-//        return file->m_socket->send_to(buffer, count, addr);
-//    }
-//
-//    return -1;
-//}
-//
-//int file_system_t::do_recv_from(int fd, void* buffer, uint64 count, sock_addr_t* addr)
-//{
-//    file_t* file = current->get_file(fd);
-//    if (file == NULL || file->m_readable == 0) {
-//        return -1;
-//    }
-//
-//    if (file->m_type == file_t::TYPE_SOCKET) {
-//        return file->m_socket->recv_from(buffer, count, addr);
-//    }
-//
-//    return -1;
-//}
+int file_system_t::do_send_to(int fd, void* buffer, uint64 count, sock_addr_t* addr)
+{
+    file_t* file = current->get_file(fd);
+    if (file == NULL || file->m_readable == 0) {
+        return -1;
+    }
+
+    if (file->m_type == file_t::TYPE_SOCKET) {
+        return file->m_socket->send_to(buffer, count, addr);
+    }
+
+    return -1;
+}
+
+int file_system_t::do_recv_from(int fd, void* buffer, uint64 count, sock_addr_t* addr)
+{
+    file_t* file = current->get_file(fd);
+    if (file == NULL || file->m_readable == 0) {
+        return -1;
+    }
+
+    if (file->m_type == file_t::TYPE_SOCKET) {
+        return file->m_socket->recv_from(buffer, count, addr);
+    }
+
+    return -1;
+}
 
