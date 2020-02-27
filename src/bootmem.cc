@@ -223,6 +223,18 @@ void bootmem_t::init_page_map()
               bytes,                              /* length */
               PTE_P | PTE_W);
 
+    /* local apic */
+    map_pages(IO2V(APIC_BASE),
+              APIC_BASE,
+              PAGE_SIZE,       /* TODO */
+              PTE_P | PTE_W);
+
+    /* io apic */
+    map_pages(IO2V(IO_APIC_BASE),
+              IO_APIC_BASE,
+              PAGE_SIZE,       /* TODO */
+              PTE_P | PTE_W);
+
     /* set pml4 to cr3 */
     set_cr3(m_pml4_pa);
 }

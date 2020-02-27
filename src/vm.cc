@@ -72,6 +72,7 @@ pte_t* vmm_t::copy_page_table(pte_t* page_table)
 
         uint64 pa = (pte & (PAGE_MASK));
         if (os()->buddy()->get_page_ref(pa) <= 0) {
+            os()->uart()->kprintf("current: %p(%u), pa: %p error ref\n", current, current->m_pid, pa);
             os()->panic("inc ref of page with ref <= 0");
         }
 

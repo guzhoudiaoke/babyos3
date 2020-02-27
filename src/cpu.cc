@@ -123,6 +123,7 @@ void cpu_t::startup()
     init_idt();
     init_tss();
     init_idle();
+    m_local_apic.init();
 }
 
 void cpu_t::init_gdt()
@@ -217,12 +218,19 @@ void cpu_t::do_interrupt(uint64 trapno)
     switch (trapno) {
     case IRQ_0 + IRQ_TIMER:
         os()->i8254()->do_irq();
+        m_local_apic.eoi();
         break;
     case IRQ_0 + IRQ_KEYBOARD:
         os()->keyboard()->do_irq();
+        m_local_apic.eoi();
         break;
     case IRQ_0 + IRQ_HARDDISK:
         os()->ide()->do_irq();
+        m_local_apic.eoi();
+        break;
+    case VEC_LOCAL_TIMER:
+        m_local_apic.do_timer_irq();
+        m_local_apic.eoi();
         break;
     default:
         os()->console()->kprintf(RED, "Interrupt: %x not known.\n", trapno);
@@ -335,6 +343,11 @@ void cpu_t::schedule_tail(process_t* proc)
 tss_t* cpu_t::tss()
 {
     return &m_tss;
+}
+
+local_apic_t* cpu_t::local_apic()
+{
+    return &m_local_apic;
 }
 
 void cpu_t::update()

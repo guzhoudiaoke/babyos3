@@ -134,6 +134,10 @@ file_system_t* babyos_t::fs()
     return &m_fs;
 }
 
+io_apic_t* babyos_t::io_apic()
+{
+    return &m_io_apic;
+}
 
 
 void babyos_t::init()
@@ -178,6 +182,10 @@ void babyos_t::init()
     m_cpu.startup();
     uart()->puts("cpu startup done\n");
 
+    /* io apic */
+    m_io_apic.init();
+    uart()->puts("io apic init done\n");
+
     /* rtc */
     m_rtc.init();
     uart()->puts("rtc init done\n");
@@ -214,6 +222,7 @@ void babyos_t::init()
 
     /* start the first user process: init */
     start_init_proc();
+    uart()->puts("start init proc\n");
 
     //test_syscall();
     //test_ide();

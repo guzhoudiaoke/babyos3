@@ -26,10 +26,12 @@
 #ifndef _CPU_H_
 #define _CPU_H_
 
+
 #include "types.h"
 #include "descriptor.h"
 #include "traps.h"
 #include "process.h"
+#include "local_apic.h"
 
 
 class cpu_t {
@@ -46,6 +48,7 @@ public:
     void schedule();
     void schedule_tail(process_t* proc);
     tss_t* tss();
+    local_apic_t* local_apic();
 
 
 private:
@@ -67,6 +70,7 @@ private:
 
     uint8*               m_kstack;
     process_t*           m_idle;
+    local_apic_t         m_local_apic;
 };
 
 

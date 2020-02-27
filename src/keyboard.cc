@@ -38,7 +38,8 @@ keyboard_t::~keyboard_t()
 
 void keyboard_t::init()
 {
-	os()->i8259a()->enable_irq(IRQ_KEYBOARD);		/* enable keyboard interrupt */
+	//os()->i8259a()->enable_irq(IRQ_KEYBOARD);		/* enable keyboard interrupt */
+    os()->io_apic()->enable_irq(IRQ_KEYBOARD, 0);
 
 	m_shift_l = false;
 	m_shift_r = false;
@@ -109,7 +110,7 @@ void keyboard_t::do_irq()
         os()->console()->do_input(ch);
     }
 
-	outb(0x20, 0x20);
+	//outb(0x20, 0x20);
 }
 
 int32 keyboard_t::read()

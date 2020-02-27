@@ -44,6 +44,7 @@
 #include "timer_mgr.h"
 #include "block_dev.h"
 #include "fs.h"
+#include "io_apic.h"
 
 
 enum pool_type_e {
@@ -90,6 +91,7 @@ public:
     block_dev_t*    block_dev();
     dev_op_t*       get_dev(uint32 type);
     file_system_t*  fs();
+    io_apic_t*      io_apic();
 
 
 
@@ -113,6 +115,7 @@ private:
     ide_t          m_ide;
     block_dev_t    m_block_dev;
     file_system_t  m_fs;
+    io_apic_t      m_io_apic;
 
     process_mgr_t  m_process_mgr;
     timer_mgr_t    m_timer_mgr;

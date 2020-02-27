@@ -57,6 +57,8 @@ OBJS = \
 	    sock_ring_buffer.o \
 		sock_addr.o \
         sys_socket.o \
+		local_apic.o \
+		io_apic.o \
 
 USERAPP = \
 		init \

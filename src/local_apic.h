@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/i8254.h
+ *	babyos/kernel/local_apic.h
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,56 +19,46 @@
 
 
 /*
- *  2020-02-16		created
+ *  2020-02-27		created
  */
 
 
-#include "i8254.h"
-#include "babyos.h"
-#include "x86.h"
-#include "traps.h"
+
+#ifndef _LOCAL_APIC_H_
+#define _LOCAL_APIC_H_
 
 
-i8254_t::i8254_t()
-{
-}
+#include "types.h"
 
-i8254_t::~i8254_t()
-{
-}
 
-void i8254_t::init()
-{
-    m_tick = 0;
+#define APIC_BASE       (0xfee00000ull)
 
-    uint32 val = CLOCK_TICK_RATE / HZ;
 
-    /* control */
-    outb(0x43, 0x34);
+class local_apic_t {
+public:
+    int  check();
+    void global_enable();
+    void global_disable();
+    void software_enable();
+    void software_disable();
 
-    /* clock 0 */
-    outb(0x40, uint8(val & 0xff));
-    outb(0x40, uint8(val >> 8));
+    uint32 calibrate_clock();
+    void do_timer_irq();
+    void eoi();
 
-	os()->i8259a()->enable_irq(IRQ_TIMER);		/* enable keyboard interrupt */
-}
+    void test();
+    int  init_timer();
+    int  init();
+    void start_ap(uint32 id, uint32 addr);
+    uint32 get_clocks();
+    uint64 get_tick();
 
-void i8254_t::do_irq()
-{
-    m_tick++;
-    os()->update(m_tick);
+    static uint32 get_apic_id();
 
-    /* EOI */
-    //outb(0x20, 0x20);
-}
+private:
+    uint32  m_clocks;
+    uint32  m_id;
+    uint64  m_tick;
+};
 
-uint32 i8254_t::get_timer_count()
-{
-    uint32 count = 0;
-    outb(0x43, 0x00);
-    count = inb(0x40);
-    count |= inb(0x40) << 8;
-
-    return count;
-}
-
+#endif

@@ -53,8 +53,8 @@ void ide_t::init(uint32 dev)
     m_req_list.init(os()->get_obj_pool_of_size());
     m_current = NULL;
 
-    os()->i8259a()->enable_irq(IRQ_HARDDISK);
-    //os()->get_arch()->get_io_apic()->enable_irq(IRQ_HARDDISK, 0);
+    //os()->i8259a()->enable_irq(IRQ_HARDDISK);
+    os()->io_apic()->enable_irq(IRQ_HARDDISK, 0);
     wait();
     outb(0x1f6, 0xe0 | (dev << 4));
 }
@@ -114,9 +114,9 @@ void ide_t::end_request()
     }
 
     /* EOI */
-    outb(0x20, 0x20);
-    outb(0xa0, 0x20);
-    //os()->get_arch()->get_current_cpu()->get_local_apic()->eoi();
+    //outb(0x20, 0x20);
+    //outb(0xa0, 0x20);
+    os()->cpu()->local_apic()->eoi();
 
     do_request();
 }

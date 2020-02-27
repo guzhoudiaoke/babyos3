@@ -196,6 +196,17 @@ static inline void cmos_write(uint32 reg, uint32 value)
     outb(CMOS_DATA_PORT, value);
 }
 
+#define rdmsr(msr, val1, val2)                      \
+	__asm__ __volatile__("rdmsr"                    \
+                         : "=a" (val1), "=d" (val2) \
+                         : "c" (msr))
+
+#define wrmsr(msr, val1, val2)                                  \
+	__asm__ __volatile__("wrmsr"                                \
+                         : /* no outputs */                     \
+                         : "c" (msr), "a" (val1), "d" (val2))
+
+
 static inline uint32 xchg(volatile uint32 *addr, uint32 newval)
 {
     uint32 result;

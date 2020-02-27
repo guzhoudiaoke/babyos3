@@ -54,10 +54,6 @@
 #define PML4E_PER_PAGE      512
 
 
-/* kernel va->pa, pa->va */
-#define VA2PA(x)	        (((uint64)(x)) - KERNEL_BASE)
-#define PA2VA(x)	        ((void *)(((uint64)x) + KERNEL_BASE))
-
 
 /* pml4 table entry */
 typedef uint64 pml4e_t;
