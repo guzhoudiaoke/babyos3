@@ -172,7 +172,7 @@ testsocket: test_local_socket.cc userlib.o
 
 
 clean:
-	rm -f boot loader kernel *.o *.img *.elf *.d
+	rm -f boot loader kernel *.o *.img *.elf *.d ${USERAPP}
 
 qemu: boot.img baby_hd.img fs.img
 	${QEMU} -fda boot.img -hda baby_hd.img -hdb fs.img -serial mon:stdio -m 128 -name ${NAME}

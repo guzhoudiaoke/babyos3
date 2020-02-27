@@ -289,7 +289,7 @@ void babyos_t::update(uint64 tick)
 void babyos_t::panic(const char* s)
 {
     cli();
-    m_console.kprintf(RED, "[BABYOS PANICED], %s\n", s);
+    m_console.kprintf(RED, "[BABYOS PANICED]: %s\n", s);
     while (1) {
         halt();
     }

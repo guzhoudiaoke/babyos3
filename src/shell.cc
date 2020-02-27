@@ -92,7 +92,7 @@ void do_cmd(const char* cmd_line)
     //userlib_t::printf("shell fork return: %d\n", pid);
     if (pid == 0) {
         int ret = userlib_t::exec(command, &argument);
-        //userlib_t::printf("ERROR: shell exec returned: %d\n", pid);
+        userlib_t::printf("ERROR: shell exec returned: %d\n", pid);
         if (ret < 0) {
             userlib_t::exit(-1);
         }

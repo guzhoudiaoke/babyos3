@@ -159,11 +159,11 @@ void bootmem_t::map_pages(void *va, uint64 pa, uint64 length, uint32 perm)
         pde_t* pd_table = get_pd_table(pdp_table, v);
         pte_t* page_table = get_page_table(pd_table, v);
 
-        os()->uart()->kprintf("%16lx, pml4_table[%3d]=%16lx, pdp_table[%3d]=%16lx, pd_table[%3d]=%16lx\n",
-                              v,
-                              PML4E_INDEX(v), pml4_table[PML4E_INDEX(v)],
-                              PDPE_INDEX(v), pdp_table[PDPE_INDEX(v)],
-                              PDE_INDEX(v), pd_table[PDE_INDEX(v)]);
+        //os()->uart()->kprintf("%16lx, pml4_table[%3d]=%16lx, pdp_table[%3d]=%16lx, pd_table[%3d]=%16lx\n",
+        //                      v,
+        //                      PML4E_INDEX(v), pml4_table[PML4E_INDEX(v)],
+        //                      PDPE_INDEX(v), pdp_table[PDPE_INDEX(v)],
+        //                      PDE_INDEX(v), pd_table[PDE_INDEX(v)]);
 
         for (uint32 i = PTE_INDEX(v); i < PTRS_PER_PDE; i++) {
             if (v >= e) {

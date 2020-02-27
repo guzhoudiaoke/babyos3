@@ -118,11 +118,11 @@ uint64 buddy_t::expand(free_list_t* addr, uint32 low, uint32 high)
     }
 
     uint64 pa = VA2PA(addr);
-    inc_page_ref(pa);
-    //uint64 p = pa;
-    //for (uint32 i = 0; i < math_t::pow(2, low); i++, p += PAGE_SIZE) {
-    //    inc_page_ref(p);
-    //}
+    //inc_page_ref(pa);
+    uint64 p = pa;
+    for (uint32 i = 0; i < math_t::pow(2, low); i++, p += PAGE_SIZE) {
+        inc_page_ref(p);
+    }
     return pa;
 }
 
@@ -142,6 +142,7 @@ uint64 buddy_t::alloc_pages(uint32 order)
             if (get_page_ref(pa) != 1) {
                 os()->panic("ref count not 1!!\n");
             }
+
             return pa;
         }
         new_order++;
@@ -155,7 +156,14 @@ uint64 buddy_t::alloc_pages(uint32 order)
 void buddy_t::free_pages(uint64 pa, uint32 order)
 {
     uint32 num = math_t::pow(2, order);
-    if (!dec_page_ref(pa)) {
+
+    uint32 ref = dec_page_ref(pa);
+    for (uint32 i = 1; i < num; i++) {
+        if (dec_page_ref(pa + PAGE_SIZE*i) != ref) {
+            os()->panic("free pages with different ref\n");
+        }
+    }
+    if (!ref) {
         return;
     }
 

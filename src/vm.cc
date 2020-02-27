@@ -64,13 +64,17 @@ pte_t* vmm_t::copy_page_table(pte_t* page_table)
     memcpy(ret, page_table, PAGE_SIZE);
 
     /* copy pdp table entries */
-    for (uint32 i = 0; i < PTRS_PER_PDPE; i++) {
+    for (uint32 i = 0; i < PTRS_PER_PDE; i++) {
         uint64 pte = page_table[i];
         if (!(pte & PTE_P)) {
             continue;
         }
 
         uint64 pa = (pte & (PAGE_MASK));
+        if (os()->buddy()->get_page_ref(pa) <= 0) {
+            os()->panic("inc ref of page with ref <= 0");
+        }
+
         os()->buddy()->inc_page_ref(pa);
         ret[i] = page_table[i] &= (~PTE_W);
     }

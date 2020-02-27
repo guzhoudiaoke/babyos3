@@ -189,6 +189,10 @@ int32 process_t::exec(trap_frame_t* frame)
 
     /* load elf binary */
     if (elf_t::load(frame, m_name) != 0) {
+        /* free arg */
+        if (arg != NULL) {
+            os()->buddy()->free_pages(VA2PA(arg), 0);
+        }
         exit();
         return -1;
     }

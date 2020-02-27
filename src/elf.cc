@@ -91,6 +91,15 @@ static int32 load_elf_binary(elf64_hdr_t* elf, int fd)
     return 0;
 }
 
+static const char* get_command(const char* path)
+{
+    const char* p = path + strlen(path);
+    while (p != path && *p != '/') {
+        p--;
+    }
+    return *p == '/' ? p+1 : p;
+}
+
 int32 elf_t::load(trap_frame_t* frame, const char* path)
 {
     int ret = 0;
@@ -98,9 +107,9 @@ int32 elf_t::load(trap_frame_t* frame, const char* path)
     /* 1. open file */
     int fd = os()->fs()->do_open(path, file_t::MODE_RDWR);
     if (fd < 0) {
-        os()->console()->kprintf(RED, "BUG on open file %s!\n", path);
+        os()->console()->kprintf(RED, "command not found: %s\n", get_command(path));
         ret = -1;
-        goto end;
+        return ret;
     }
 
     /* 2. read elf from hard disk */
