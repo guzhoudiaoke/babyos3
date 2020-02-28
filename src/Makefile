@@ -2,8 +2,9 @@
 all: babyos
 
 CPP = g++
-LD = ld
+LD  = ld
 OBJCOPY = objcopy
+QEMU    = qemu-system-x86_64
 
 LDFLAGS  = -g -m elf_x86_64
 CPPFLAGS = -g -Wall -Werror -fno-exceptions -m64
@@ -11,7 +12,7 @@ CPPFLAGS += -mcmodel=kernel -fno-pic -static -fno-builtin -fno-strict-aliasing
 CPPFLAGS += -MD -fno-omit-frame-pointer -ffreestanding -fno-common -nostdlib
 CPPFLAGS += -gdwarf-2 -DX64 -mtls-direct-seg-refs -mno-red-zone -fno-rtti
 ASFLAGS  = -g -m64
-QEMU     = qemu-system-x86_64
+
 NAME     = babyos3
 
 
@@ -25,6 +26,7 @@ OBJS = \
 		string.o \
 		console.o \
 		bootmem.o \
+		bootinfo.o \
 		buddy.o \
 		math.o \
 		i8259a.o \

@@ -334,7 +334,7 @@ void local_apic_t::start_ap(uint32 id, uint32 addr)
      * shutdown code.
      */
     cmos_write(0xf, 0xa);
-    uint32* warm_reset_vec = (uint32 *) PA2VA(0x467);
+    uint32* warm_reset_vec = (uint32 *) P2V(0x467);
     *warm_reset_vec = (addr >> 4) << 16;
 
     /*

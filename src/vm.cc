@@ -44,7 +44,7 @@ int32 vmm_t::copy(const vmm_t& vmm)
         return -1;
     }
 
-    asm volatile("movq %0, %%cr3": :"r" (VA2PA(m_pml4_table)));
+    asm volatile("movq %0, %%cr3": :"r" (V2P(m_pml4_table)));
 
     if (copy_vma(vmm.m_mmap)) {
         return -1;
@@ -56,7 +56,7 @@ int32 vmm_t::copy(const vmm_t& vmm)
 pte_t* vmm_t::copy_page_table(pte_t* page_table)
 {
     /* alloc pdp_table */
-    pte_t* ret = (pte_t *) PA2VA(os()->buddy()->alloc_pages(0));
+    pte_t* ret = (pte_t *) P2V(os()->buddy()->alloc_pages(0));
     if (ret == NULL) {
         return NULL;
     }
@@ -86,7 +86,7 @@ pte_t* vmm_t::copy_page_table(pte_t* page_table)
 pde_t* vmm_t::copy_pd_table(pde_t* pd_table)
 {
     /* alloc pdp_table */
-    pde_t* ret = (pde_t *) PA2VA(os()->buddy()->alloc_pages(0));
+    pde_t* ret = (pde_t *) P2V(os()->buddy()->alloc_pages(0));
     if (ret == NULL) {
         return NULL;
     }
@@ -100,13 +100,13 @@ pde_t* vmm_t::copy_pd_table(pde_t* pd_table)
             continue;
         }
 
-        pte_t* src = (pte_t *) PA2VA(pde & PAGE_MASK);
+        pte_t* src = (pte_t *) P2V(pde & PAGE_MASK);
         pte_t* copy = copy_page_table(src);
         if (copy == NULL) {
             return NULL;
         }
 
-        ret[i] = VA2PA(copy) | (pde & (~PAGE_MASK));
+        ret[i] = V2P(copy) | (pde & (~PAGE_MASK));
     }
 
     return ret;
@@ -115,7 +115,7 @@ pde_t* vmm_t::copy_pd_table(pde_t* pd_table)
 pdpe_t* vmm_t::copy_pdp_table(pdpe_t* pdp_table)
 {
     /* alloc pdp_table */
-    pdpe_t* ret = (pdpe_t *) PA2VA(os()->buddy()->alloc_pages(0));
+    pdpe_t* ret = (pdpe_t *) P2V(os()->buddy()->alloc_pages(0));
     if (ret == NULL) {
         return NULL;
     }
@@ -129,13 +129,13 @@ pdpe_t* vmm_t::copy_pdp_table(pdpe_t* pdp_table)
             continue;
         }
 
-        pde_t* src = (pde_t *) PA2VA(pdpe & PAGE_MASK);
+        pde_t* src = (pde_t *) P2V(pdpe & PAGE_MASK);
         pde_t* copy = copy_pd_table(src);
         if (copy == NULL) {
             return NULL;
         }
 
-        ret[i] = VA2PA(copy) | (pdpe & (~PAGE_MASK));
+        ret[i] = V2P(copy) | (pdpe & (~PAGE_MASK));
     }
 
     return ret;
@@ -144,7 +144,7 @@ pdpe_t* vmm_t::copy_pdp_table(pdpe_t* pdp_table)
 pml4e_t* vmm_t::copy_pml4_table(pml4e_t* pml4_table)
 {
     /* alloc pml4_table */
-    pml4e_t* ret = (pml4e_t *) PA2VA(os()->buddy()->alloc_pages(0));
+    pml4e_t* ret = (pml4e_t *) P2V(os()->buddy()->alloc_pages(0));
     if (ret == NULL) {
         return NULL;
     }
@@ -160,12 +160,12 @@ pml4e_t* vmm_t::copy_pml4_table(pml4e_t* pml4_table)
             continue;
         }
 
-        pdpe_t* src = (pdpe_t *) PA2VA(pml4e & PAGE_MASK);
+        pdpe_t* src = (pdpe_t *) P2V(pml4e & PAGE_MASK);
         pdpe_t* copy = copy_pdp_table(src);
         if (copy == NULL) {
             goto failed;
         }
-        ret[i] = VA2PA(copy) | (pml4e & (~PAGE_MASK));
+        ret[i] = V2P(copy) | (pml4e & (~PAGE_MASK));
     }
 
     return ret;
@@ -457,7 +457,7 @@ int32 vmm_t::do_protection_fault(vm_area_t* vma, uint64 addr, bool write)
 
     /* this page is shared, now only COW can share page */
     uint64 p = os()->buddy()->alloc_pages(0);
-    memcpy(PA2VA(p), PA2VA(pa & PAGE_MASK), PAGE_SIZE);
+    memcpy(P2V(p), P2V(pa & PAGE_MASK), PAGE_SIZE);
 
     os()->buddy()->free_pages(pa, 0);
     vmm_t::map_pages(m_pml4_table, (void*) addr, p, PAGE_SIZE, PTE_W | PTE_U);
@@ -543,19 +543,19 @@ void vmm_t::make_pte_write(void* va)
         return;
     }
 
-    pdpe_t* pdp_table = (pdpe_t *) (PA2VA(pml4e & PAGE_MASK));
+    pdpe_t* pdp_table = (pdpe_t *) (P2V(pml4e & PAGE_MASK));
     pdpe_t pdpe = pdp_table[PDPE_INDEX(va)];
     if (!(pdpe & PTE_P)) {
         return;
     }
 
-    pde_t* pd_table = (pde_t *) (PA2VA(pdpe & PAGE_MASK));
+    pde_t* pd_table = (pde_t *) (P2V(pdpe & PAGE_MASK));
     pde_t pde = pd_table[PDE_INDEX(va)];
     if (!(pde & PTE_P)) {
         return;
     }
 
-    pte_t* page_table = (pte_t *) PA2VA(pde & PAGE_MASK);
+    pte_t* page_table = (pte_t *) P2V(pde & PAGE_MASK);
     pte_t pte = page_table[PTE_INDEX(va)];
     if (!(pte & PTE_P)) {
         return;
@@ -563,7 +563,7 @@ void vmm_t::make_pte_write(void* va)
 
     page_table[PTE_INDEX(va)] |= PTE_W;
 
-    asm volatile("movq %0, %%cr3": :"r" (VA2PA(m_pml4_table)));
+    asm volatile("movq %0, %%cr3": :"r" (V2P(m_pml4_table)));
 }
 
 int32 vmm_t::expand_stack(vm_area_t* vma, uint64 addr)
@@ -585,7 +585,7 @@ void vmm_t::free_page_range(uint64 start, uint64 end)
 
         addr += PAGE_SIZE;
     }
-    asm volatile("movq %0, %%cr3": :"r" (VA2PA(m_pml4_table)));
+    asm volatile("movq %0, %%cr3": :"r" (V2P(m_pml4_table)));
 }
 
 void vmm_t::free_pdp_table(pdpe_t* pdp_table)
@@ -597,7 +597,7 @@ void vmm_t::free_pdp_table(pdpe_t* pdp_table)
         }
 
         uint64 pa = pdpe & PAGE_MASK;
-        pde_t* pd_table = (pde_t *) (PA2VA(pa));
+        pde_t* pd_table = (pde_t *) (P2V(pa));
         free_pd_table(pd_table);
 
         os()->buddy()->free_pages(pa, 0);
@@ -628,14 +628,14 @@ void vmm_t::free_pml4_table()
         }
 
         uint64 pa = pml4e & PAGE_MASK;
-        pdpe_t* pdp_table = (pdpe_t *) (PA2VA(pa));
+        pdpe_t* pdp_table = (pdpe_t *) (P2V(pa));
         free_pdp_table(pdp_table);
 
         os()->buddy()->free_pages(pa, 0);
         m_pml4_table[i] = 0;
     }
 
-    asm volatile("movq %0, %%cr3": :"r" (VA2PA(m_pml4_table)));
+    asm volatile("movq %0, %%cr3": :"r" (V2P(m_pml4_table)));
 }
 
 void vmm_t::release()
@@ -681,7 +681,7 @@ void vmm_t::map_pages(pml4e_t *pml4_table, void *va, uint64 pa, uint64 size, uin
         }
     }
 
-    asm volatile("movq %0, %%cr3": :"r" (VA2PA(pml4_table)));
+    asm volatile("movq %0, %%cr3": :"r" (V2P(pml4_table)));
 }
 
 pdpe_t* vmm_t::get_pdp_table(pml4e_t* pml4_table, void* v)
@@ -689,11 +689,11 @@ pdpe_t* vmm_t::get_pdp_table(pml4e_t* pml4_table, void* v)
     pml4e_t pml4e = pml4_table[PML4E_INDEX(v)];
     pdpe_t* pdp_table = NULL;
     if ((pml4e) & PTE_P) {
-        pdp_table = (pdpe_t *) (PA2VA(pml4e & PAGE_MASK));
+        pdp_table = (pdpe_t *) (P2V(pml4e & PAGE_MASK));
     }
     else {
         uint64 pdpt_pa = os()->buddy()->alloc_pages(0);
-        pdp_table = (pdpe_t *) PA2VA(pdpt_pa);
+        pdp_table = (pdpe_t *) P2V(pdpt_pa);
         memset(pdp_table, 0, PAGE_SIZE);
         pml4_table[PML4E_INDEX(v)] = (pdpt_pa | PTE_P | PTE_W | PTE_U);
     }
@@ -706,11 +706,11 @@ pde_t* vmm_t::get_pd_table(pdpe_t* pdp_table, void* v)
     pdpe_t pdpe = pdp_table[PDPE_INDEX(v)];
     pde_t* pd_table = NULL;
     if ((pdpe) & PTE_P) {
-        pd_table = (pde_t *) (PA2VA(pdpe & PAGE_MASK));
+        pd_table = (pde_t *) (P2V(pdpe & PAGE_MASK));
     }
     else {
         uint64 pdt_pa = os()->buddy()->alloc_pages(0);
-        pd_table = (pde_t *) PA2VA(pdt_pa);
+        pd_table = (pde_t *) P2V(pdt_pa);
         memset(pd_table, 0, PAGE_SIZE);
         pdp_table[PDPE_INDEX(v)] = (pdt_pa | PTE_P | PTE_W | PTE_U);
     }
@@ -723,11 +723,11 @@ pte_t* vmm_t::get_page_table(pde_t* pd_table, void* v)
     pde_t pde = pd_table[PDE_INDEX(v)];
     pte_t* page_table = NULL;
     if ((pde) & PTE_P) {
-        page_table = (pte_t *) (PA2VA(pde & PAGE_MASK));
+        page_table = (pte_t *) (P2V(pde & PAGE_MASK));
     }
     else {
         uint64 pt_pa = os()->buddy()->alloc_pages(0);
-        page_table = (pte_t *) PA2VA(pt_pa);
+        page_table = (pte_t *) P2V(pt_pa);
         memset(page_table, 0, PAGE_SIZE);
         pd_table[PDE_INDEX(v)] = (pt_pa | PTE_P | PTE_W | PTE_U);
     }
@@ -738,7 +738,7 @@ pte_t* vmm_t::get_page_table(pde_t* pd_table, void* v)
 uint64 vmm_t::va_to_pa(pml4e_t* pml4_table, void* va)
 {
     if ((uint64) va >= KERNEL_BASE) {
-        return VA2PA(va);
+        return V2P(va);
     }
 
     pml4e_t pml4e = pml4_table[PML4E_INDEX(va)];
@@ -746,19 +746,19 @@ uint64 vmm_t::va_to_pa(pml4e_t* pml4_table, void* va)
         return -1;
     }
 
-    pdpe_t* pdp_table = (pdpe_t *) (PA2VA(pml4e & PAGE_MASK));
+    pdpe_t* pdp_table = (pdpe_t *) (P2V(pml4e & PAGE_MASK));
     pdpe_t pdpe = pdp_table[PDPE_INDEX(va)];
     if (!(pdpe & PTE_P)) {
         return -1;
     }
 
-    pde_t* pd_table = (pde_t *) (PA2VA(pdpe & PAGE_MASK));
+    pde_t* pd_table = (pde_t *) (P2V(pdpe & PAGE_MASK));
     pde_t pde = pd_table[PDE_INDEX(va)];
     if (!(pde & PTE_P)) {
         return -1;
     }
 
-    pte_t* page_table = (pte_t *) PA2VA(pde & PAGE_MASK);
+    pte_t* page_table = (pte_t *) P2V(pde & PAGE_MASK);
     pte_t pte = page_table[PTE_INDEX(va)];
     if (!(pte & PTE_P)) {
         return -1;

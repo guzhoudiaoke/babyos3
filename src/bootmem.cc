@@ -44,16 +44,8 @@ bootmem_t::~bootmem_t()
 
 void bootmem_t::init()
 {
-    init_boot_info();
     init_mem_range();
     init_page_map();
-}
-
-void bootmem_t::init_boot_info()
-{
-    m_boot_info.video_info = (video_info_t *) early_pa2va(VIDEO_INFO_ADDR);
-    m_boot_info.mem_layout = (memory_layout_t *) early_pa2va(MEM_INFO_ADDR);
-    m_boot_info.asc16_font = (void *) early_pa2va(FONT_ASC16_ADDR);
 }
 
 void bootmem_t::init_mem_range()
@@ -66,8 +58,9 @@ void bootmem_t::init_mem_range()
     os()->uart()->kprintf("type\t\taddress\t\t\tlength\n");
 
     /* print mem layout */
-    for (uint32 i = 0; i < m_boot_info.mem_layout->num_of_range; i++) {
-        address_range_t* range = &m_boot_info.mem_layout->ranges[i];
+    memory_layout_t* layout = os()->bootinfo()->memory_layout();
+    for (uint32 i = 0; i < layout->num_of_range; i++) {
+        address_range_t* range = &layout->ranges[i];
         uint64 addr = ((uint64)range->base_addr_high << 32) + range->base_addr_low;
         uint64 end = addr + ((uint64)range->length_high << 32) + range->length_low;
         os()->uart()->kprintf("0x%8x\t0x%16lx\t0x%16lx\n",
@@ -202,12 +195,13 @@ void bootmem_t::init_page_map()
 
     /* map all normal memory */
     uint64 pa = (uint64)_end - KERNEL_LOAD_BASE;
-    for (uint32 i = 0; i < m_boot_info.mem_layout->num_of_range; i++) {
-        address_range_t* range = &m_boot_info.mem_layout->ranges[i];
+    memory_layout_t* layout = os()->bootinfo()->memory_layout();
+    for (uint32 i = 0; i < layout->num_of_range; i++) {
+        address_range_t* range = &layout->ranges[i];
         uint64 begin = ((uint64)range->base_addr_high << 32) + range->base_addr_low;
         uint64 end = begin + ((uint64)range->length_high << 32) + range->length_low;
         if (range->type == 1 && begin <= pa && pa <= end) {
-            map_pages(PA2VA(pa),  /* va */
+            map_pages(P2V(pa),  /* va */
                       pa,         /* pa */
                       end - pa,   /* length */
                       PTE_W);
@@ -216,9 +210,9 @@ void bootmem_t::init_page_map()
     }
 
     /* map video vram */
-    video_info_t* video_info = m_boot_info.video_info;
+    video_info_t* video_info = os()->bootinfo()->video_info();
     uint32 bytes = video_info->width*video_info->height*video_info->bits_per_pixel/3;
-    map_pages(PA2VA(video_info->vram_base_addr),  /* va */
+    map_pages(IO2V(video_info->vram_base_addr),  /* va */
               video_info->vram_base_addr,         /* pa */
               bytes,                              /* length */
               PTE_P | PTE_W);
@@ -249,11 +243,6 @@ void* bootmem_t::early_pa2va(uint64 pa)
     return (void *)(pa + KERNEL_LOAD_BASE);
 }
 
-boot_info_t* bootmem_t::get_boot_info()
-{
-    return &m_boot_info;
-}
-
 uint64 bootmem_t::get_start_usable_pa()
 {
     return m_start_pa;
@@ -266,6 +255,6 @@ uint64 bootmem_t::get_end_usable_pa()
 
 pml4e_t* bootmem_t::get_pml4()
 {
-    os()->uart()->kprintf("bootmem pml4: %p\n", PA2VA(m_pml4_pa));
-    return (pml4e_t *) PA2VA(m_pml4_pa);
+    os()->uart()->kprintf("bootmem pml4: %p\n", P2V(m_pml4_pa));
+    return (pml4e_t *) P2V(m_pml4_pa);
 }

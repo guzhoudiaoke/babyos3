@@ -71,6 +71,11 @@ bootmem_t* babyos_t::bootmem()
     return &m_bootmem;
 }
 
+bootinfo_t* babyos_t::bootinfo()
+{
+    return &m_bootinfo;
+}
+
 buddy_t* babyos_t::buddy()
 {
     return &m_buddy;
@@ -148,6 +153,9 @@ void babyos_t::init()
     /* serial port */
     m_uart.early_init();
     uart()->puts("Hello babyos..\n");
+
+    /* bootinfo */
+    m_bootinfo.init();
 
     /* bootmem */
     m_bootmem.init();

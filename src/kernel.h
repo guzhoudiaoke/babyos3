@@ -94,8 +94,8 @@
 #define USER_STACK_TOP      (0x0000800000000000ull)
 
 /* kernel va->pa, pa->va */
-#define VA2PA(x)	        (((uint64)(x)) - KERNEL_BASE)
-#define PA2VA(x)	        ((void *)(((uint64)x) + KERNEL_BASE))
+#define V2P(x)	        (((uint64)(x)) - KERNEL_BASE)
+#define P2V(x)	        ((void *)(((uint64)x) + KERNEL_BASE))
 
 
 #define DEV_BASE            (0xffffffff00000000ull) /* First device virtual address */

@@ -100,7 +100,7 @@ int32 syscall_t::sys_print(trap_frame_t* frame)
 {
     color_ref_t color = (color_ref_t) get_argument(frame, 0);
     char buffer[512] = {0};
-    char* va = (char *)PA2VA(vmm_t::va_to_pa(current->m_vmm.get_pml4_table(), (void *)get_argument(frame, 1)));
+    char* va = (char *)P2V(vmm_t::va_to_pa(current->m_vmm.get_pml4_table(), (void *)get_argument(frame, 1)));
 
     strcpy(buffer, va);
     os()->console()->kprintf(color, "%s", buffer);

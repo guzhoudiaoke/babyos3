@@ -147,7 +147,7 @@ void cpu_t::init_tss()
     m_tss.x86_tss.sp2 = (uint64) m_kstack;
 
     /* set interrupt stack table */
-    uint64 ist = (uint64) PA2VA(os()->buddy()->alloc_pages(3));
+    uint64 ist = (uint64) P2V(os()->buddy()->alloc_pages(3));
     for (int i = 0; i < 7; i++) {
         m_tss.x86_tss.ist[i] = ist;
     }
@@ -324,7 +324,7 @@ void cpu_t::schedule()
     rq_lock->unlock_irqrestore(flags);
 
     /* switch mm */
-    set_cr3(VA2PA(next->m_vmm.get_pml4_table()));
+    set_cr3(V2P(next->m_vmm.get_pml4_table()));
 
     /* switch registers and stack */
     switch_to(prev, next, prev);

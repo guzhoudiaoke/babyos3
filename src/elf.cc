@@ -76,7 +76,7 @@ static int32 load_elf_binary(elf64_hdr_t* elf, int fd)
         vmm_t::map_pages(pml4_table, vaddr, pa, len, PTE_W | PTE_U);
 
         /* read data */
-        uint8* va = (uint8 *) PA2VA(pa);
+        uint8* va = (uint8 *) P2V(pa);
         if (read_file_from(fd, va+offset, ph.p_offset, ph.p_filesz) != 0) {
             return -1;
         }

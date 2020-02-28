@@ -43,7 +43,7 @@ void block_dev_t::init(uint32 dev)
 
     m_dev = dev;
     m_buf_num = PAGE_SIZE * BUFFER_PAGES / sizeof(io_buffer_t);
-    m_bufs = (io_buffer_t *) PA2VA(os()->buddy()->alloc_pages(BUFFER_PAGES_ORDER));
+    m_bufs = (io_buffer_t *) P2V(os()->buddy()->alloc_pages(BUFFER_PAGES_ORDER));
     for (uint32 i = 0; i < m_buf_num; i++) {
         m_bufs[i].init();
         m_free_list.push_back(m_bufs + i);

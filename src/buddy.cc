@@ -58,7 +58,7 @@ void buddy_t::init_pages()
     uint64 mem_end = os()->bootmem()->get_end_usable_pa();
     uint32 page_num = (uint64) (mem_end + PAGE_SIZE - 1) / PAGE_SIZE;
     uint32 size = page_num * sizeof(page_t);
-    m_pages = (page_t *) PA2VA(os()->bootmem()->mem_alloc(size, false));
+    m_pages = (page_t *) P2V(os()->bootmem()->mem_alloc(size, false));
 
     for (uint32 i = 0; i < page_num; i++) {
         atomic_set(&m_pages[i].ref, 1);
@@ -82,7 +82,7 @@ void buddy_t::init()
         bitmap_size = (bitmap_size + sizeof(uint32) - 1) & ~(sizeof(uint32)-1);
 
         uint64 pa = os()->bootmem()->mem_alloc(bitmap_size, false);
-        m_free_area.free_list[i].bitmap = (uint32 *) PA2VA(pa);
+        m_free_area.free_list[i].bitmap = (uint32 *) P2V(pa);
         memset(m_free_area.free_list[i].bitmap, 0, bitmap_size);
     }
 
@@ -113,11 +113,11 @@ uint64 buddy_t::expand(free_list_t* addr, uint32 low, uint32 high)
         high--;
         size >>= 1;
         add_to_head(m_free_area.free_list+high, addr);
-        mark_used(VA2PA(addr), high);
+        mark_used(V2P(addr), high);
         addr = (free_list_t *) (size + (uint64) addr);
     }
 
-    uint64 pa = VA2PA(addr);
+    uint64 pa = V2P(addr);
     //inc_page_ref(pa);
     uint64 p = pa;
     for (uint32 i = 0; i < math_t::pow(2, low); i++, p += PAGE_SIZE) {
@@ -137,7 +137,7 @@ uint64 buddy_t::alloc_pages(uint32 order)
         if (queue != next) {
             queue->next = next->next;
             next->next->prev = queue;
-            mark_used((uint64) VA2PA(next), new_order);
+            mark_used((uint64) V2P(next), new_order);
             uint64 pa = expand(next, order, new_order);
             if (get_page_ref(pa) != 1) {
                 os()->panic("ref count not 1!!\n");
@@ -180,14 +180,14 @@ void buddy_t::free_pages(uint64 pa, uint32 order)
         }
 
         uint64 buddy = get_buddy(address, mask);
-        remove_head((free_list_t *)PA2VA(buddy));
+        remove_head((free_list_t *)P2V(buddy));
         order++;
         index >>= 1;
         mask <<= 1;
         address &= mask;
     }
 
-    add_to_head(m_free_area.free_list+order, (free_list_t *) PA2VA(address));
+    add_to_head(m_free_area.free_list+order, (free_list_t *) P2V(address));
 }
 
 void buddy_t::inc_page_ref(uint64 phy_addr)

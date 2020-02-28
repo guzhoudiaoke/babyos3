@@ -29,7 +29,6 @@
 
 #include "types.h"
 #include "page.h"
-#include "bootinfo.h"
 
 
 class bootmem_t {
@@ -40,17 +39,14 @@ public:
     void init();
     void map_pages(void* va, uint64 pa, uint64 length, uint32 perm);
     uint64 mem_alloc(uint32 size, bool page_align);
-    boot_info_t* get_boot_info();
     uint64 get_start_usable_pa();
     uint64 get_end_usable_pa();
     pml4e_t* get_pml4();
 
-
-private:
     static uint64 early_va2pa(void* va);
     static void*  early_pa2va(uint64 pa);
 
-    void init_boot_info();
+private:
     void init_mem_range();
     void init_page_map();
 
@@ -59,7 +55,6 @@ private:
     pde_t*  get_page_table(pde_t* pd_table, void* v);
 
 private:
-    boot_info_t      m_boot_info;
     uint64           m_start_pa;
     uint64           m_end_pa;
     uint64           m_pml4_pa;

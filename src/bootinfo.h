@@ -75,16 +75,27 @@ typedef struct address_range_s {
 
 
 typedef struct memory_layout_s {
-	uint32 num_of_range;
+	uint32          num_of_range;
 	address_range_t ranges[32];
 } __attribute__((packed, aligned(4))) memory_layout_t;
 
 
-typedef struct boot_info_s {
-    video_info_t* video_info;
-    memory_layout_t* mem_layout;
-    void* asc16_font;
-} boot_info_t;
+class bootinfo_t {
+public:
+    bootinfo_t();
+    ~bootinfo_t();
+
+    void init();
+
+    video_info_t* video_info();
+    memory_layout_t* memory_layout();
+    void* asc16_font();
+
+private:
+    video_info_t*    m_video_info;
+    memory_layout_t* m_mem_layout;
+    void*            m_asc16_font;
+};
 
 
 #endif
