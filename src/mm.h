@@ -28,6 +28,7 @@
 
 
 #include "bootmem.h"
+#include "buddy.h"
 
 
 class mm_t {
@@ -36,11 +37,21 @@ public:
     ~mm_t();
 
     void init();
+
     bootmem_t* bootmem();
     void* boot_mem_alloc(uint32 size, bool page_align);
+    uint64 alloc_pages(uint32 order);
+    void   free_pages(uint64 pa, uint32 order);
+
+    void   inc_page_ref(uint64 phy_addr);
+    uint32 dec_page_ref(uint64 phy_addr);
+    uint32 get_page_ref(uint64 phy_addr);
+
+    uint32 get_free_page_num();
 
 private:
     bootmem_t m_bootmem;
+    buddy_t   m_buddy;
 };
 
 

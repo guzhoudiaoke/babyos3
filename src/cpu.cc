@@ -147,7 +147,7 @@ void cpu_t::init_tss()
     m_tss.x86_tss.sp2 = (uint64) m_kstack;
 
     /* set interrupt stack table */
-    uint64 ist = (uint64) P2V(os()->buddy()->alloc_pages(3));
+    uint64 ist = (uint64) P2V(os()->mm()->alloc_pages(3));
     for (int i = 0; i < 7; i++) {
         m_tss.x86_tss.ist[i] = ist;
     }

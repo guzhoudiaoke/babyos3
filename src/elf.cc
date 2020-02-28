@@ -72,7 +72,7 @@ static int32 load_elf_binary(elf64_hdr_t* elf, int fd)
         }
 
         /* alloc mem and do map pages */
-        uint64 pa = os()->buddy()->alloc_pages(math_t::log(2, len / PAGE_SIZE));
+        uint64 pa = os()->mm()->alloc_pages(math_t::log(2, len / PAGE_SIZE));
         vmm_t::map_pages(pml4_table, vaddr, pa, len, PTE_W | PTE_U);
 
         /* read data */

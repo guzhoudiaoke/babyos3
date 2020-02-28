@@ -38,7 +38,7 @@ void sock_ring_buffer_t::init(socket_t* socket, uint32 order)
     m_write_index = 0;
     m_lock.init();
     m_wait_item.init(0);
-    m_buffer = (uint8 *) P2V(os()->buddy()->alloc_pages(order));
+    m_buffer = (uint8 *) P2V(os()->mm()->alloc_pages(order));
     m_length = PAGE_SIZE * math_t::pow(2, order);
     m_left = m_length;
     m_wait_space.init(m_length);

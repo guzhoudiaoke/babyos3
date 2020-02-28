@@ -25,7 +25,7 @@
 
 
 #include "babyos.h"
-#include "buddy.h"
+#include "mm.h"
 #include "pool.h"
 
 
@@ -68,7 +68,7 @@ void* object_pool_t::alloc_from_pool()
     m_lock.lock_irqsave(flags);
 	if (m_free_list == NULL) {
         os()->uart()->kprintf("alloc from pool alloc\n");
-		uint8* mem = (uint8 *) P2V(os()->buddy()->alloc_pages(0));
+		uint8* mem = (uint8 *) P2V(os()->mm()->alloc_pages(0));
 		uint8* end = mem + PAGE_SIZE;
 		while (mem + m_obj_size <= end) {
 			free_object_nolock(mem);

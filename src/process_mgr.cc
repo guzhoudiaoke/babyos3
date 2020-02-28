@@ -106,10 +106,10 @@ void process_mgr_t::release_process(process_t* proc)
     }
 
     /* free page dir */
-    os()->buddy()->free_pages(V2P(proc->m_vmm.get_pml4_table()), 0);
+    os()->mm()->free_pages(V2P(proc->m_vmm.get_pml4_table()), 0);
 
     /* free task */
-    os()->buddy()->free_pages(V2P(proc), 1);
+    os()->mm()->free_pages(V2P(proc), 1);
 }
 
 void process_mgr_t::add_process_to_rq(process_t* proc)

@@ -56,7 +56,7 @@ int32 vmm_t::copy(const vmm_t& vmm)
 pte_t* vmm_t::copy_page_table(pte_t* page_table)
 {
     /* alloc pdp_table */
-    pte_t* ret = (pte_t *) P2V(os()->buddy()->alloc_pages(0));
+    pte_t* ret = (pte_t *) P2V(os()->mm()->alloc_pages(0));
     if (ret == NULL) {
         return NULL;
     }
@@ -71,12 +71,12 @@ pte_t* vmm_t::copy_page_table(pte_t* page_table)
         }
 
         uint64 pa = (pte & (PAGE_MASK));
-        if (os()->buddy()->get_page_ref(pa) <= 0) {
+        if (os()->mm()->get_page_ref(pa) <= 0) {
             os()->uart()->kprintf("current: %p(%u), pa: %p error ref\n", current, current->m_pid, pa);
             os()->panic("inc ref of page with ref <= 0");
         }
 
-        os()->buddy()->inc_page_ref(pa);
+        os()->mm()->inc_page_ref(pa);
         ret[i] = page_table[i] &= (~PTE_W);
     }
 
@@ -86,7 +86,7 @@ pte_t* vmm_t::copy_page_table(pte_t* page_table)
 pde_t* vmm_t::copy_pd_table(pde_t* pd_table)
 {
     /* alloc pdp_table */
-    pde_t* ret = (pde_t *) P2V(os()->buddy()->alloc_pages(0));
+    pde_t* ret = (pde_t *) P2V(os()->mm()->alloc_pages(0));
     if (ret == NULL) {
         return NULL;
     }
@@ -115,7 +115,7 @@ pde_t* vmm_t::copy_pd_table(pde_t* pd_table)
 pdpe_t* vmm_t::copy_pdp_table(pdpe_t* pdp_table)
 {
     /* alloc pdp_table */
-    pdpe_t* ret = (pdpe_t *) P2V(os()->buddy()->alloc_pages(0));
+    pdpe_t* ret = (pdpe_t *) P2V(os()->mm()->alloc_pages(0));
     if (ret == NULL) {
         return NULL;
     }
@@ -144,7 +144,7 @@ pdpe_t* vmm_t::copy_pdp_table(pdpe_t* pdp_table)
 pml4e_t* vmm_t::copy_pml4_table(pml4e_t* pml4_table)
 {
     /* alloc pml4_table */
-    pml4e_t* ret = (pml4e_t *) P2V(os()->buddy()->alloc_pages(0));
+    pml4e_t* ret = (pml4e_t *) P2V(os()->mm()->alloc_pages(0));
     if (ret == NULL) {
         return NULL;
     }
@@ -445,21 +445,21 @@ int32 vmm_t::do_protection_fault(vm_area_t* vma, uint64 addr, bool write)
     /* this is a write protection fault, but this vma can't write */
     if (write && !(vma->m_flags & VM_WRITE)) {
         os()->console()->kprintf(RED, "protection fault, ref count: %u!\n",
-                os()->buddy()->get_page_ref(pa));
+                os()->mm()->get_page_ref(pa));
         return -1;
     }
 
     /* not shared */
-    if (os()->buddy()->get_page_ref(pa) == 1) {
+    if (os()->mm()->get_page_ref(pa) == 1) {
         make_pte_write((void *) addr);
         return 0;
     }
 
     /* this page is shared, now only COW can share page */
-    uint64 p = os()->buddy()->alloc_pages(0);
+    uint64 p = os()->mm()->alloc_pages(0);
     memcpy(P2V(p), P2V(pa & PAGE_MASK), PAGE_SIZE);
 
-    os()->buddy()->free_pages(pa, 0);
+    os()->mm()->free_pages(pa, 0);
     vmm_t::map_pages(m_pml4_table, (void*) addr, p, PAGE_SIZE, PTE_W | PTE_U);
 
     return 0;
@@ -502,7 +502,7 @@ good_area:
         }
 
         /* no page found */
-        uint64 pa = os()->buddy()->alloc_pages(0);
+        uint64 pa = os()->mm()->alloc_pages(0);
         addr = (addr & PAGE_MASK);
         vmm_t::map_pages(m_pml4_table, (void*) addr, pa, PAGE_SIZE, PTE_W | PTE_U);
     }
@@ -580,7 +580,7 @@ void vmm_t::free_page_range(uint64 start, uint64 end)
     while (addr < end) {
         uint64 pa = vmm_t::va_to_pa(current->m_vmm.get_pml4_table(), (void *) addr);
         if (pa != -1ull) {
-            os()->buddy()->free_pages(pa, 0);
+            os()->mm()->free_pages(pa, 0);
         }
 
         addr += PAGE_SIZE;
@@ -600,7 +600,7 @@ void vmm_t::free_pdp_table(pdpe_t* pdp_table)
         pde_t* pd_table = (pde_t *) (P2V(pa));
         free_pd_table(pd_table);
 
-        os()->buddy()->free_pages(pa, 0);
+        os()->mm()->free_pages(pa, 0);
         pdp_table[i] = 0;
     }
 }
@@ -614,7 +614,7 @@ void vmm_t::free_pd_table(pde_t* pd_table)
         }
 
         uint64 pa = pde & PAGE_MASK;
-        os()->buddy()->free_pages(pa, 0);
+        os()->mm()->free_pages(pa, 0);
         pd_table[i] = 0;
     }
 }
@@ -631,7 +631,7 @@ void vmm_t::free_pml4_table()
         pdpe_t* pdp_table = (pdpe_t *) (P2V(pa));
         free_pdp_table(pdp_table);
 
-        os()->buddy()->free_pages(pa, 0);
+        os()->mm()->free_pages(pa, 0);
         m_pml4_table[i] = 0;
     }
 
@@ -692,7 +692,7 @@ pdpe_t* vmm_t::get_pdp_table(pml4e_t* pml4_table, void* v)
         pdp_table = (pdpe_t *) (P2V(pml4e & PAGE_MASK));
     }
     else {
-        uint64 pdpt_pa = os()->buddy()->alloc_pages(0);
+        uint64 pdpt_pa = os()->mm()->alloc_pages(0);
         pdp_table = (pdpe_t *) P2V(pdpt_pa);
         memset(pdp_table, 0, PAGE_SIZE);
         pml4_table[PML4E_INDEX(v)] = (pdpt_pa | PTE_P | PTE_W | PTE_U);
@@ -709,7 +709,7 @@ pde_t* vmm_t::get_pd_table(pdpe_t* pdp_table, void* v)
         pd_table = (pde_t *) (P2V(pdpe & PAGE_MASK));
     }
     else {
-        uint64 pdt_pa = os()->buddy()->alloc_pages(0);
+        uint64 pdt_pa = os()->mm()->alloc_pages(0);
         pd_table = (pde_t *) P2V(pdt_pa);
         memset(pd_table, 0, PAGE_SIZE);
         pdp_table[PDPE_INDEX(v)] = (pdt_pa | PTE_P | PTE_W | PTE_U);
@@ -726,7 +726,7 @@ pte_t* vmm_t::get_page_table(pde_t* pd_table, void* v)
         page_table = (pte_t *) (P2V(pde & PAGE_MASK));
     }
     else {
-        uint64 pt_pa = os()->buddy()->alloc_pages(0);
+        uint64 pt_pa = os()->mm()->alloc_pages(0);
         page_table = (pte_t *) P2V(pt_pa);
         memset(page_table, 0, PAGE_SIZE);
         pd_table[PDE_INDEX(v)] = (pt_pa | PTE_P | PTE_W | PTE_U);

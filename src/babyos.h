@@ -34,7 +34,6 @@
 #include "bootmem.h"
 #include "mm.h"
 #include "bootinfo.h"
-#include "buddy.h"
 #include "i8259a.h"
 #include "i8254.h"
 #include "cpu.h"
@@ -82,7 +81,6 @@ public:
     vbe_t*          vbe();
     console_t*      console();
     bootinfo_t*     bootinfo();
-    buddy_t*        buddy();
     i8259a_t*       i8259a();
     i8254_t*        i8254();
     cpu_t*          cpu();
@@ -108,7 +106,6 @@ private:
     uart_t         m_uart;
     bootinfo_t     m_bootinfo;
     mm_t           m_mm;
-    buddy_t        m_buddy;
     vbe_t          m_vbe;
     console_t      m_console;
     i8259a_t       m_i8259a;

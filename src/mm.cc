@@ -37,6 +37,7 @@ mm_t::~mm_t()
 void mm_t::init()
 {
     m_bootmem.init();
+    m_buddy.init();
 }
 
 void* mm_t::boot_mem_alloc(uint32 size, bool page_align)
@@ -47,4 +48,34 @@ void* mm_t::boot_mem_alloc(uint32 size, bool page_align)
 bootmem_t* mm_t::bootmem()
 {
     return &m_bootmem;
+}
+
+uint64 mm_t::alloc_pages(uint32 order)
+{
+    return m_buddy.alloc_pages(order);
+}
+
+void mm_t::free_pages(uint64 pa, uint32 order)
+{
+    m_buddy.free_pages(pa, order);
+}
+
+void mm_t::inc_page_ref(uint64 pa)
+{
+    m_buddy.inc_page_ref(pa);
+}
+
+uint32 mm_t::dec_page_ref(uint64 pa)
+{
+    return m_buddy.dec_page_ref(pa);
+}
+
+uint32 mm_t::get_page_ref(uint64 pa)
+{
+    return m_buddy.get_page_ref(pa);
+}
+
+uint32 mm_t::get_free_page_num()
+{
+    return m_buddy.get_free_page_num();
 }

@@ -38,9 +38,9 @@ extern void ret_from_fork(void) __asm__("ret_from_fork");
 process_t* process_t::fork(trap_frame_t* frame)
 {
     /* alloc a process_t */
-    os()->uart()->kprintf("free page num: %d\n", os()->buddy()->get_free_page_num());
+    os()->uart()->kprintf("free page num: %d\n", os()->mm()->get_free_page_num());
 
-    process_t* p = (process_t *) P2V(os()->buddy()->alloc_pages(1));
+    process_t* p = (process_t *) P2V(os()->mm()->alloc_pages(1));
     if (p == NULL) {
         os()->console()->kprintf(RED, "fork failed\n");
         return NULL;
@@ -180,7 +180,7 @@ int32 process_t::exec(trap_frame_t* frame)
     /* save arg */
     argument_t* arg = NULL;
     if (frame->rsi != 0) {
-        arg = (argument_t *) P2V(os()->buddy()->alloc_pages(0));
+        arg = (argument_t *) P2V(os()->mm()->alloc_pages(0));
         memcpy(arg, (void *)frame->rsi, sizeof(argument_t));
     }
 
@@ -191,7 +191,7 @@ int32 process_t::exec(trap_frame_t* frame)
     if (elf_t::load(frame, m_name) != 0) {
         /* free arg */
         if (arg != NULL) {
-            os()->buddy()->free_pages(V2P(arg), 0);
+            os()->mm()->free_pages(V2P(arg), 0);
         }
         exit();
         return -1;
@@ -207,7 +207,7 @@ int32 process_t::exec(trap_frame_t* frame)
 
     /* free arg */
     if (arg != NULL) {
-        os()->buddy()->free_pages(V2P(arg), 0);
+        os()->mm()->free_pages(V2P(arg), 0);
     }
 
     return 0;

@@ -76,11 +76,6 @@ mm_t* babyos_t::mm()
     return &m_mm;
 }
 
-buddy_t* babyos_t::buddy()
-{
-    return &m_buddy;
-}
-
 i8259a_t* babyos_t::i8259a()
 {
     return &m_i8259a;
@@ -158,11 +153,8 @@ void babyos_t::init()
     m_bootinfo.init();
     uart()->puts("boot info init done\n");
 
+    /* mm */
     m_mm.init();
-
-    /* buddy */
-    m_buddy.init();
-    uart()->puts("buddy init done\n");
 
     /* pools */
     init_pools();
@@ -338,17 +330,6 @@ void babyos_t::init_pools()
 
 
 /********************************************************************/
-
-void test_buddy()
-{
-    os()->buddy()->dump();
-    for (int i = 0; i < 10; i++) {
-        uint64 pa = os()->buddy()->alloc_pages(0);
-        os()->console()->kprintf(GREEN, "allocated page: %lx\n", pa);
-        os()->uart()->kprintf("allocated page: %lx\n", pa);
-        os()->buddy()->dump();
-    }
-}
 
 void test_syscall()
 {
