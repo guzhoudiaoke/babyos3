@@ -27,6 +27,7 @@ OBJS = \
 		console.o \
 		bootmem.o \
 		bootinfo.o \
+		mm.o \
 		buddy.o \
 		math.o \
 		i8259a.o \

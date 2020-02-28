@@ -66,14 +66,14 @@ console_t* babyos_t::console()
     return &m_console;
 }
 
-bootmem_t* babyos_t::bootmem()
-{
-    return &m_bootmem;
-}
-
 bootinfo_t* babyos_t::bootinfo()
 {
     return &m_bootinfo;
+}
+
+mm_t* babyos_t::mm()
+{
+    return &m_mm;
 }
 
 buddy_t* babyos_t::buddy()
@@ -156,10 +156,9 @@ void babyos_t::init()
 
     /* bootinfo */
     m_bootinfo.init();
+    uart()->puts("boot info init done\n");
 
-    /* bootmem */
-    m_bootmem.init();
-    uart()->puts("boot mem init done\n");
+    m_mm.init();
 
     /* buddy */
     m_buddy.init();

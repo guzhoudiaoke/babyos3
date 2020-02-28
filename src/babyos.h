@@ -32,6 +32,7 @@
 #include "vbe.h"
 #include "console.h"
 #include "bootmem.h"
+#include "mm.h"
 #include "bootinfo.h"
 #include "buddy.h"
 #include "i8259a.h"
@@ -77,9 +78,9 @@ public:
     object_pool_t*  get_obj_pool_of_size();
 
     uart_t*         uart();
+    mm_t*           mm();
     vbe_t*          vbe();
     console_t*      console();
-    bootmem_t*      bootmem();
     bootinfo_t*     bootinfo();
     buddy_t*        buddy();
     i8259a_t*       i8259a();
@@ -105,8 +106,8 @@ private:
 private:
     bool           m_panic;
     uart_t         m_uart;
-    bootmem_t      m_bootmem;
     bootinfo_t     m_bootinfo;
+    mm_t           m_mm;
     buddy_t        m_buddy;
     vbe_t          m_vbe;
     console_t      m_console;

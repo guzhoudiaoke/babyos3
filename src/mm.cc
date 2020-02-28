@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/mm.h
+ *	babyos/kernel/mm.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -23,25 +23,28 @@
  */
 
 
-#ifndef _MM_H_
-#define _MM_H_
+#include "mm.h"
 
 
-#include "bootmem.h"
+mm_t::mm_t()
+{
+}
 
+mm_t::~mm_t()
+{
+}
 
-class mm_t {
-public:
-    mm_t();
-    ~mm_t();
+void mm_t::init()
+{
+    m_bootmem.init();
+}
 
-    void init();
-    bootmem_t* bootmem();
-    void* boot_mem_alloc(uint32 size, bool page_align);
+void* mm_t::boot_mem_alloc(uint32 size, bool page_align)
+{
+    return P2V(m_bootmem.mem_alloc(size, page_align));
+}
 
-private:
-    bootmem_t m_bootmem;
-};
-
-
-#endif
+bootmem_t* mm_t::bootmem()
+{
+    return &m_bootmem;
+}

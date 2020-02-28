@@ -274,7 +274,7 @@ void cpu_t::init_idle()
     //m_idle->m_signal.init();
 
     m_idle->m_vmm.init();
-    m_idle->m_vmm.set_pml4_table(os()->bootmem()->get_pml4());
+    m_idle->m_vmm.set_pml4_table(os()->mm()->bootmem()->get_pml4());
     m_idle->m_children.init(os()->get_obj_pool_of_size());
     m_idle->m_wait_child.init();
     for (int i = 0; i < MAX_OPEN_FILE; i++) {

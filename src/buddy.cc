@@ -28,6 +28,7 @@
 #include "page.h"
 #include "math.h"
 #include "x86.h"
+#include "mm.h"
 
 
 static inline void add_to_head(free_list_t* head, free_list_t * entry)
@@ -55,10 +56,10 @@ buddy_t::~buddy_t()
 
 void buddy_t::init_pages()
 {
-    uint64 mem_end = os()->bootmem()->get_end_usable_pa();
+    uint64 mem_end = os()->mm()->bootmem()->get_end_usable_pa();
     uint32 page_num = (uint64) (mem_end + PAGE_SIZE - 1) / PAGE_SIZE;
     uint32 size = page_num * sizeof(page_t);
-    m_pages = (page_t *) P2V(os()->bootmem()->mem_alloc(size, false));
+    m_pages = (page_t *) os()->mm()->boot_mem_alloc(size, false);
 
     for (uint32 i = 0; i < page_num; i++) {
         atomic_set(&m_pages[i].ref, 1);
@@ -67,8 +68,8 @@ void buddy_t::init_pages()
 
 void buddy_t::init()
 {
-    uint64 mem_start = os()->bootmem()->get_start_usable_pa();
-    uint64 mem_end = os()->bootmem()->get_end_usable_pa();
+    uint64 mem_start = os()->mm()->bootmem()->get_start_usable_pa();
+    uint64 mem_end = os()->mm()->bootmem()->get_end_usable_pa();
     uint64 mask = PAGE_MASK;
     uint32 bitmap_size = 0;
 
@@ -81,8 +82,7 @@ void buddy_t::init()
         bitmap_size = (bitmap_size + 7) >> 3;
         bitmap_size = (bitmap_size + sizeof(uint32) - 1) & ~(sizeof(uint32)-1);
 
-        uint64 pa = os()->bootmem()->mem_alloc(bitmap_size, false);
-        m_free_area.free_list[i].bitmap = (uint32 *) P2V(pa);
+        m_free_area.free_list[i].bitmap = (uint32 *) os()->mm()->boot_mem_alloc(bitmap_size, false);
         memset(m_free_area.free_list[i].bitmap, 0, bitmap_size);
     }
 
@@ -93,7 +93,7 @@ void buddy_t::init()
     os()->uart()->kprintf("init pages done\n");
 
     /* mark free area bases as start of boot mem, and free boot mem to buddy */
-    mem_start = os()->bootmem()->get_start_usable_pa();
+    mem_start = os()->mm()->bootmem()->get_start_usable_pa();
     m_free_area.base = (mem_start + ~mask) & mask;
 
     /* free boot mem to buddy */
