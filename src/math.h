@@ -35,7 +35,7 @@ public:
     static uint32 min(uint32 a, uint32 b);
     static uint32 max(uint32 a, uint32 b);
     static uint32 log(int32 x, int32 n);
-    static uint32 pow(int32 x, int32 p);
+    static uint64 pow(int32 x, int32 p);
 };
 
 #endif

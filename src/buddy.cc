@@ -66,7 +66,7 @@ void buddy_t::init_pages()
     }
 }
 
-void buddy_t::init()
+void buddy_t::init_bitmap()
 {
     uint64 mem_start = os()->mm()->bootmem()->get_start_usable_pa();
     uint64 mem_end = os()->mm()->bootmem()->get_end_usable_pa();
@@ -85,25 +85,61 @@ void buddy_t::init()
         m_free_area.free_list[i].bitmap = (uint32 *) os()->mm()->boot_mem_alloc(bitmap_size, false);
         memset(m_free_area.free_list[i].bitmap, 0, bitmap_size);
     }
+}
 
-    os()->uart()->kprintf("init bitmap done\n");
+void buddy_t::free_boot_mem_range(uint64 start, uint64 end)
+{
+    /* free boot mem to buddy */
+    uint64 pa = start;
+    while (pa < end) {
+        os()->uart()->kprintf("free pa: %p, order: %p\n", pa, MAX_ORDER);
+        free_pages(pa, MAX_ORDER);
+        pa += (PAGE_SIZE << MAX_ORDER);
+    }
 
+    os()->uart()->kprintf("free boot mem done\n");
+}
+
+void buddy_t::free_boot_mem()
+{
+    uint64 mem_start = os()->mm()->bootmem()->get_start_usable_pa();
+    uint64 mask = PAGE_MASK << MAX_ORDER;
+    mem_start = (mem_start + ~(mask)) & mask;
+
+    memory_layout_t* layout = os()->bootinfo()->memory_layout();
+    for (uint32 i = 0; i < layout->num_of_range; i++) {
+        address_range_t* range = &layout->ranges[i];
+        uint64 addr = range->base_addr();
+        uint64 end = addr + range->length();
+        if (range->type == 1 && end > mem_start) {
+            if (addr > mem_start) {
+                mem_start = (addr + ~(mask)) & mask;
+            }
+            free_boot_mem_range(mem_start, end & mask);
+            mem_start = (end + ~(mask)) & mask;
+        }
+    }
+}
+
+void buddy_t::init()
+{
     /* init ref count of all pages */
     init_pages();
     os()->uart()->kprintf("init pages done\n");
 
-    /* mark free area bases as start of boot mem, and free boot mem to buddy */
-    mem_start = os()->mm()->bootmem()->get_start_usable_pa();
-    m_free_area.base = (mem_start + ~mask) & mask;
+    /* init bitmap for free areas */
+    init_bitmap();
+    os()->uart()->kprintf("init bitmap done\n");
+
+    atomic_set(&m_free_page_num, 0);
+
+    /* mark free area bases as start of boot mem */
+    uint64 mem_start = os()->mm()->bootmem()->get_start_usable_pa();
+    uint64 mask = PAGE_MASK << MAX_ORDER;
+    m_free_area.base = (mem_start + ~(mask)) & mask;
 
     /* free boot mem to buddy */
-    atomic_set(&m_free_page_num, 0);
-    uint64 pa = m_free_area.base;
-    for (; pa < mem_end; pa += PAGE_SIZE) {
-        free_pages(pa, 0);
-    }
-
-    os()->uart()->kprintf("free boot mem done\n");
+    free_boot_mem();
 }
 
 uint64 buddy_t::expand(free_list_t* addr, uint32 low, uint32 high)
@@ -170,7 +206,7 @@ void buddy_t::free_pages(uint64 pa, uint32 order)
     atomic_add(num, &m_free_page_num);
 
     uint64 address = (uint64) pa;
-    uint32 index = MAP_NR(address - (uint64)m_free_area.base) >> (1 + order);
+    uint64 index = MAP_NR(address - (uint64)m_free_area.base) >> (1 + order);
     uint64 mask = PAGE_MASK << order;
 
     address &= mask;

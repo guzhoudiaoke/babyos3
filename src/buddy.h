@@ -29,7 +29,7 @@
 #include "page.h"
 
 
-#define MAX_ORDER     6
+#define MAX_ORDER     10
 #define MAP_NR(addr)  (((unsigned long)(addr)) >> PAGE_SHIFT)
 
 
@@ -66,6 +66,10 @@ public:
 
 private:
     void   init_pages();
+    void   init_bitmap();
+    void   free_boot_mem();
+    void   free_boot_mem_range(uint64 start, uint64 end);
+
     uint64 get_buddy(uint64 addr, uint32 mask);
     int    mark_used(uint64 addr, uint32 order);
     uint64 expand(free_list_t* addr, uint32 low, uint32 high);

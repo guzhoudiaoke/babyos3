@@ -47,11 +47,12 @@ uint32 math_t::max(uint32 a, uint32 b)
     return a > b ? a : b;
 }
 
-uint32 math_t::pow(int32 x, int32 p)
+uint64 math_t::pow(int32 x, int32 p)
 {
-    uint32 ret = 1;
+    uint64 ret = 1;
     for (int32 i = 0; i < p; i++) {
         ret *= x;
     }
     return ret;
 }
+

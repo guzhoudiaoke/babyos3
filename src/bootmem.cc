@@ -61,8 +61,8 @@ void bootmem_t::init_mem_range()
     memory_layout_t* layout = os()->bootinfo()->memory_layout();
     for (uint32 i = 0; i < layout->num_of_range; i++) {
         address_range_t* range = &layout->ranges[i];
-        uint64 addr = ((uint64)range->base_addr_high << 32) + range->base_addr_low;
-        uint64 end = addr + ((uint64)range->length_high << 32) + range->length_low;
+        uint64 addr = range->base_addr();
+        uint64 end = addr + range->length();
         os()->uart()->kprintf("0x%8x\t0x%16lx\t0x%16lx\n",
                               range->type, addr, end);
 
@@ -198,10 +198,13 @@ void bootmem_t::init_page_map()
     memory_layout_t* layout = os()->bootinfo()->memory_layout();
     for (uint32 i = 0; i < layout->num_of_range; i++) {
         address_range_t* range = &layout->ranges[i];
-        uint64 begin = ((uint64)range->base_addr_high << 32) + range->base_addr_low;
-        uint64 end = begin + ((uint64)range->length_high << 32) + range->length_low;
-        if (range->type == 1 && begin <= pa && pa <= end) {
-            map_pages(P2V(pa),  /* va */
+        uint64 begin = range->base_addr();
+        uint64 end = begin + range->length();
+        if (range->type == 1 && pa <= end) {
+            if (pa < begin) {
+                pa = begin;
+            }
+            map_pages(P2V(pa),    /* va */
                       pa,         /* pa */
                       end - pa,   /* length */
                       PTE_W);
@@ -212,7 +215,7 @@ void bootmem_t::init_page_map()
     /* map video vram */
     video_info_t* video_info = os()->bootinfo()->video_info();
     uint32 bytes = video_info->width*video_info->height*video_info->bits_per_pixel/3;
-    map_pages(IO2V(video_info->vram_base_addr),  /* va */
+    map_pages(IO2V(video_info->vram_base_addr),   /* va */
               video_info->vram_base_addr,         /* pa */
               bytes,                              /* length */
               PTE_P | PTE_W);

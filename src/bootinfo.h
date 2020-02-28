@@ -66,11 +66,19 @@ typedef struct video_info_s {
  *                                  AddressRangeReserved.
  */
 typedef struct address_range_s {
+public:
 	uint32	base_addr_low;
 	uint32	base_addr_high;
 	uint32	length_low;
 	uint32	length_high;
     uint32  type;
+
+    uint64 base_addr() {
+        return ((uint64)base_addr_high << 32) + base_addr_low;
+    }
+    uint64 length() {
+        return ((uint64)length_high << 32) + length_low;
+    }
 } __attribute__((packed, aligned(4))) address_range_t;
 
 
