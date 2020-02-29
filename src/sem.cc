@@ -32,7 +32,7 @@ void semaphore_t::init(uint32 count)
 {
     m_count = count;
     m_lock.init();
-    m_wait_list.init(os()->get_obj_pool_of_size());
+    m_wait_list.init();
 }
 
 void semaphore_t::down()
@@ -67,7 +67,7 @@ void semaphore_t::down_common()
     waiter.m_proc = current;
     waiter.m_up = false;
 
-    m_wait_list.push_back(&waiter);
+    m_wait_list.add_tail(&waiter.m_list_node);
 
     while (true) {
         current->m_state = process_t::SLEEP;
@@ -84,8 +84,7 @@ void semaphore_t::down_common()
 
 void semaphore_t::up_common()
 {
-    sem_waiter_t* waiter = *m_wait_list.begin();
-    m_wait_list.pop_front();
+    sem_waiter_t* waiter = list_entry(m_wait_list.remove_head(), sem_waiter_t, m_list_node);
     waiter->m_up = true;
     os()->process_mgr()->wake_up_process(waiter->m_proc);
 }

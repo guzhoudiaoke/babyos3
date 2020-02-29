@@ -28,7 +28,7 @@
 
 
 #include "types.h"
-#include "list.h"
+#include "dlist.h"
 #include "traps.h"
 #include "waitqueue.h"
 #include "vm.h"
@@ -76,6 +76,7 @@ public:
     } state_t;
 
 public:
+    void        reinit();
     process_t*  fork(trap_frame_t* frame);
     int32       exec(trap_frame_t* frame);
     void        sleep(uint64 ticks);
@@ -115,7 +116,13 @@ public:
     spinlock_t          m_task_lock;
 
     process_t*          m_parent;
-    list_t<process_t *> m_children;
+    //list_t<process_t *> m_children;
+    dlist_t             m_children;
+    dlist_node_t        m_child_list_node;
+    dlist_node_t        m_mgr_list_node;
+    dlist_node_t        m_rq_list_node;
+    dlist_node_t        m_wq_list_node;
+
     wait_queue_t        m_wait_child;
 
     //signal_t            m_signal;

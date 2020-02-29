@@ -30,7 +30,7 @@
 
 
 #include "types.h"
-#include "list.h"
+#include "dlist.h"
 #include "timer.h"
 #include "spinlock.h"
 
@@ -43,8 +43,8 @@ public:
     void remove_timer(timer_t* timer);
 
 private:
-    list_t<timer_t *>    m_timer_list;
-    spinlock_t           m_timer_list_lock;
+    dlist_t    m_timer_list;
+    spinlock_t m_timer_list_lock;
 };
 
 #endif

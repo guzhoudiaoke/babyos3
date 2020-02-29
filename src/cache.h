@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/timer.h
+ *	babyos/kernel/slab.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,36 +19,20 @@
 
 
 /*
- *  2020-02-18		created
+ *  2020-02-29		created
  */
 
 
 
-#ifndef _TIMER_H_
-#define _TIMER_H_
+
+#ifndef _CACHE_H_
+#define _CACHE_H_
 
 
-#include "types.h"
-#include "dlist.h"
+# define L1_CACHE_BYTES     64
+# define L1_CACHE_SHIFT     6
 
-
-class timer_t {
-public:
-    timer_t();
-    ~timer_t();
-
-    void init(uint64 expires, uint64 data, void (*func)(uint64));
-    bool update();
-    dlist_node_t* get_list_node();
-
-public:
-    dlist_node_t m_list_node;
-
-private:
-	uint64       m_expires;
-	uint64       m_data;
-	void         (*m_function)(uint64);
-};
+#define L1_CACHE_ALIGN(x)  (((x)+(L1_CACHE_BYTES-1))&~(L1_CACHE_BYTES-1))
 
 
 #endif

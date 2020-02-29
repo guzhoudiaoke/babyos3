@@ -63,6 +63,7 @@ OBJS = \
         sys_socket.o \
 		local_apic.o \
 		io_apic.o \
+		slab.o \
 
 USERAPP = \
 		init \

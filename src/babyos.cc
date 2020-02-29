@@ -156,9 +156,6 @@ void babyos_t::init()
     /* mm */
     m_mm.init();
 
-    /* pools */
-    init_pools();
-
     /* VBE */
     m_vbe.init();
     uart()->puts("VBE init done\n");
@@ -300,30 +297,6 @@ void babyos_t::panic(const char* s)
     m_console.kprintf(RED, "[BABYOS PANICED]: %s\n", s);
     while (1) {
         halt();
-    }
-}
-
-object_pool_t* babyos_t::get_obj_pool(uint32 type)
-{
-    if (type >= MAX_POOL) {
-        return NULL;
-    }
-    return &m_pools[type];
-}
-
-object_pool_t* babyos_t::get_obj_pool_of_size()
-{
-    return m_pool_of_size;
-}
-
-void babyos_t::init_pools()
-{
-    m_pools[VMA_POOL].init(sizeof(vm_area_t));
-    m_pools[PIPE_POOL].init(sizeof(pipe_t));
-    m_pools[TIMER_POOL].init(sizeof(timer_t));
-
-    for (uint32 i = 1; i <= SMALL_POOL_SIZE; i++) {
-        m_pool_of_size[i].init(i);
     }
 }
 

@@ -30,7 +30,7 @@
 
 #include "types.h"
 #include "spinlock.h"
-#include "list.h"
+#include "dlist.h"
 
 
 class process_t;
@@ -41,8 +41,8 @@ public:
     void remove(process_t* proc);
     void wake_up();
 private:
-    spinlock_t              m_lock;
-    list_t<process_t *>     m_procs;
+    spinlock_t  m_lock;
+    dlist_t     m_procs;
 };
 
 

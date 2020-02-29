@@ -112,7 +112,8 @@ int32 socket_local_t::create(uint32 family, uint32 type, uint32 protocol)
     m_sock_buf.init(this, 1);
     memset(m_addr.m_path, 0, sizeof(m_addr.m_path));
 
-    m_connecting_list.init(os()->get_obj_pool_of_size());
+    m_connecting_list.init();
+    m_connecting_list_node.init();
     m_connecting_list_lock.init();
     m_connected_socket = NULL;
     m_wait_connect_sem.init(0);
@@ -144,9 +145,11 @@ int32 socket_local_t::release()
     /* wake up sockets who are waiting for accept */
     uint64 flags;
     m_connecting_list_lock.lock_irqsave(flags);
-    list_t<socket_local_t *>::iterator it = m_connecting_list.begin();
-    while (it != m_connecting_list.end()) {
-        (*it)->m_wait_accept_sem.up();
+    dlist_node_t* node = m_connecting_list.head();
+    while (node != NULL) {
+        socket_local_t* s = list_entry(node, socket_local_t, m_connecting_list_node);
+        s->m_wait_accept_sem.up();
+        node = node->next();
     }
     m_connecting_list_lock.unlock_irqrestore(flags);
 
@@ -193,8 +196,7 @@ int32 socket_local_t::accept(socket_t* socket)
 
     uint64 flags;
     m_connecting_list_lock.lock_irqsave(flags);
-    client_socket = *(server_socket->m_connecting_list.begin());
-    server_socket->m_connecting_list.pop_front();
+    client_socket = list_entry(server_socket->m_connecting_list.remove_head(), socket_local_t, m_connecting_list_node);
     m_connecting_list_lock.unlock_irqrestore(flags);
 
     client_socket->m_connected_socket = this;
@@ -239,7 +241,7 @@ int32 socket_local_t::connect(sock_addr_t* server_addr)
     /* add this to server socket's connecting list */
     uint64 flags;
     m_connecting_list_lock.lock_irqsave(flags);
-    server_socket->m_connecting_list.push_back(this);
+    server_socket->m_connecting_list.add_tail(&m_connecting_list_node);
     m_connecting_list_lock.unlock_irqrestore(flags);
 
     /* notify server there is a new connect */

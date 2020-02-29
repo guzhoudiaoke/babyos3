@@ -48,13 +48,6 @@
 #include "io_apic.h"
 
 
-enum pool_type_e {
-    VMA_POOL = 0,
-    PIPE_POOL,
-    TIMER_POOL,
-    MAX_POOL,
-};
-
 enum device_type_e {
     DEV_CONSOLE = 0,
     MAX_DEV,
@@ -72,9 +65,6 @@ public:
     void run();
     void update(uint64 tick);
     void panic(const char* s);
-
-    object_pool_t*  get_obj_pool(uint32 type);
-    object_pool_t*  get_obj_pool_of_size();
 
     uart_t*         uart();
     mm_t*           mm();
@@ -97,7 +87,6 @@ public:
 
 
 private:
-    void            init_pools();
     void            start_init_proc();
 
 
@@ -120,8 +109,6 @@ private:
 
     process_mgr_t  m_process_mgr;
     timer_mgr_t    m_timer_mgr;
-    object_pool_t  m_pools[MAX_POOL];
-    object_pool_t  m_pool_of_size[SMALL_POOL_SIZE+1];
     dev_op_t       m_devices[MAX_DEV];
 };
 

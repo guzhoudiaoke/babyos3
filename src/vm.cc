@@ -182,7 +182,7 @@ int32 vmm_t::copy_vma(vm_area_t* mmap)
     vm_area_t* tail = NULL;
     vm_area_t* p = mmap;
     while (p != NULL) {
-        vm_area_t* vma = (vm_area_t *) os()->get_obj_pool(VMA_POOL)->alloc_from_pool();
+        vm_area_t* vma = (vm_area_t *) os()->mm()->vma_cache()->alloc();
         if (vma == NULL) {
             return -1;
         }
@@ -263,7 +263,7 @@ uint32 vmm_t::insert_vma(vm_area_t* vma)
         if (prev->m_page_prot == vma->m_page_prot && prev->m_flags == vma->m_flags) {
             prev->m_end = vma->m_end;
             prev->m_next = p;
-            os()->get_obj_pool(VMA_POOL)->free_object(vma);
+            os()->mm()->vma_cache()->free(vma);
             vma = prev;
         }
     }
@@ -273,7 +273,8 @@ uint32 vmm_t::insert_vma(vm_area_t* vma)
         if (vma->m_page_prot == p->m_page_prot && vma->m_flags == p->m_flags) {
             vma->m_end = p->m_end;
             vma->m_next = p->m_next;
-            os()->get_obj_pool(VMA_POOL)->free_object(p);
+
+            os()->mm()->vma_cache()->free(p);
         }
     }
 
@@ -343,7 +344,7 @@ uint64 vmm_t::do_mmap(uint64 addr, uint64 len, uint32 prot, uint32 flags)
     }
 
     /* alloc a vma from pool */
-    vm_area_t* vma = (vm_area_t*) os()->get_obj_pool(VMA_POOL)->alloc_from_pool();
+    vm_area_t* vma = (vm_area_t *) os()->mm()->vma_cache()->alloc();
     if (vma == NULL) {
         os()->console()->kprintf(RED, "do_mmap: failed to alloc vma\n");
         return -1;
@@ -374,7 +375,7 @@ uint32 vmm_t::remove_vma(vm_area_t* vma, vm_area_t* prev)
         m_mmap = vma->m_next;
     }
 
-    os()->get_obj_pool(VMA_POOL)->free_object(vma);
+    os()->mm()->vma_cache()->free(vma);
 
     return 0;
 }
@@ -405,7 +406,7 @@ int32 vmm_t::do_munmap(uint64 addr, uint64 len)
 
     /* alloc a new vma, because the vma may split to 2 vma, such as:
      * [start, addr, addr+len, end] => [start, addr], [addr+len, end] */
-    vm_area_t* vma_new = (vm_area_t*) os()->get_obj_pool(VMA_POOL)->alloc_from_pool();
+    vm_area_t* vma_new = (vm_area_t *) os()->mm()->vma_cache()->alloc();
     if (vma_new == NULL) {
         return -1;
     }
@@ -655,7 +656,7 @@ void vmm_t::release()
     while (vma != NULL) {
         vm_area_t* del = vma;
         vma = vma->m_next;
-        os()->get_obj_pool(VMA_POOL)->free_object(del);
+        os()->mm()->vma_cache()->free(del);
     }
     m_mmap = NULL;
 }

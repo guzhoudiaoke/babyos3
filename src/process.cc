@@ -35,8 +35,24 @@
 extern void ret_from_fork(void) __asm__("ret_from_fork");
 
 
+void process_t::reinit()
+{
+    m_need_resched = 0;
+    m_timeslice = 2;
+
+    m_children.init();
+    m_wait_child.init();
+    m_has_cpu = 0;
+
+    m_child_list_node.init();
+    m_mgr_list_node.init();
+    m_rq_list_node.init();
+    m_wq_list_node.init();
+}
+
 process_t* process_t::fork(trap_frame_t* frame)
 {
+    os()->uart()->kprintf("fork 1\n");
     /* alloc a process_t */
     os()->uart()->kprintf("free page num: %d\n", os()->mm()->get_free_page_num());
 
@@ -47,7 +63,12 @@ process_t* process_t::fork(trap_frame_t* frame)
     }
 
     *p = *this;
+    p->reinit();
+
+    /* pid, need check if same with other process */
+    p->m_pid = os()->process_mgr()->get_next_pid();
     p->m_kstack = (uint8 *)p + PAGE_SIZE*2;
+    p->m_parent = this;
 
     /* frame */
     fork_frame_t* child_frame = ((fork_frame_t *) ((uint64(p) + PAGE_SIZE*2))) - 1;
@@ -57,6 +78,7 @@ process_t* process_t::fork(trap_frame_t* frame)
     /* vmm */
     p->m_vmm.copy(m_vmm);
 
+    os()->uart()->kprintf("fork 2\n");
     /* signal */
     //p->m_signal.copy(m_signal);
     //m_sig_queue.init(os()->get_obj_pool_of_size());
@@ -70,6 +92,7 @@ process_t* process_t::fork(trap_frame_t* frame)
         }
     }
 
+    os()->uart()->kprintf("fork 3\n");
     /* context */
     p->m_context.rsp = (uint64) child_frame;
     child_frame->ret_addr = (uint64) ret_from_fork;
@@ -78,29 +101,19 @@ process_t* process_t::fork(trap_frame_t* frame)
         child_frame->trap_frame.rsp = (uint64(p) + PAGE_SIZE*2);
     }
 
-    /* pid, need check if same with other process */
-    p->m_pid = os()->process_mgr()->get_next_pid();
+    os()->uart()->kprintf("fork 4\n");
 
-    /* change state */
+    /* change state, and link to run queue */
     p->m_state = RUNNING;
-    p->m_need_resched = 0;
-    p->m_timeslice = 2;
-
-    p->m_children.init(os()->get_obj_pool_of_size());
-    p->m_wait_child.init();
-    p->m_parent = this;
-    p->m_has_cpu = 0;
-
-
-    /* link to run queue */
     os()->process_mgr()->add_process_to_rq(p);
 
     /* add to process list */
     os()->process_mgr()->add_process_to_list(p);
 
-    /* add a child for current */
-    m_children.push_back(p);
+    /* add child to current */
+    m_children.add_tail(&p->m_child_list_node);
 
+    os()->uart()->kprintf("fork done\n");
     return p;
 }
 
@@ -145,7 +158,7 @@ int32 process_t::init_arguments(trap_frame_t* frame, argument_t* arg)
 int32 process_t::init_user_stack(trap_frame_t* frame, argument_t* arg)
 {
     /* alloc vma */
-    vm_area_t* vma = (vm_area_t *) os()->get_obj_pool(VMA_POOL)->alloc_from_pool();
+    vm_area_t* vma = (vm_area_t *) os()->mm()->vma_cache()->alloc();
     if (vma == NULL) {
         os()->console()->kprintf(RED, "BUG on alloc vm_area_t!\n");
         return -1;
@@ -173,6 +186,8 @@ int32 process_t::init_user_stack(trap_frame_t* frame, argument_t* arg)
 
 int32 process_t::exec(trap_frame_t* frame)
 {
+    os()->uart()->kprintf("exec\n");
+
     /* copy process name */
     const char* path = (const char *) frame->rdi;
     strcpy(m_name, path);
@@ -210,6 +225,7 @@ int32 process_t::exec(trap_frame_t* frame)
         os()->mm()->free_pages(V2P(arg), 0);
     }
 
+    os()->uart()->kprintf("exec done\n");
     return 0;
 }
 
@@ -250,10 +266,12 @@ void process_t::set_state(state_t state)
 void process_t::adope_children()
 {
     process_t* child_reaper = os()->process_mgr()->get_child_reaper();
-    list_t<process_t *>::iterator it = m_children.begin();
-    while (it != m_children.end()) {
-        (*it)->m_parent = child_reaper;
-        it++;
+
+    dlist_node_t* node = m_children.head();
+    while (node != NULL) {
+        process_t* p = list_entry(node, process_t, m_child_list_node);
+        p->m_parent = child_reaper;
+        node = node->next();
     }
 }
 
@@ -270,11 +288,11 @@ int32 process_t::wait_children(pid_t pid)
 
 repeat:
     m_state = process_t::SLEEP;
-    list_t<process_t *>::iterator it = m_children.begin();
-
     bool flag = false;
-    for (; it != m_children.end(); it++) {
-        process_t* p = *it;
+
+    dlist_node_t* node = m_children.head();
+    for (; node != NULL; node = node->next()) {
+        process_t* p = list_entry(node, process_t, m_child_list_node);
         if (pid != -1u && pid != p->m_pid) {
             continue;
         }

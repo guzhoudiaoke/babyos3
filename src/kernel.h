@@ -77,30 +77,29 @@
 #define PTE_W               0x002		/* writeable */
 #define PTE_U               0x004		/* user */
 
+/* kernel load base */
 #define KERNEL_LOAD_BASE    0xffffffff80000000ULL
 #define KERNEL_LOAD_EXT     0x0000000000100000ULL
 #define KERNEL_LOAD_ADDR    (KERNEL_LOAD_BASE + KERNEL_LOAD_EXT)
 
+/* kernel stack */
 #define KERNEL_STACK_BOTTOM (KERNEL_LOAD_BASE + BOOT_STACK_BOTTOM)
-//#define KERNEL_STACK_BOTTOM 0xffffffff8000d000ULL
-//#define KERNEL_STACK_BOTTOM 0xffffffff80100000ULL
 #define KERNEL_STACK_SIZE   (8192)
-
-
-
 
 /* kernel base address */
 #define KERNEL_BASE         (0xffff800000000000ull)
 #define USER_STACK_TOP      (0x0000800000000000ull)
 
 /* kernel va->pa, pa->va */
-#define V2P(x)	        (((uint64)(x)) - KERNEL_BASE)
-#define P2V(x)	        ((void *)(((uint64)x) + KERNEL_BASE))
+#define V2P(x)	            (((uint64)(x)) - KERNEL_BASE)
+#define P2V(x)	            ((void *)(((uint64)x) + KERNEL_BASE))
 
 
+/* for device mmap */
 #define DEV_BASE            (0xffffffff00000000ull) /* First device virtual address */
-
 #define IO2V(x)             ((void *)(((uint64)x) + DEV_BASE))
 
+
+#define NR_CPU              16
 
 #endif

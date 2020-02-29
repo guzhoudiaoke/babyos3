@@ -132,7 +132,7 @@ dlist_node_t* dlist_t::remove(dlist_node_t* node)
     }
     else {
         /* not head */
-        node->m_prev->m_next = node->m_prev;
+        node->m_prev->m_next = node->m_next;
     }
 
     this->m_length--;

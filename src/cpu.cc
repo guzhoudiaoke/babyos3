@@ -275,8 +275,10 @@ void cpu_t::init_idle()
 
     m_idle->m_vmm.init();
     m_idle->m_vmm.set_pml4_table(os()->mm()->bootmem()->get_pml4());
-    m_idle->m_children.init(os()->get_obj_pool_of_size());
+    m_idle->m_children.init();
     m_idle->m_wait_child.init();
+    m_idle->m_child_list_node.init();
+
     for (int i = 0; i < MAX_OPEN_FILE; i++) {
         m_idle->m_files[i] = NULL;
     }
@@ -292,20 +294,20 @@ void cpu_t::schedule()
     process_t* prev = current;
     process_t* next = m_idle;
 
-    list_t<process_t *>* run_queue = os()->process_mgr()->get_run_queue();
+    dlist_t* run_queue = os()->process_mgr()->get_run_queue();
     spinlock_t* rq_lock = os()->process_mgr()->get_rq_lock();
     uint64 flags;
     rq_lock->lock_irqsave(flags);
 
-    list_t<process_t *>::iterator it = run_queue->begin();
-    while (it != run_queue->end()) {
-        process_t* p = *it;
+    dlist_node_t* node = run_queue->head();
+    while (node != NULL) {
+        process_t* p = list_entry(node, process_t, m_rq_list_node);
         if (p->m_state == process_t::RUNNING && p->m_has_cpu == 0) {
             next = p;
-            run_queue->erase(it);
+            run_queue->remove(&p->m_rq_list_node);
             break;
         }
-        it++;
+        node = node->next();
     }
 
     prev->m_need_resched = 0;
@@ -315,8 +317,8 @@ void cpu_t::schedule()
     }
 
     if (prev != next && prev->m_pid != 0 && prev->m_state == process_t::RUNNING) {
-        if (run_queue->find(prev) == run_queue->end()) {
-            run_queue->push_back(prev);
+        if (!os()->process_mgr()->in_run_queue(prev)) {
+            run_queue->add_tail(&prev->m_rq_list_node);
         }
     }
 

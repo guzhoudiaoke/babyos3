@@ -76,7 +76,8 @@ int file_table_t::free(file_t* file)
 
     if (f.m_type == file_t::TYPE_PIPE) {
         f.m_pipe->close(f.m_writeable);
-        os()->get_obj_pool(PIPE_POOL)->free_object(f.m_pipe);
+        f.m_pipe->destroy();
+        os()->mm()->pipe_cache()->free(f.m_pipe);
         f.m_pipe = NULL;
     }
     else if (f.m_type == file_t::TYPE_SOCKET) {

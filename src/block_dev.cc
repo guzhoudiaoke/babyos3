@@ -38,45 +38,50 @@
 void block_dev_t::init(uint32 dev)
 {
     m_lock.init();
-    m_used_list.init(os()->get_obj_pool_of_size());
-    m_free_list.init(os()->get_obj_pool_of_size());
+    m_used_list.init();
+    m_free_list.init();
+    m_request_cache.create(sizeof(request_t));
 
     m_dev = dev;
     m_buf_num = PAGE_SIZE * BUFFER_PAGES / sizeof(io_buffer_t);
     m_bufs = (io_buffer_t *) P2V(os()->mm()->alloc_pages(BUFFER_PAGES_ORDER));
     for (uint32 i = 0; i < m_buf_num; i++) {
         m_bufs[i].init();
-        m_free_list.push_back(m_bufs + i);
+        m_free_list.add_tail(&m_bufs[i].m_free_list_node);
     }
+}
+
+io_buffer_t* block_dev_t::find_from_cache(uint32 lba)
+{
+    dlist_node_t* node = m_used_list.head();
+    while (node != NULL) {
+        io_buffer_t* buffer = list_entry(node, io_buffer_t, m_used_list_node);
+        if (buffer->m_lba == lba) {
+            return buffer;
+        }
+        node = node->next();
+    }
+
+    return NULL;
 }
 
 io_buffer_t* block_dev_t::get_block(uint32 lba)
 {
-    io_buffer_t* b = NULL;
-
     uint64 flags;
     m_lock.lock_irqsave(flags);
 
     /* first, find from used list, if find it means this block cached */
-    list_t<io_buffer_t *>::iterator it = m_used_list.begin();
-    while (it != m_used_list.end() && (*it)->m_lba != lba) {
-        it++;
-    }
+    io_buffer_t* b = find_from_cache(lba);
 
     /* find */
-    if (it != m_used_list.end()) {
-        b = *it;
-    }
-    else {
+    if (b == NULL) {
         /* get one from free list */
         if (!m_free_list.empty()) {
-            b = *(m_free_list.begin());
-            m_free_list.pop_front();
+            b = list_entry(m_free_list.remove_head(), io_buffer_t, m_free_list_node);
         }
         else {
             /* get front from used list */
-            b = *(m_used_list.begin());
-            m_used_list.pop_front();
+            b = list_entry(m_used_list.remove_head(), io_buffer_t, m_used_list_node);
         }
 
         b->m_lba = lba;
@@ -94,16 +99,9 @@ void block_dev_t::release_block(io_buffer_t* b)
 {
     uint64 flags;
     m_lock.lock_irqsave(flags);
-
-    list_t<io_buffer_t *>::iterator it = m_used_list.begin();
-    while (it != m_used_list.end() && (*it)->m_lba != b->m_lba) {
-        it++;
+    if (!find_from_cache(b->m_lba)) {
+        m_used_list.add_tail(&b->m_used_list_node);
     }
-
-    if (it == m_used_list.end()) {
-        m_used_list.push_back(b);
-    }
-
     m_lock.unlock_irqrestore(flags);
     b->unlock();
 }
@@ -115,9 +113,9 @@ io_buffer_t* block_dev_t::read(uint32 lba)
         return b;
     }
 
-    request_t req;
-    req.init(m_dev, lba, request_t::CMD_READ, b);
-    os()->ide()->add_request(&req);
+    request_t* req = (request_t *)m_request_cache.alloc();
+    req->init(m_dev, lba, request_t::CMD_READ, b);
+    os()->ide()->add_request(req);
 
     b->wait();
 

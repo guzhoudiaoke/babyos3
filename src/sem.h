@@ -27,13 +27,14 @@
 #define _SEM_H_
 
 #include "types.h"
-#include "list.h"
+#include "dlist.h"
 #include "spinlock.h"
 
 class process_t;
 typedef struct sem_waiter_s {
-    process_t*  m_proc;
-    bool        m_up;
+    process_t*   m_proc;
+    bool         m_up;
+    dlist_node_t m_list_node;
 } sem_waiter_t;
 
 class semaphore_t {
@@ -47,9 +48,9 @@ private:
     void up_common();
 
 private:
-    spinlock_t              m_lock;
-    uint32                  m_count;
-    list_t<sem_waiter_t*>   m_wait_list;
+    spinlock_t  m_lock;
+    uint32      m_count;
+    dlist_t     m_wait_list;
 };
 
 #endif

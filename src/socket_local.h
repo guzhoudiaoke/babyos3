@@ -32,6 +32,7 @@
 #include "types.h"
 #include "socket.h"
 #include "spinlock.h"
+#include "dlist.h"
 
 
 #define MAX_LOCAL_SOCKET    128
@@ -68,8 +69,10 @@ public:
     sock_addr_local_t         m_addr;
     sock_ring_buffer_t        m_sock_buf;
 
-    list_t<socket_local_t *>  m_connecting_list;
     spinlock_t                m_connecting_list_lock;
+    dlist_node_t              m_connecting_list_node;
+    dlist_t                   m_connecting_list;
+
     socket_local_t*           m_connected_socket;
     semaphore_t               m_wait_connect_sem;
     semaphore_t               m_wait_accept_sem;

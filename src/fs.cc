@@ -853,7 +853,7 @@ int file_system_t::alloc_pipe(file_t*& file_read, file_t*& file_write)
         goto failed;
     }
 
-    pipe = (pipe_t *) os()->get_obj_pool(PIPE_POOL)->alloc_from_pool();
+    pipe = (pipe_t *) os()->mm()->pipe_cache()->alloc();
     if (pipe == NULL) {
         goto failed;
     }
@@ -872,7 +872,7 @@ failed:
         close_file(file_write);
     }
     if (pipe != NULL) {
-        os()->get_obj_pool(PIPE_POOL)->free_object((void *) pipe);
+        os()->mm()->pipe_cache()->free(pipe);
     }
     return -1;
 }

@@ -36,6 +36,15 @@ void pipe_t::init()
     m_item.init(0);
     m_readable = true;
     m_writable = true;
+    m_buffer = (char *) P2V(os()->mm()->alloc_pages(0));
+}
+
+void pipe_t::destroy()
+{
+    if (m_buffer != NULL) {
+        os()->mm()->free_pages(V2P(m_buffer), 0);
+        m_buffer = NULL;
+    }
 }
 
 int pipe_t::get_char(char& ch)

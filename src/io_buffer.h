@@ -30,6 +30,7 @@
 #include "types.h"
 #include "kernel.h"
 #include "sem.h"
+#include "dlist.h"
 
 
 class io_buffer_t {
@@ -47,6 +48,9 @@ public:
     semaphore_t     m_sem;
     semaphore_t     m_sem_wait_done;
     uint8           m_buffer[SECT_SIZE];
+
+    dlist_node_t    m_used_list_node;
+    dlist_node_t    m_free_list_node;
 };
 
 

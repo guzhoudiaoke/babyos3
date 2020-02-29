@@ -32,12 +32,14 @@
 #include "spinlock.h"
 
 
-#define PIPE_BUF_SIZE 512
+#define PIPE_BUF_SIZE PAGE_SIZE
 
 
 class pipe_t {
 public:
     void  init();
+    void  destroy();
+
     int   get_char(char& ch);
     int   put_char(char ch);
 
@@ -46,7 +48,7 @@ public:
     void  close(bool write_end);
 
 private:
-    char        m_buffer[PIPE_BUF_SIZE];
+    char*       m_buffer;
     uint32      m_read_index;
     uint32      m_write_index;
     spinlock_t  m_lock;

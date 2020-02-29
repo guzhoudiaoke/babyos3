@@ -30,16 +30,17 @@
 
 void timer_mgr_t::init()
 {
-    m_timer_list.init(os()->get_obj_pool_of_size());
+    m_timer_list.init();
     m_timer_list_lock.init();
 }
 
 void timer_mgr_t::update()
 {
-    list_t<timer_t*>::iterator it = m_timer_list.begin();
-    while (it != m_timer_list.end()) {
-        (*it)->update();
-        it++;
+    dlist_node_t* node = m_timer_list.head();
+    while (node != NULL) {
+        timer_t* timer = list_entry(node, timer_t, m_list_node);
+        timer->update();
+        node = node->next();
     }
 }
 
@@ -47,7 +48,7 @@ void timer_mgr_t::add_timer(timer_t* timer)
 {
     uint64 flags;
     m_timer_list_lock.lock_irqsave(flags);
-    m_timer_list.push_back(timer);
+    m_timer_list.add_tail(timer->get_list_node());
     m_timer_list_lock.unlock_irqrestore(flags);
 }
 
@@ -55,10 +56,7 @@ void timer_mgr_t::remove_timer(timer_t* timer)
 {
     uint64 flags;
     m_timer_list_lock.lock_irqsave(flags);
-    list_t<timer_t*>::iterator it = m_timer_list.find(timer);
-    if (it != m_timer_list.end()) {
-        m_timer_list.erase(it);
-    }
+    m_timer_list.remove(timer->get_list_node());
     m_timer_list_lock.unlock_irqrestore(flags);
 }
 

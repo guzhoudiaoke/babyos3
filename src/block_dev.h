@@ -27,11 +27,12 @@
 #define _BLOCK_DEV_H_
 
 #include "types.h"
-#include "list.h"
+#include "dlist.h"
 #include "sem.h"
 #include "spinlock.h"
 #include "kernel.h"
 #include "io_buffer.h"
+#include "slab.h"
 
 
 class block_dev_t {
@@ -43,14 +44,16 @@ public:
 
 private:
     io_buffer_t*     get_block(uint32 lba);
+    io_buffer_t*     find_from_cache(uint32 lba);
 
 private:
-    uint32                      m_dev;
-    uint32                      m_buf_num;
-    io_buffer_t*                m_bufs;
-    list_t<io_buffer_t *>       m_used_list;
-    list_t<io_buffer_t *>       m_free_list;
-    spinlock_t                  m_lock;
+    uint32        m_dev;
+    uint32        m_buf_num;
+    io_buffer_t*  m_bufs;
+    dlist_t       m_used_list;
+    dlist_t       m_free_list;
+    spinlock_t    m_lock;
+    kmem_cache_t  m_request_cache;
 };
 
 #endif

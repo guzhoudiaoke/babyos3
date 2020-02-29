@@ -50,7 +50,7 @@ ide_t::~ide_t()
 void ide_t::init(uint32 dev)
 {
     m_lock.init();
-    m_req_list.init(os()->get_obj_pool_of_size());
+    m_req_list.init();
     m_current = NULL;
 
     //os()->i8259a()->enable_irq(IRQ_HARDDISK);
@@ -68,7 +68,7 @@ void ide_t::add_request(request_t* req)
     else {
         uint64 flags;
         m_lock.lock_irqsave(flags);
-        m_req_list.push_back(req);
+        m_req_list.add_tail(&req->m_list_node);
         os()->uart()->puts("push_back\n");
         m_lock.unlock_irqrestore(flags);
     }
@@ -109,8 +109,8 @@ void ide_t::end_request()
 
     m_current = NULL;
     if (!m_req_list.empty()) {
-        m_current = *m_req_list.begin();
-        m_req_list.pop_front();
+        m_current = list_entry(m_req_list.head(), request_t, m_list_node);
+        m_req_list.remove_head();
     }
 
     /* EOI */

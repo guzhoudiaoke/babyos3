@@ -29,6 +29,10 @@
 
 #include "bootmem.h"
 #include "buddy.h"
+#include "slab.h"
+
+
+#define MAX_CACHE_OF_SIZE_INDEX 6
 
 
 class mm_t {
@@ -39,19 +43,28 @@ public:
     void init();
 
     bootmem_t* bootmem();
-    void* boot_mem_alloc(uint32 size, bool page_align);
+    kmem_cache_t* vma_cache();
+    kmem_cache_t* pipe_cache();
+
+    void*  boot_mem_alloc(uint32 size, bool page_align);
     uint64 alloc_pages(uint32 order);
     void   free_pages(uint64 pa, uint32 order);
+    uint32 get_free_page_num();
 
     void   inc_page_ref(uint64 phy_addr);
     uint32 dec_page_ref(uint64 phy_addr);
     uint32 get_page_ref(uint64 phy_addr);
 
-    uint32 get_free_page_num();
+    void* kmalloc(uint64 size);
+    void  kfree(void* p);
 
 private:
-    bootmem_t m_bootmem;
-    buddy_t   m_buddy;
+    bootmem_t     m_bootmem;
+    buddy_t       m_buddy;
+
+    kmem_cache_t  m_vma_cache;
+    kmem_cache_t  m_pipe_cache;
+    cache_sizes_t m_cache_with_size[MAX_CACHE_OF_SIZE_INDEX];
 };
 
 
