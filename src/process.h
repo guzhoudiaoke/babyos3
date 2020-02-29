@@ -76,7 +76,7 @@ public:
     } state_t;
 
 public:
-    void        reinit();
+    void        init(process_t* parent);
     process_t*  fork(trap_frame_t* frame);
     int32       exec(trap_frame_t* frame);
     void        sleep(uint64 ticks);
@@ -101,6 +101,11 @@ private:
     void        notify_parent();
     void        adope_children();
     void        close_all_files();
+
+    void        copy_context(const process_t& rhs, trap_frame_t* frame);
+    void        copy_mm(const process_t& rhs);
+    void        copy_files(const process_t& rhs);
+    void        copy_signal(const process_t& rhs);
 
 public:
     uint32              m_need_resched;

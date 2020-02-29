@@ -259,29 +259,12 @@ void cpu_t::do_common_isr(trap_frame_t* frame)
 
 void cpu_t::init_idle()
 {
-    os()->uart()->kprintf("init idle: %p\n", m_idle);
-
-    m_idle->m_pid = 0;
-    m_idle->m_kstack = m_kstack;
-    memset(&m_idle->m_context, 0, sizeof(context_t));
+    m_idle->init(NULL);
     strcpy(m_idle->m_name, "idle");
-    m_idle->m_state = process_t::RUNNING;
-    m_idle->m_context.rsp = ((uint64) m_kstack);
-    m_idle->m_timeslice = 2;
-    m_idle->m_need_resched = 0;
-    //m_idle->m_sig_queue.init(os()->get_obj_pool_of_size());
-    //m_idle->m_sig_pending = 0;
-    //m_idle->m_signal.init();
 
+    m_idle->m_context.rsp = ((uint64) m_kstack);
     m_idle->m_vmm.init();
     m_idle->m_vmm.set_pml4_table(os()->mm()->bootmem()->get_pml4());
-    m_idle->m_children.init();
-    m_idle->m_wait_child.init();
-    m_idle->m_child_list_node.init();
-
-    for (int i = 0; i < MAX_OPEN_FILE; i++) {
-        m_idle->m_files[i] = NULL;
-    }
 }
 
 process_t* cpu_t::get_idle_process()

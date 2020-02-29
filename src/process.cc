@@ -35,76 +35,107 @@
 extern void ret_from_fork(void) __asm__("ret_from_fork");
 
 
-void process_t::reinit()
+
+void process_t::copy_files(const process_t& rhs)
+{
+    m_cwd = os()->fs()->dup_inode(rhs.m_cwd);
+    for (int i = 0; i < MAX_OPEN_FILE; i++) {
+        if (rhs.m_files[i] != NULL && rhs.m_files[i]->m_type != file_t::TYPE_NONE) {
+            m_files[i] = os()->fs()->dup_file(rhs.m_files[i]);
+        }
+    }
+}
+
+void process_t::copy_signal(const process_t& rhs)
+{
+    //p->m_signal.copy(m_signal);
+    //m_sig_queue.init(os()->get_obj_pool_of_size());
+    //m_sig_mask_lock.init();
+}
+
+void process_t::init(process_t* parent)
 {
     m_need_resched = 0;
     m_timeslice = 2;
-
     m_children.init();
     m_wait_child.init();
     m_has_cpu = 0;
+    m_state = RUNNING;
 
+    /* nodes */
     m_child_list_node.init();
     m_mgr_list_node.init();
     m_rq_list_node.init();
     m_wq_list_node.init();
+
+    /* parent */
+    m_parent = parent;
+
+    /* kstack */
+    m_kstack = (uint8 *)this + PAGE_SIZE*2;
+
+    /* context */
+    memset(&m_context, 0, sizeof(context_t));
+
+    /* pid */
+    m_pid = os()->process_mgr()->get_next_pid();
+
+    /* files */
+    for (int i = 0; i < MAX_OPEN_FILE; i++) {
+        m_files[i] = NULL;
+    }
+}
+
+void process_t::copy_context(const process_t& rhs, trap_frame_t* frame)
+{
+    /* copy context */
+    memcpy(&m_context, &rhs.m_context, sizeof(context_t));
+
+    /* copy frame */
+    fork_frame_t* child_frame = ((fork_frame_t *) ((uint64(this) + PAGE_SIZE*2))) - 1;
+    memcpy(&child_frame->trap_frame, frame, sizeof(trap_frame_t));
+    child_frame->trap_frame.rax = 0;
+    child_frame->ret_addr = (uint64) ret_from_fork;
+
+    /* reset rsp */
+    m_context.rsp = (uint64) child_frame;
+    if ((frame->cs & 0x3) == 0) {
+        child_frame->trap_frame.rsp = (uint64(this) + PAGE_SIZE*2);
+    }
+}
+
+void process_t::copy_mm(const process_t& rhs)
+{
+    m_vmm.copy(rhs.m_vmm);
 }
 
 process_t* process_t::fork(trap_frame_t* frame)
 {
-    os()->uart()->kprintf("fork 1\n");
-    /* alloc a process_t */
+    /* dump num of free pages */
     os()->uart()->kprintf("free page num: %d\n", os()->mm()->get_free_page_num());
 
+    /* alloc a process_t */
     process_t* p = (process_t *) P2V(os()->mm()->alloc_pages(1));
     if (p == NULL) {
-        os()->console()->kprintf(RED, "fork failed\n");
         return NULL;
     }
 
-    *p = *this;
-    p->reinit();
+    /* init process */
+    p->init(this);
 
-    /* pid, need check if same with other process */
-    p->m_pid = os()->process_mgr()->get_next_pid();
-    p->m_kstack = (uint8 *)p + PAGE_SIZE*2;
-    p->m_parent = this;
-
-    /* frame */
-    fork_frame_t* child_frame = ((fork_frame_t *) ((uint64(p) + PAGE_SIZE*2))) - 1;
-    memcpy(&child_frame->trap_frame, frame, sizeof(trap_frame_t));
-    child_frame->trap_frame.rax = 0;
+    /* copy context */
+    p->copy_context(*this, frame);
 
     /* vmm */
-    p->m_vmm.copy(m_vmm);
+    p->copy_mm(*this);
 
-    os()->uart()->kprintf("fork 2\n");
     /* signal */
-    //p->m_signal.copy(m_signal);
-    //m_sig_queue.init(os()->get_obj_pool_of_size());
-    //m_sig_mask_lock.init();
+    p->copy_signal(*this);
 
     /* file */
-    p->m_cwd = os()->fs()->dup_inode(m_cwd);
-    for (int i = 0; i < MAX_OPEN_FILE; i++) {
-        if (m_files[i] != NULL && m_files[i]->m_type != file_t::TYPE_NONE) {
-            p->m_files[i] = os()->fs()->dup_file(m_files[i]);
-        }
-    }
-
-    os()->uart()->kprintf("fork 3\n");
-    /* context */
-    p->m_context.rsp = (uint64) child_frame;
-    child_frame->ret_addr = (uint64) ret_from_fork;
-
-    if ((frame->cs & 0x3) == 0) {
-        child_frame->trap_frame.rsp = (uint64(p) + PAGE_SIZE*2);
-    }
-
-    os()->uart()->kprintf("fork 4\n");
+    p->copy_files(*this);
 
     /* change state, and link to run queue */
-    p->m_state = RUNNING;
     os()->process_mgr()->add_process_to_rq(p);
 
     /* add to process list */
@@ -113,7 +144,6 @@ process_t* process_t::fork(trap_frame_t* frame)
     /* add child to current */
     m_children.add_tail(&p->m_child_list_node);
 
-    os()->uart()->kprintf("fork done\n");
     return p;
 }
 
@@ -186,11 +216,10 @@ int32 process_t::init_user_stack(trap_frame_t* frame, argument_t* arg)
 
 int32 process_t::exec(trap_frame_t* frame)
 {
-    os()->uart()->kprintf("exec\n");
+    int32 ret = 0;
 
     /* copy process name */
-    const char* path = (const char *) frame->rdi;
-    strcpy(m_name, path);
+    strcpy(m_name, (const char *) frame->rdi);
 
     /* save arg */
     argument_t* arg = NULL;
@@ -204,12 +233,8 @@ int32 process_t::exec(trap_frame_t* frame)
 
     /* load elf binary */
     if (elf_t::load(frame, m_name) != 0) {
-        /* free arg */
-        if (arg != NULL) {
-            os()->mm()->free_pages(V2P(arg), 0);
-        }
-        exit();
-        return -1;
+        ret = -1;
+        goto end;
     }
 
     /* code segment, data segment and so on */
@@ -220,13 +245,18 @@ int32 process_t::exec(trap_frame_t* frame)
     /* stack, rsp */
     init_user_stack(frame, arg);
 
+end:
     /* free arg */
     if (arg != NULL) {
         os()->mm()->free_pages(V2P(arg), 0);
     }
 
-    os()->uart()->kprintf("exec done\n");
-    return 0;
+    if (ret != 0) {
+        exit();
+    }
+
+
+    return ret;
 }
 
 static void process_timeout(uint64 data)
@@ -242,8 +272,10 @@ void process_t::sleep(uint64 ticks)
     timer.init(ticks, (uint64) current, process_timeout);
     os()->timer_mgr()->add_timer(&timer);
 
+    /* set state */
     current->m_state = process_t::SLEEP;
 
+    /* reschedule */
     os()->cpu()->schedule();
 
     /* remove the timer */
@@ -277,8 +309,10 @@ void process_t::adope_children()
 
 void process_t::notify_parent()
 {
-    // SIGCHLD is needed, but now not support signal
-    // so just wake up parent
+    /*
+     * SIGCHLD is needed, but now not support signal
+     * so just wake up parent
+     */
     m_parent->m_wait_child.wake_up();
 }
 
@@ -396,6 +430,17 @@ void process_t::set_cwd(inode_t* inode)
     m_cwd = inode;
 }
 
+void process_t::lock()
+{
+    m_task_lock.lock();
+}
+
+void process_t::unlock()
+{
+    m_task_lock.unlock();
+}
+
+
 //extern "C"
 //void do_signal(trap_frame_t* frame)
 //{
@@ -411,14 +456,3 @@ void process_t::set_cwd(inode_t* inode)
 //        m_signal.handle_signal(frame, si);
 //    }
 //}
-
-void process_t::lock()
-{
-    m_task_lock.lock();
-}
-
-void process_t::unlock()
-{
-    m_task_lock.unlock();
-}
-
