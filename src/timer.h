@@ -41,7 +41,7 @@ public:
 private:
 	uint64 m_expires;
 	uint64 m_data;
-	void (*m_function)(uint64);
+	void   (*m_function)(uint64);
 };
 
 

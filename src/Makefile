@@ -24,6 +24,7 @@ OBJS = \
 		delay.o \
 		vbe.o \
 		string.o \
+		dlist.o \
 		console.o \
 		bootmem.o \
 		bootinfo.o \

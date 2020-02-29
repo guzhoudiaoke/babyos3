@@ -40,6 +40,7 @@ timer_t::~timer_t()
 
 void timer_t::init(uint64 expires, uint64 data, void (*func)(uint64))
 {
+    m_node = NULL;
     m_expires = expires;
     m_data = data;
     m_function = func;
