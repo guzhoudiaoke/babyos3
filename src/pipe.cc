@@ -36,13 +36,15 @@ void pipe_t::init()
     m_item.init(0);
     m_readable = true;
     m_writable = true;
-    m_buffer = (char *) P2V(os()->mm()->alloc_pages(0));
+    //m_buffer = (char *) P2V(os()->mm()->alloc_pages(0));
+    m_buffer = (char *) os()->mm()->kmalloc(BUFFER_SIZE);
 }
 
 void pipe_t::destroy()
 {
     if (m_buffer != NULL) {
-        os()->mm()->free_pages(V2P(m_buffer), 0);
+        //os()->mm()->free_pages(V2P(m_buffer), 0);
+        os()->mm()->kfree(m_buffer);
         m_buffer = NULL;
     }
 }

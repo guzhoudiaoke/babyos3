@@ -62,6 +62,7 @@ public:
     uint32 get_page_ref(uint64 phy_addr);
 
     uint32 get_free_page_num();
+    page_t* get_page(uint64 pa);
 
 
 private:

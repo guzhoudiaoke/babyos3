@@ -40,7 +40,7 @@ void block_dev_t::init(uint32 dev)
     m_lock.init();
     m_used_list.init();
     m_free_list.init();
-    m_request_cache.create(sizeof(request_t));
+    m_request_cache.create(sizeof(request_t), 8, 1);
 
     m_dev = dev;
     m_buf_num = PAGE_SIZE * BUFFER_PAGES / sizeof(io_buffer_t);

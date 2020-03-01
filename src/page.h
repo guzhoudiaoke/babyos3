@@ -67,6 +67,8 @@ typedef uint64 pte_t;
 
 typedef struct page_s {
 	atomic_t	ref;
+    uint64      slab;
+    uint64      cache;
 } page_t;
 
 

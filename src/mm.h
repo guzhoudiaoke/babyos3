@@ -32,7 +32,7 @@
 #include "slab.h"
 
 
-#define MAX_CACHE_OF_SIZE_INDEX 6
+#define MAX_CACHE_OF_SIZE_INDEX 12
 
 
 class mm_t {
@@ -58,10 +58,16 @@ public:
     void* kmalloc(uint64 size);
     void  kfree(void* p);
 
+    void set_page_cache(uint64 pa, kmem_cache_t* ca);
+    void set_page_slab(uint64 pa, slab_t* slab);
+    kmem_cache_t* get_page_cache(uint64 pa);
+    slab_t* get_page_slab(uint64 pa);
+
 private:
     bootmem_t     m_bootmem;
     buddy_t       m_buddy;
 
+    kmem_cache_t  m_cache_cache;
     kmem_cache_t  m_vma_cache;
     kmem_cache_t  m_pipe_cache;
     cache_sizes_t m_cache_with_size[MAX_CACHE_OF_SIZE_INDEX];

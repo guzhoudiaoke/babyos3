@@ -41,21 +41,21 @@ void mm_t::init()
     m_bootmem.init();
     m_buddy.init();
 
-    m_vma_cache.create(sizeof(vm_area_t));
-    m_pipe_cache.create(sizeof(pipe_t));
+    m_cache_cache.create(sizeof(kmem_cache_t), 8, 1);
+    m_vma_cache.create(sizeof(vm_area_t), 8, 1);
+    m_pipe_cache.create(sizeof(pipe_t), 8, 1);
 
-    m_cache_with_size[0].init(32, NULL);
-    m_cache_with_size[1].init(64, NULL);
-    m_cache_with_size[2].init(128, NULL);
-    m_cache_with_size[3].init(256, NULL);
-    m_cache_with_size[3].init(512, NULL);
-    m_cache_with_size[3].init(1024, NULL);
-    //m_cache_with_size[3].init(2048, NULL);
-    //m_cache_with_size[3].init(4096, NULL);
-    //m_cache_with_size[3].init(8192, NULL);
-    //m_cache_with_size[3].init(16384, NULL);
-    //m_cache_with_size[3].init(32768, NULL);
-    //m_cache_with_size[3].init(65536, NULL);
+    uint32 size = 32;
+    uint32 order = 1;
+    for (int i = 0; i < MAX_CACHE_OF_SIZE_INDEX; i++) {
+        kmem_cache_t* cache = (kmem_cache_t *) m_cache_cache.alloc();
+        if (size > 1024) {
+            order++;
+        }
+        cache->create(size, 8, order);
+        m_cache_with_size[i].init(size, cache);
+        size *= 2;
+    }
 }
 
 void* mm_t::boot_mem_alloc(uint32 size, bool page_align)
@@ -128,8 +128,32 @@ void mm_t::kfree(void* p)
 
     uint64 flags;
     local_irq_save(flags);
-    slab_t* slab = (slab_t *) ((uint64)p & (~(PAGE_SIZE-1)));
-    kmem_cache_t* cache = slab->m_cache;
+    kmem_cache_t* cache = get_page_cache(V2P(p));
     cache->free(p);
     local_irq_restore(flags);
 }
+
+void mm_t::set_page_cache(uint64 pa, kmem_cache_t* ca)
+{
+    page_t* page = m_buddy.get_page(pa);
+    page->cache = (uint64) ca;
+}
+
+void mm_t::set_page_slab(uint64 pa, slab_t* slab)
+{
+    page_t* page = m_buddy.get_page(pa);
+    page->slab = (uint64) slab;
+}
+
+kmem_cache_t* mm_t::get_page_cache(uint64 pa)
+{
+    page_t* page = m_buddy.get_page(pa);
+    return (kmem_cache_t *) page->cache;
+}
+
+slab_t* mm_t::get_page_slab(uint64 pa)
+{
+    page_t* page = m_buddy.get_page(pa);
+    return (slab_t *) page->slab;
+}
+

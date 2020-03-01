@@ -45,29 +45,29 @@ public:
     void*         m_mem;
     uint32        m_in_use;
     uint32        m_first_free;
-    kmem_cache_t* m_cache;
 };
 
 
 class kmem_cache_t {
 public:
+    static const uint32 MAX_GFP_ORDER = 5;
+
     kmem_cache_t();
     ~kmem_cache_t();
 
-    void create(uint32 size);
-    void destroy();
-
+    void  create(uint32 size, uint32 align, uint32 max_order=1);
+    void  destroy();
     void* alloc();
     void  free(void* obj);
 
 private:
     slab_t* get_slab();
-    void* alloc_one();
-    void  free_one(void* obj);
-    void* slab_alloc(slab_t* slab);
-    void  grow();
-    void  init_objs(slab_t* slab);
-    void  estimate();
+    void*   alloc_one();
+    void    free_one(void* obj);
+    void*   slab_alloc(slab_t* slab);
+    void    grow();
+    void    init_objs(slab_t* slab);
+    uint32  estimate();
 
 private:
     dlist_t    m_slabs_partial;

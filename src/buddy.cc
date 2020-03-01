@@ -277,3 +277,9 @@ uint32 buddy_t::get_free_page_num()
 {
     return m_free_page_num.counter;
 }
+
+page_t* buddy_t::get_page(uint64 pa)
+{
+    page_t* page = &m_pages[pa >> PAGE_SHIFT];
+    return page;
+}
