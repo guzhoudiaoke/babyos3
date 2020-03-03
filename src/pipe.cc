@@ -36,14 +36,12 @@ void pipe_t::init()
     m_item.init(0);
     m_readable = true;
     m_writable = true;
-    //m_buffer = (char *) P2V(os()->mm()->alloc_pages(0));
     m_buffer = (char *) os()->mm()->kmalloc(BUFFER_SIZE);
 }
 
 void pipe_t::destroy()
 {
     if (m_buffer != NULL) {
-        //os()->mm()->free_pages(V2P(m_buffer), 0);
         os()->mm()->kfree(m_buffer);
         m_buffer = NULL;
     }
@@ -123,10 +121,12 @@ void pipe_t::close(bool write_end)
         m_space.up();
     }
 
-    //if (!m_readable && !m_writable) {
-    //    m_lock.unlock_irqrestore(flags);
-    //}
-
-    m_lock.unlock_irqrestore(flags);
+    if (!m_readable && !m_writable) {
+        m_lock.unlock_irqrestore(flags);
+        destroy();
+    }
+    else {
+        m_lock.unlock_irqrestore(flags);
+    }
 }
 

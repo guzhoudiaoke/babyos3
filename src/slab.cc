@@ -45,26 +45,26 @@ void kmem_cache_t::create(uint32 size, uint32 align, uint32 max_order)
 
     m_lock.init();
     m_objsize = (size + align) & (~(align-1));
-    m_gfporder = 0;
+    m_gfp_order = 0;
 
     while (true) {
         uint32 wast = estimate();
         if (m_num_per_slab == 0) {
-            m_gfporder++;
+            m_gfp_order++;
             continue;
         }
 
-        if (m_gfporder >= MAX_GFP_ORDER) {
+        if (m_gfp_order >= MAX_GFP_ORDER) {
             break;
         }
-        if (m_gfporder >= max_order) {
+        if (m_gfp_order >= max_order) {
             break;
         }
-        if (wast*8 <= PAGE_SIZE << m_gfporder) {
+        if (wast*8 <= PAGE_SIZE << m_gfp_order) {
             break;
         }
 
-        m_gfporder++;
+        m_gfp_order++;
     }
 
     if (m_num_per_slab == 0) {
@@ -107,10 +107,10 @@ void kmem_cache_t::init_objs(slab_t* slab)
 
 void kmem_cache_t::grow()
 {
-    uint64 pa = os()->mm()->alloc_pages(m_gfporder);
+    uint64 pa = os()->mm()->alloc_pages(m_gfp_order);
     slab_t* slab = (slab_t *) P2V(pa);
 
-    for (int i = 0; i < 1 << m_gfporder; i++) {
+    for (int i = 0; i < 1 << m_gfp_order; i++) {
         os()->mm()->set_page_cache(pa, this);
         os()->mm()->set_page_slab(pa, slab);
     }
@@ -168,8 +168,8 @@ uint32 kmem_cache_t::estimate()
 {
     uint32 base = sizeof(slab_t);
     uint32 extra = sizeof(uint32);
-    uint32 total = PAGE_SIZE << m_gfporder;
-    uint32 wast = PAGE_SIZE << m_gfporder;
+    uint32 total = PAGE_SIZE << m_gfp_order;
+    uint32 wast = PAGE_SIZE << m_gfp_order;
 
     int i = 0;
     while (i*m_objsize + L1_CACHE_ALIGN(base + i*extra) <= total) {

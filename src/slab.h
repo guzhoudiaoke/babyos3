@@ -35,7 +35,6 @@
 #include "spinlock.h"
 
 
-class kmem_cache_t;
 class slab_t {
 public:
     static const uint32 END = -1;
@@ -76,7 +75,7 @@ private:
 
     uint32     m_objsize;
     uint32     m_num_per_slab;
-    uint32     m_gfporder;
+    uint32     m_gfp_order;
     spinlock_t m_lock;
 };
 
