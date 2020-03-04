@@ -42,10 +42,73 @@ static int32 read_file_from(int fd, void* buffer, uint64 offset, uint64 size)
     return 0;
 }
 
-static int32 load_elf_binary(elf64_hdr_t* elf, int fd)
+static int32 load_elf_segment(elf64_phdr_t* ph, int fd)
 {
     pml4e_t* pml4_table = current->m_vmm.get_pml4_table();
-    uint32 file_offset = elf->e_phoff;
+    void* vaddr = (void*) (ph->p_vaddr & PAGE_MASK);
+    uint64 offset = ph->p_vaddr - (uint64)vaddr;
+    uint64 len = PAGE_ALIGN(ph->p_memsz + ((uint64)vaddr & (PAGE_SIZE-1)));
+
+    /* mmap */
+    int64 ret = current->m_vmm.do_mmap((uint64) vaddr,
+                                        len,
+                                        PROT_READ | PROT_WRITE | PROT_EXEC,
+                                        MAP_FIXED);
+    if (ret < 0) {
+        return -1;
+    }
+
+    /* alloc mem and do map pages */
+    uint64 pa = os()->mm()->alloc_pages(math_t::log(2, len / PAGE_SIZE));
+    vmm_t::map_pages(pml4_table, vaddr, pa, len, PTE_W | PTE_U);
+
+    /* read data */
+    uint8* va = (uint8 *) P2V(pa);
+    if (read_file_from(fd, va+offset, ph->p_offset, ph->p_filesz) != 0) {
+        return -1;
+    }
+
+    if (ph->p_memsz > ph->p_filesz) {
+        memset(va+offset+ph->p_filesz, 0, ph->p_memsz - ph->p_filesz);
+    }
+
+    return 0;
+}
+
+static void check_segment_bound(elf64_phdr_t* ph, uint64& start_code, uint64& end_code,
+                                uint64& start_data, uint64& end_data, uint64& elf_bss, uint64& elf_brk)
+{
+    uint64 k = ph->p_vaddr;
+    if (k < start_code) {
+        start_code = k;
+    }
+    if (start_data < k) {
+        start_data = k;
+    }
+
+    k = ph->p_vaddr + ph->p_filesz;
+    if (k > elf_bss) {
+        elf_bss = k;
+    }
+    if ((ph->p_flags & PF_X) && end_code < k) {
+        end_code = k;
+    }
+    if (end_data < k) {
+        end_data = k;
+    }
+
+    k = ph->p_vaddr + ph->p_memsz;
+    if (k > elf_brk) {
+        elf_brk = k;
+    }
+}
+
+static int32 load_elf_binary(elf64_hdr_t* elf, int fd)
+{
+    uint64 file_offset = elf->e_phoff;
+    uint64 start_code = ~0UL, end_code = 0, start_data = 0, end_data = 0;
+    uint64 elf_bss = 0, elf_brk = 0;
+
     for (int i = 0; i < elf->e_phnum; i++) {
         /* read prog_hdr */
         elf64_phdr_t ph;
@@ -58,36 +121,15 @@ static int32 load_elf_binary(elf64_hdr_t* elf, int fd)
             continue;
         }
 
-        void* vaddr = (void*) (ph.p_vaddr & PAGE_MASK);
-        uint64 offset = ph.p_vaddr - (uint64)vaddr;
-        uint64 len = PAGE_ALIGN(ph.p_memsz + ((uint64)vaddr & (PAGE_SIZE-1)));
-
-        /* mmap */
-        int64 ret = current->m_vmm.do_mmap((uint64) vaddr,
-                                           len,
-                                           PROT_READ | PROT_WRITE | PROT_EXEC,
-                                           MAP_FIXED);
-        if (ret < 0) {
+        if (load_elf_segment(&ph, fd) != 0) {
             return -1;
         }
 
-        /* alloc mem and do map pages */
-        uint64 pa = os()->mm()->alloc_pages(math_t::log(2, len / PAGE_SIZE));
-        vmm_t::map_pages(pml4_table, vaddr, pa, len, PTE_W | PTE_U);
-
-        /* read data */
-        uint8* va = (uint8 *) P2V(pa);
-        if (read_file_from(fd, va+offset, ph.p_offset, ph.p_filesz) != 0) {
-            return -1;
-        }
-
-        if (ph.p_memsz > ph.p_filesz) {
-            memset(va+offset+ph.p_filesz, 0, ph.p_memsz - ph.p_filesz);
-        }
-
+        check_segment_bound(&ph, start_code, end_code, start_data, end_data, elf_bss, elf_brk);
         file_offset += sizeof(elf64_phdr_t);
     }
 
+    current->m_vmm.set_segment_bound(start_code, end_code, start_data, end_data, elf_bss, elf_brk);
     return 0;
 }
 

@@ -28,6 +28,7 @@
 #include "vm.h"
 #include "x86.h"
 #include "string.h"
+#include "errno.h"
 //#include "signal.h"
 
 
@@ -35,6 +36,7 @@ void vmm_t::init()
 {
     m_mmap = NULL;
     m_pml4_table = NULL;
+    m_sem.init(1);
 }
 
 int32 vmm_t::copy(const vmm_t& vmm)
@@ -767,5 +769,90 @@ uint64 vmm_t::va_to_pa(pml4e_t* pml4_table, void* va)
 
     uint64 offset = (uint64) va - ((uint64) va & PAGE_MASK);
     return (page_table[PTE_INDEX(va)] & PAGE_MASK) + offset;
+}
+
+
+void vmm_t::set_segment_bound(uint64 start_code, uint64 end_code,
+                              uint64 start_data, uint64 end_data,
+                              uint64 elf_bss, uint64 elf_brk)
+{
+    m_start_code = start_code;
+    m_end_code = end_code;
+    m_start_data = start_data;
+    m_end_data = end_data;
+
+    if (elf_brk > elf_bss) {
+        // TODO: bss segment
+    }
+    m_start_brk = elf_brk;
+    m_brk = elf_brk;
+}
+
+uint64 vmm_t::sys_brk(uint64 brk)
+{
+    uint64 ret;
+    uint64 newbrk = PAGE_ALIGN(brk);
+    uint64 oldbrk = PAGE_ALIGN(m_brk);
+
+    m_sem.down();
+
+    if (brk < m_start_brk) {
+        goto out;
+    }
+
+    if (brk < m_brk) {
+        if (do_munmap(newbrk, oldbrk-newbrk) != 0) {
+            goto out;
+        }
+    }
+    else {
+        if (do_brk(oldbrk, newbrk-oldbrk) != oldbrk) {
+            goto out;
+        }
+    }
+
+    m_brk = brk;
+
+out:
+    ret = m_brk;
+    m_sem.up();
+    return ret;
+}
+
+uint64 vmm_t::do_brk(uint64 addr, uint64 len)
+{
+    vm_area_t* vma = NULL;
+
+    len = PAGE_ALIGN(len);
+    if (len == 0) {
+        return addr;
+    }
+
+    int32 ret = do_munmap(addr, len);
+    if (ret != 0) {
+        return ret;
+    }
+
+    if (addr != 0) {
+        vma = find_vma(addr-1);
+        if (vma != NULL && vma->m_end == addr) {
+            vma->m_end = addr = len;
+            goto out;
+        }
+    }
+
+    vma = (vm_area_t *) os()->mm()->vma_cache()->alloc();
+    if (vma == NULL) {
+        return -ENOMEM;
+    }
+
+    vma->m_start = addr;
+    vma->m_end = addr + len;
+    vma->m_page_prot = (VM_READ | VM_WRITE | VM_EXEC);
+
+    insert_vma(vma);
+
+out:
+    return addr;
 }
 

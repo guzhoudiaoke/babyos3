@@ -30,6 +30,7 @@
 #include "types.h"
 #include "traps.h"
 #include "page.h"
+#include "sem.h"
 
 
 #define USER_VM_SIZE		(0xc0000000)
@@ -66,16 +67,17 @@ typedef struct vm_area_s {
 
 class vmm_t {
 public:
-	void init();
+	void  init();
 	int32 copy(const vmm_t& vmm);
+    void  release();
 
 	uint64 do_mmap(uint64 addr, uint64 len, uint32 prot, uint32 flags);
-	int32 do_munmap(uint64 addr, uint64 len);
+	int32  do_munmap(uint64 addr, uint64 len);
+    uint64 sys_brk(uint64 brk);
 
 	/* Look up the first VMA which satisfies  addr < vm_end,  NULL if none. */
 	vm_area_t* find_vma(uint64 addr);
 	vm_area_t* find_vma(uint64 addr, vm_area_t*& prev);
-
 	uint32 insert_vma(vm_area_t* vma);
 	uint32 remove_vma(vm_area_t* vma, vm_area_t* prev);
 	uint64 get_unmapped_area(uint64 len);
@@ -83,18 +85,19 @@ public:
 
 	pml4e_t* get_pml4_table();
 	void set_pml4_table(pml4e_t* pml4_table);
-
-    void   release();
+    void set_segment_bound();
+    void set_segment_bound(uint64 start_code, uint64 end_code, uint64 start_data, uint64 end_data,
+                           uint64 elf_bss, uint64 elf_brk);
 
     static uint64 va_to_pa(pml4e_t *pml4_table, void* va);
     static void map_pages(pml4e_t *pml4_table, void *va, uint64 pa, uint64 size, uint32 perm);
-
 
 private:
 	int32 copy_vma(vm_area_t* mmap);
 	int32 do_protection_fault(vm_area_t* vma, uint64 addr, bool write);
     void  make_pte_write(void* va);
     int32 expand_stack(vm_area_t* vma, uint64 addr);
+    uint64 do_brk(uint64 addr, uint64 len);
 
     void   free_page_range(uint64 start, uint64 end);
     void   send_sig_segv();
@@ -116,14 +119,15 @@ private:
 private:
 	vm_area_t*	m_mmap;
     pml4e_t*    m_pml4_table;
+    semaphore_t m_sem;
 
-	///////
-	uint64		m_code_start, m_code_end;
-	uint64		m_data_start, m_data_end;
-	uint64		m_brk_start, m_brk;
-	uint64		m_stack_start;
-	uint64		m_arg_start, m_arg_end;
-	uint64		m_env_start, m_env_end;
+public:
+	uint64		m_start_code, m_end_code;
+	uint64		m_start_data, m_end_data;
+	uint64		m_start_brk, m_brk;
+	uint64		m_start_start;
+	uint64		m_start_arg, m_end_arg;
+	uint64		m_start_env, m_end_env;
 };
 
 #endif
