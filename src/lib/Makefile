@@ -8,6 +8,6 @@ libc_OBJS = \
 LIBS += $(call mkobjs,libc.a)
 OBJS += $(call mkobjs,$(libc_OBJS))
 
-$(d64)libc.a: $(call mkobjs,$(libc_OBJS))
+$(do)libc.a: $(call mkobjs,$(libc_OBJS))
 
 $(eval $(call std_footer))

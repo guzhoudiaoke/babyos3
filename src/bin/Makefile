@@ -8,26 +8,49 @@ bin_OBJS = \
 		   ln.o \
 		   ls.o \
 		   rm.o \
+		   mv.o \
+		   mkdir.o \
+		   cp.o \
 		   test_local_socket.o \
 
 OBJS += $(call mkobjs,$(bin_OBJS))
-PROGRAMS += $(call mkobjs,init shell cat ln ls rm test_socket)
-USERAPPS += $(call mkobjs,init shell cat ln ls rm test_socket)
+PROGRAMS += $(call mkobjs,init shell cat ln ls rm mv mkdir cp test_socket)
+USERAPPS += $(call mkobjs,init shell cat ln ls rm mv mkdir cp test_socket)
 
-$(d64)init: $(d64)init.o $(USERLIBS)
+
+USERFLAGS := -e main -Ttext 0x1000 
+
+
+$(do)init: $(do)init.o $(USERLIBS)
 	$(LD) $(LDFLAGS) $(USERFLAGS) -o $@ $^
-$(d64)shell: $(d64)shell.o $(USERLIBS)
+
+$(do)shell: $(do)shell.o $(USERLIBS)
 	$(LD) $(LDFLAGS) $(USERFLAGS) -o $@ $^
-$(d64)cat: $(d64)cat.o $(USERLIBS)
+
+$(do)cat: $(do)cat.o $(USERLIBS)
 	$(LD) $(LDFLAGS) $(USERFLAGS) -o $@ $^
-$(d64)ln: $(d64)ln.o $(USERLIBS)
+
+$(do)ln: $(do)ln.o $(USERLIBS)
 	$(LD) $(LDFLAGS) $(USERFLAGS) -o $@ $^
-$(d64)ls: $(d64)ls.o $(USERLIBS)
+
+$(do)ls: $(do)ls.o $(USERLIBS)
 	$(LD) $(LDFLAGS) $(USERFLAGS) -o $@ $^
-$(d64)rm: $(d64)rm.o $(USERLIBS)
+
+$(do)rm: $(do)rm.o $(USERLIBS)
 	$(LD) $(LDFLAGS) $(USERFLAGS) -o $@ $^
-$(d64)test_socket: $(d64)test_local_socket.o $(USERLIBS)
+
+$(do)mv: $(do)mv.o $(USERLIBS)
 	$(LD) $(LDFLAGS) $(USERFLAGS) -o $@ $^
+
+$(do)mkdir: $(do)mkdir.o $(USERLIBS)
+	$(LD) $(LDFLAGS) $(USERFLAGS) -o $@ $^
+
+$(do)cp: $(do)cp.o $(USERLIBS)
+	$(LD) $(LDFLAGS) $(USERFLAGS) -o $@ $^
+
+$(do)test_socket: $(do)test_local_socket.o $(USERLIBS)
+	$(LD) $(LDFLAGS) $(USERFLAGS) -o $@ $^
+
 
 $(eval $(call std_footer))
 

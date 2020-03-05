@@ -1,5 +1,5 @@
 define top_level_config
-d64     := $(OBJTOP)/
+do     := $(OBJTOP)/
 ds 		:= 
 stack 	:=
 endef
@@ -12,14 +12,14 @@ endef
 
 define std_header
 stack 					:= $(stack).rec
-dirstackd64_$$(stack)   := $(d64)
+dirstackdo_$$(stack)   := $(do)
 dirstackds_$$(stack) 	:= $(ds)
-d64  					:= $(d64)$(DIRECTORY1)/
+do  					:= $(do)$(DIRECTORY1)/
 ds 						:= $(ds)$(DIRECTORY)/
 endef
 
 define std_footer
-d64		:= $(dirstackd64_$(stack))
+do		:= $(dirstackdo_$(stack))
 ds 		:= $(dirstackds_$(stack))
 stack 	:= $$(basename $(stack))
 endef
@@ -55,7 +55,7 @@ endef
 USERLIBS_LIST = \
 				.../lib/libc.a \
 
-mkobjs = $(addprefix $(d64),$(1))
+mkobjs = $(addprefix $(do),$(1))
 mklibs = $(patsubst .../%,$(OBJTOP)/%,$(foreach lib,$(1),$(filter %lib$(lib).a,$(USERLIBS_LIST))))
 
 USERLIBS = $(call mklibs,c)
