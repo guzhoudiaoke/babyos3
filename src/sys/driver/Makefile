@@ -2,7 +2,7 @@ $(eval $(call start_directory,driver))
 $(eval $(call std_header))
 $(eval $(call add_to_include_path))
 
-driver_OBJS = \
+SUB_OBJS = \
 		  uart.o \
 		  i8254.o \
 		  i8259a.o \
@@ -10,6 +10,6 @@ driver_OBJS = \
 		  ide.o \
 		  rtc.o \
 
-KOBJS += $(call mkobjs,$(driver_OBJS))
+KOBJS += $(call mkobjs,$(SUB_OBJS))
 
 $(eval $(call std_footer))

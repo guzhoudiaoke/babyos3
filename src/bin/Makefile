@@ -1,7 +1,7 @@
 $(eval $(call start_directory,bin))
 $(eval $(call std_header))
 
-bin_OBJS = \
+SUB_OBJS = \
 		   init.o \
 		   shell.o \
 		   cat.o \
@@ -13,13 +13,11 @@ bin_OBJS = \
 		   cp.o \
 		   test_local_socket.o \
 
-OBJS += $(call mkobjs,$(bin_OBJS))
-PROGRAMS += $(call mkobjs,init shell cat ln ls rm mv mkdir cp test_socket)
+OBJS += $(call mkobjs,$(SUB_OBJS))
 USERAPPS += $(call mkobjs,init shell cat ln ls rm mv mkdir cp test_socket)
 
 
 USERFLAGS := -e main -Ttext 0x1000 
-
 
 $(do)init: $(do)init.o $(USERLIBS)
 	$(LD) $(LDFLAGS) $(USERFLAGS) -o $@ $^

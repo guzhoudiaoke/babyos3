@@ -65,7 +65,6 @@ $(eval $(call top_level_config))
 INCS 		:= 
 LIBS 		:=
 OBJS 		:=
-PROGRAMS 	:=
 
 # execs
 BOOT     :=
@@ -82,6 +81,11 @@ $(eval $(call define_compiler,$(OBJTOP),$(CC) $(CPPFLAGS)))
 $(eval $(call define_linklibrary,$(OBJTOP),$(AR)))
 
 
-MKDIRS := $(sort $(dir $(OBJS) $(LIBS) $(PROGRAMS)))
+MKDIRS := $(sort $(dir $(OBJS) $(LIBS) $(BOOT) $(LOADER) $(KERNEL) $(USERAPPS)))
+$(OBJS) $(LIBS) $(BOOT) $(LOADER) $(KERNEL) $(USERAPPS) : | mkdirs
 
-$(OBJS) $(LIBS) $(PROGRAMS): | mkdirs
+
+
+.PHONY: mkdirs
+mkdirs:
+	mkdir -p $(MKDIRS)

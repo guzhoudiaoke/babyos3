@@ -11,7 +11,6 @@ SUBDIRS := boot mm fs driver util task ipc device net os arch
 $(eval $(call include_subdirs))
 OBJS += $(KOBJS)
 
-PROGRAMS += $(call mkobjs,kernel)
 KERNEL +=$(call mkobjs,kernel)
 
 
