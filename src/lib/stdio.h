@@ -1,5 +1,5 @@
 /*
- *	babyos/user/rm.cc
+ *	babyos/lib/stdio.h
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,31 +19,28 @@
 
 
 /*
- *  2020-02-20		created
+ *  2020-03-07		created
  */
 
 
+#ifndef _STDIO_H_
+#define _STDIO_H_
 
+
+#include "types.h"
 #include "unistd.h"
-#include "stdio.h"
+#include <stdarg.h>
 
 
-int main(int argc, char** argv)
-{
-    if (argc < 2) {
-        printf("Usage: rm files...\n");
-        exit(0);
-    }
-
-    for (int i = 1; i < argc; i++) {
-        if (unlink(argv[i]) < 0) {
-            printf("rm %s failed\n", argv[i]);
-            break;
-        }
-    }
-
-    exit(0);
-    return 0;
-}
+static const int fd_stdin  = 0;
+static const int fd_stdout = 1;
+static const int fd_error  = 2;
 
 
+int  vsprintf(char *buffer, const char *fmt, va_list args);
+int  sprintf(char* buffer, const char* fmt, ...);
+int  printf(const char* fmt, ...);
+void gets(char* buf, uint32 max);
+void puts(char* buf);
+
+#endif

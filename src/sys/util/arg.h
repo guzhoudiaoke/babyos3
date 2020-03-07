@@ -28,8 +28,14 @@
 #define MAX_ARG_LEN 32
 
 
+#ifndef _ARG_H_
+#define _ARG_H_
+
+
 typedef struct argument_s {
     unsigned m_argc;
     char m_argv[MAX_ARGS][MAX_ARG_LEN];
 } argument_t;
 
+
+#endif

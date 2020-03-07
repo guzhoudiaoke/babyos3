@@ -7,7 +7,7 @@ SUB_OBJS = \
 		  delay.o \
 		  math.o \
 		  dlist.o \
-		  string.o \
+		  kstring.o \
 		  elf.o \
 
 KOBJS += $(call mkobjs,$(SUB_OBJS))

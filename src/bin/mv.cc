@@ -24,26 +24,27 @@
 
 
 
-#include "userlib.h"
+#include "unistd.h"
+#include "stdio.h"
 
 
 int main(int argc, char** argv)
 {
     if (argc < 3) {
-        userlib_t::printf("Usage: mv from to \n");
-        userlib_t::exit(0);
+        printf("Usage: mv from to \n");
+        exit(0);
     }
 
-    if (userlib_t::link(argv[1], argv[2]) < 0) {
-        userlib_t::printf("mv failed\n");
-        userlib_t::exit(0);
+    if (link(argv[1], argv[2]) < 0) {
+        printf("mv failed\n");
+        exit(0);
     }
 
-    if (userlib_t::unlink(argv[1]) < 0) {
-        userlib_t::unlink(argv[2]);
+    if (unlink(argv[1]) < 0) {
+        unlink(argv[2]);
     }
 
-    userlib_t::exit(0);
+    exit(0);
     return 0;
 }
 

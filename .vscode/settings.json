@@ -1,3 +1,11 @@
 {
-    "C_Cpp.errorSquiggles": "Disabled"
+    "C_Cpp.errorSquiggles": "Disabled",
+    "files.associations": {
+        "cstdlib": "cpp",
+        "*.tcc": "cpp",
+        "chrono": "cpp",
+        "limits": "cpp",
+        "ratio": "cpp",
+        "bit": "cpp"
+    }
 }

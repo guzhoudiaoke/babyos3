@@ -3,7 +3,9 @@ $(eval $(call std_header))
 $(eval $(call add_to_include_path))
 
 libc_OBJS = \
-	userlib.o \
+	unistd.o \
+	stdio.o \
+	string.o \
 
 LIBS += $(call mkobjs,libc.a)
 OBJS += $(call mkobjs,$(libc_OBJS))

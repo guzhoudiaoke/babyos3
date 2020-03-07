@@ -11,7 +11,7 @@ SUB_OBJS = \
 		   mv.o \
 		   mkdir.o \
 		   cp.o \
-		   test_local_socket.o \
+		   test_socket.o \
 
 OBJS += $(call mkobjs,$(SUB_OBJS))
 USERAPPS += $(call mkobjs,init shell cat ln ls rm mv mkdir cp test_socket)
@@ -46,7 +46,7 @@ $(do)mkdir: $(do)mkdir.o $(USERLIBS)
 $(do)cp: $(do)cp.o $(USERLIBS)
 	$(LD) $(LDFLAGS) $(USERFLAGS) -o $@ $^
 
-$(do)test_socket: $(do)test_local_socket.o $(USERLIBS)
+$(do)test_socket: $(do)test_socket.o $(USERLIBS)
 	$(LD) $(LDFLAGS) $(USERFLAGS) -o $@ $^
 
 

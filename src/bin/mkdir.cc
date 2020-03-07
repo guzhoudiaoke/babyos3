@@ -24,23 +24,24 @@
 
 
 
-#include "userlib.h"
+#include "unistd.h"
+#include "stdio.h"
 
 
 int main(int argc, char** argv)
 {
     if (argc < 2) {
-        userlib_t::printf("Usage: mkdir files ... \n");
-        userlib_t::exit(0);
+        printf("Usage: mkdir files ... \n");
+        exit(0);
     }
 
     for (int i = 1; i < argc; i++) {
-        if (userlib_t::mkdir(argv[i]) < 0) {
-            userlib_t::printf("mkdir: %s failed\n", argv[i]);
+        if (mkdir(argv[i]) < 0) {
+            printf("mkdir: %s failed\n", argv[i]);
             break;
         }
     }
 
-    userlib_t::exit(0);
+    exit(0);
     return 0;
 }

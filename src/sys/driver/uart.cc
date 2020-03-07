@@ -26,7 +26,7 @@
 #include "x86.h"
 #include "delay.h"
 #include <stdarg.h>
-#include "string.h"
+#include "kstring.h"
 
 
 #define COM1   0x3f8

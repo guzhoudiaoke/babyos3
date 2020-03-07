@@ -24,12 +24,14 @@
 
 
 
-#include "userlib.h"
+#include "unistd.h"
+#include "string.h"
+#include "stdio.h"
 
 
 void get_name(const char* path, char* name)
 {
-    const char* p = path + userlib_t::strlen(path);
+    const char* p = path + strlen(path);
     while (*p == '/') {
         p--;
     }
@@ -38,25 +40,25 @@ void get_name(const char* path, char* name)
     }
     p++;
 
-    userlib_t::strcpy(name, p);
+    strcpy(name, p);
 }
 
 void list_file(const char* name, uint32 size)
 {
-    userlib_t::printf("%20s %u\n", name, size);
+    printf("%20s %u\n", name, size);
 }
 
 void ls(const char* path)
 {
-    int fd = userlib_t::open(path, file_t::MODE_RDONLY);
+    int fd = open(path, file_t::MODE_RDONLY);
     if (fd < 0) {
-        userlib_t::printf("ls: cannot open %s\n", path);
+        printf("ls: cannot open %s\n", path);
         return;
     }
 
     stat_t st;
-    if (userlib_t::fstat(fd, &st) < 0) {
-        userlib_t::printf("ls: cannot stat file %s\n", fd);
+    if (fstat(fd, &st) < 0) {
+        printf("ls: cannot stat file %s\n", fd);
         return;
     }
 
@@ -68,23 +70,23 @@ void ls(const char* path)
         list_file(name, st.m_size);
         break;
     case inode_t::I_TYPE_DIR:
-        userlib_t::printf("%s: \n", path);
-        while (userlib_t::read(fd, &de, sizeof(de)) == sizeof(de)) {
+        printf("%s: \n", path);
+        while (read(fd, &de, sizeof(de)) == sizeof(de)) {
             if (de.m_inum == 0) {
                 continue;
             }
 
             char p[128] = {0};
-            if (userlib_t::strcmp(de.m_name, ".") != 0 && userlib_t::strcmp(de.m_name, "..") != 0) {
-                userlib_t::strcpy(p, path);
-                if (*(p + userlib_t::strlen(p)) != '/') {
-                    userlib_t::strcat(p, "/");
+            if (strcmp(de.m_name, ".") != 0 && strcmp(de.m_name, "..") != 0) {
+                strcpy(p, path);
+                if (*(p + strlen(p)) != '/') {
+                    strcat(p, "/");
                 }
             }
-            userlib_t::strcat(p, de.m_name);
+            strcat(p, de.m_name);
 
-            if (userlib_t::stat(p, &st) < 0) {
-                userlib_t::printf("ls: cannot stat %s\n", p);
+            if (stat(p, &st) < 0) {
+                printf("ls: cannot stat %s\n", p);
                 continue;
             }
 
@@ -93,21 +95,21 @@ void ls(const char* path)
         break;
     }
 
-    userlib_t::close(fd);
+    close(fd);
 }
 
 int main(int argc, char** argv)
 {
     if (argc < 2) {
         ls(".");
-        userlib_t::exit(0);
+        exit(0);
     }
 
     for (int i = 1; i < argc; i++) {
         ls(argv[i]);
     }
 
-    userlib_t::exit(0);
+    exit(0);
     return 0;
 }
 

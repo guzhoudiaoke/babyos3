@@ -1,5 +1,5 @@
 /*
- *	babyos/user/rm.cc
+ *	babyos/lib/unistd.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,31 +19,27 @@
 
 
 /*
- *  2020-02-20		created
+ *  2020-03-07		created
  */
 
 
-
-#include "unistd.h"
-#include "stdio.h"
-
-
-int main(int argc, char** argv)
-{
-    if (argc < 2) {
-        printf("Usage: rm files...\n");
-        exit(0);
-    }
-
-    for (int i = 1; i < argc; i++) {
-        if (unlink(argv[i]) < 0) {
-            printf("rm %s failed\n", argv[i]);
-            break;
-        }
-    }
-
-    exit(0);
-    return 0;
-}
+#ifndef _STRING_H_
+#define _STRING_H_
 
 
+#include "types.h"
+
+
+char* strcat(char* dst, const char* src);
+char* strrev(char* str, int len);
+int   strlen(const char* s);
+char* strcpy(char* dst, const char* src);
+char* strncpy(char* dst, const char* src, int n);
+int   strcmp(const char* s1, const char *s2);
+int   strncmp(const char* s1, const char *s2, int n);
+void* memmov(void *dst, const void *src, uint32 n);
+void* memcpy(void *dst, const void *src, uint32 n);
+void* memset(void *dst, uint32 c, uint32 n);
+
+
+#endif

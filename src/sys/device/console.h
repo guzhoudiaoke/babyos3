@@ -28,7 +28,7 @@
 
 #include "types.h"
 #include "color.h"
-#include "string.h"
+#include "kstring.h"
 #include "spinlock.h"
 #include "waitqueue.h"
 
