@@ -27,6 +27,7 @@
 #include "delay.h"
 #include "syscall.h"
 #include "pipe.h"
+#include "syscall.h"
 #include "sys_socket.h"
 
 
@@ -189,9 +190,13 @@ void babyos_t::init()
     m_block_dev.init(1);
     uart()->puts("block dev init done\n");
 
-    /* sock */
+    /* syscall */
+    syscall_t::init();
+    uart()->puts("syscall init done\n");
+
+    /* socket */
     sys_socket_t::init();
-    uart()->puts("sys socket init done\n");
+    uart()->puts("socket init done\n");
 
     /* fs */
     m_fs.init();
@@ -234,20 +239,10 @@ void babyos_t::start_init_proc()
     __asm__ volatile("int $0x80" : "=a" (ret) : "a" (syscall_t::FORK));
 
     if (ret == 0) {
-        os()->console()->kprintf(CYAN, "fork return, ret = 0, this is: %p, pid: %u, will do exec\n",
-                                 current, current->m_pid);
         __asm__ volatile("int $0x80"
                          : "=a" (ret)
                          : "a" (syscall_t::EXEC), "D" ("/bin/init"), "S" (0));
-
         os()->panic("exec return!\n");
-    }
-    else if (ret > 0) {
-        os()->console()->kprintf(GREEN, "fork return ret = %d, this is: %p, pid = %u\n",
-                                 ret, current, current->m_pid);
-    }
-    else {
-        os()->panic("fork failed\n");
     }
 }
 
@@ -272,12 +267,13 @@ void babyos_t::run()
 void show_time_now()
 {
     uint32 year, month, day, h, m, s;
-    year = os()->rtc()->year();
+    year  = os()->rtc()->year();
     month = os()->rtc()->month();
-    day = os()->rtc()->day();
-    h = os()->rtc()->hour();
-    m = os()->rtc()->minute();
-    s = os()->rtc()->second();
+    day   = os()->rtc()->day();
+
+    h     = os()->rtc()->hour();
+    m     = os()->rtc()->minute();
+    s     = os()->rtc()->second();
     os()->uart()->kprintf("%d-%d-%d %2d:%2d:%2d\n", 2000+year, month, day, h, m, s);
 }
 
@@ -300,7 +296,6 @@ void babyos_t::panic(const char* s)
         halt();
     }
 }
-
 
 
 /********************************************************************/
@@ -360,4 +355,3 @@ void test_fs()
     os()->console()->kprintf(YELLOW, "\n\nThe content of /bin/test\n");
     os()->console()->kprintf(CYAN, "%s", buf);
 }
-

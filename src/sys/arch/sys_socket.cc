@@ -24,7 +24,7 @@
 
 
 
-
+#include "syscall.h"
 #include "sys_socket.h"
 #include "babyos.h"
 #include "socket_local.h"
@@ -32,14 +32,6 @@
 //#include "socket_dgram.h"
 //#include "socket_stream.h"
 
-
-int32 (*sys_socket_t::s_sys_socket_table[])(trap_frame_t* frame) = {
-    sys_socket_t::sys_socket,
-    sys_socket_t::sys_bind,
-    sys_socket_t::sys_listen,
-    sys_socket_t::sys_accept,
-    sys_socket_t::sys_connect,
-};
 
 /******************************************************************************/
 
@@ -129,7 +121,6 @@ int32 sys_socket_t::socket(uint32 family, uint32 type, uint32 protocol)
 
 int32 sys_socket_t::bind(int fd, sock_addr_t* myaddr)
 {
-    //console()->kprintf(WHITE, "bind, pid: %u, fd: %u\n", current->m_pid, fd);
     socket_t* socket = look_up_socket(fd);
     if (socket == NULL) {
         return -EBADF;
@@ -140,7 +131,6 @@ int32 sys_socket_t::bind(int fd, sock_addr_t* myaddr)
 
 int32 sys_socket_t::listen(int fd, uint32 backlog)
 {
-    //console()->kprintf(WHITE, "listen, pid: %u, fd: %u\n", current->m_pid, fd);
     socket_t* socket = look_up_socket(fd);
     if (socket == NULL) {
         return -EBADF;
@@ -234,51 +224,42 @@ int32 sys_socket_t::connect(int fd, sock_addr_t* user_addr)
     return socket->connect(user_addr);
 }
 
+
 /* socket syscalls */
 int32 sys_socket_t::sys_socket(trap_frame_t* frame)
 {
-    uint32 family = frame->rsi, type = frame->rdx, protocol = frame->rcx;
+    uint32 family = (uint32) syscall_t::get_argument(frame, 0);
+    uint32 type = (uint32) syscall_t::get_argument(frame, 1);
+    uint32 protocol = (uint32) syscall_t::get_argument(frame, 2);
     return socket(family, type, protocol);
 }
 
 int32 sys_socket_t::sys_bind(trap_frame_t* frame)
 {
-    int fd = frame->rsi;
-    sock_addr_t* myaddr = (sock_addr_t *) frame->rdx;
+    int fd = (int) syscall_t::get_argument(frame, 0);
+    sock_addr_t* myaddr = (sock_addr_t *) syscall_t::get_argument(frame, 1);
     return bind(fd, myaddr);
 }
 
 int32 sys_socket_t::sys_listen(trap_frame_t* frame)
 {
-    int fd = frame->rsi;
-    uint32 backlog = frame->rdx;
+    int fd = (int) syscall_t::get_argument(frame, 0);
+    uint32 backlog = (uint32) syscall_t::get_argument(frame, 1);
     return listen(fd, backlog);
 }
 
 int32 sys_socket_t::sys_accept(trap_frame_t* frame)
 {
-    int fd = frame->rsi;
-    sock_addr_t* peer_addr = (sock_addr_t *) frame->rdx;
+    int fd = (int) syscall_t::get_argument(frame, 0);
+    sock_addr_t* peer_addr = (sock_addr_t *) syscall_t::get_argument(frame, 1);
     return accept(fd, peer_addr);
 }
 
 int32 sys_socket_t::sys_connect(trap_frame_t* frame)
 {
-    int fd = frame->rsi;
-    sock_addr_t* user_addr = (sock_addr_t *) frame->rdx;
+    int fd = (int) syscall_t::get_argument(frame, 0);
+    sock_addr_t* user_addr = (sock_addr_t *) syscall_t::get_argument(frame, 1);
     return connect(fd, user_addr);
-}
-
-int32 sys_socket_t::do_sys_socket(trap_frame_t* frame)
-{
-    uint32 id = frame->rdi;
-    if (id >= sys_socket_t::MAX_SYS_SOCKET) {
-        os()->console()->kprintf(RED, "unknown sys_socket call %x, current: %p\n", id, current->m_pid);
-        return -1;
-    }
-    else {
-        return s_sys_socket_table[id](frame);
-    }
 }
 
 //int32 sys_socket_t::close_socket(socket_t* socket)

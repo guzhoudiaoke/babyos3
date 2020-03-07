@@ -218,7 +218,7 @@ int userlib_t::socket(int domain, int type, int protocol)
     uint32 ret = 0;
     __asm__ volatile("int $0x80"
                      : "=a" (ret)
-                     : "a" (syscall_t::SOCKET), "D" (sys_socket_t::SOCK_SOCKET), "S"(domain), "d" (type), "c" (protocol));
+                     : "a" (syscall_t::SOCKET), "D" (domain), "S"(type), "d" (protocol));
     return ret;
 }
 
@@ -227,7 +227,7 @@ int userlib_t::bind(int sockfd, const sock_addr_t* addr)
     uint32 ret = 0;
     __asm__ volatile("int $0x80"
                      : "=a" (ret)
-                     : "a" (syscall_t::SOCKET), "D" (sys_socket_t::SOCK_BIND), "S"(sockfd), "d" (addr));
+                     : "a" (syscall_t::BIND), "D" (sockfd), "S"(addr));
     return ret;
 }
 
@@ -236,7 +236,7 @@ int userlib_t::listen(int sockfd, int backlog)
     uint32 ret = 0;
     __asm__ volatile("int $0x80"
                      : "=a" (ret)
-                     : "a" (syscall_t::SOCKET), "D" (sys_socket_t::SOCK_LISTEN), "S"(sockfd), "d" (backlog));
+                     : "a" (syscall_t::LISTEN), "D" (sockfd), "S"(backlog));
     return ret;
 }
 
@@ -245,7 +245,7 @@ int userlib_t::connect(int sockfd, const sock_addr_t* addr)
     uint32 ret = 0;
     __asm__ volatile("int $0x80"
                      : "=a" (ret)
-                     : "a" (syscall_t::SOCKET), "D" (sys_socket_t::SOCK_CONNECT), "S"(sockfd), "d" (addr));
+                     : "a" (syscall_t::CONNECT), "D" (sockfd), "S"(addr));
     return ret;
 }
 
@@ -254,7 +254,7 @@ int userlib_t::accept(int sockfd, sock_addr_t* addr)
     uint32 ret = 0;
     __asm__ volatile("int $0x80"
                      : "=a" (ret)
-                     : "a" (syscall_t::SOCKET), "D" (sys_socket_t::SOCK_ACCEPT), "S"(sockfd), "d" (addr));
+                     : "a" (syscall_t::ACCEPT), "D" (sockfd), "S"(addr));
     return ret;
 }
 

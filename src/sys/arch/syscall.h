@@ -41,9 +41,6 @@ public:
         EXIT,
         WAIT,
         SLEEP,
-        //SIGNAL,
-        //SIGRET,
-        //KILL,
         OPEN,
         CLOSE,
         READ,
@@ -59,12 +56,22 @@ public:
         SENDTO,
         RECVFROM,
         SOCKET,
+        BIND,
+        LISTEN,
+        ACCEPT,
+        CONNECT,
+        //SIGNAL,
+        //SIGRET,
+        //KILL,
         MAX_SYSCALL,
     };
 
 
 public:
+    static void  init();
     static void  do_syscall(trap_frame_t* frame);
+    static uint64 get_argument(trap_frame_t* frame, uint32 index);
+
     static int32 sys_print(trap_frame_t* frame);
     static int32 sys_fork(trap_frame_t* frame);
     static int32 sys_exec(trap_frame_t* frame);
@@ -72,9 +79,6 @@ public:
     static int32 sys_exit(trap_frame_t* frame);
     static int32 sys_wait(trap_frame_t* frame);
     static int32 sys_sleep(trap_frame_t* frame);
-    //static int64 sys_signal(trap_frame_t* frame);
-    //static int64 sys_sigret(trap_frame_t* frame);
-    //static int64 sys_kill(trap_frame_t* frame);
     static int32 sys_open(trap_frame_t* frame);
     static int32 sys_close(trap_frame_t* frame);
     static int32 sys_read(trap_frame_t* frame);
@@ -89,11 +93,13 @@ public:
     static int32 sys_pipe(trap_frame_t* frame);
     static int32 sys_send_to(trap_frame_t* frame);
     static int32 sys_recv_from(trap_frame_t* frame);
-    static int32 sys_socket(trap_frame_t* frame);
+
+    //static int32 sys_signal(trap_frame_t* frame);
+    //static int32 sys_sigret(trap_frame_t* frame);
+    //static int32 sys_kill(trap_frame_t* frame);
 
 private:
-    static int32 (*s_system_call_table[])(trap_frame_t* frame);
-    static uint64 get_argument(trap_frame_t* frame, uint32 index);
+    static int32 (*s_system_call_table[MAX_SYSCALL])(trap_frame_t* frame);
 };
 
 #endif

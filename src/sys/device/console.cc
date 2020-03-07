@@ -55,7 +55,6 @@ void input_buffer_t::init()
 
 void input_buffer_t::input(char ch)
 {
-    os()->uart()->kprintf("input: %c\n", ch);
     if (ch == '\b') {
         if (m_edit_index == m_write_index) {
             return;
@@ -283,7 +282,6 @@ int console_t::read(void* buf, int size)
             current->sleep_on(&m_wait_queue);
         }
         char c = m_input_buffer.m_buffer[m_input_buffer.m_read_index++ % BUFFER_SIZE];
-        os()->uart()->kprintf("read: %c\n", c);
         *p++ = c;
         --left;
         if (c == '\n') {
@@ -308,7 +306,6 @@ int console_t::write(void* buf, int size)
 
 void console_t::wakeup_reader()
 {
-    os()->uart()->kprintf("wakeup reader\n");
     m_wait_queue.wake_up();
 }
 

@@ -30,13 +30,10 @@
 
 #include "types.h"
 #include "syscall.h"
-//#include "signal.h"
 #include "fs.h"
 #include "socket.h"
-#include "sys_socket.h"
 #include "arg.h"
 #include "color.h"
-//#include "dns.h"
 #include <stdarg.h>
 
 
@@ -45,7 +42,7 @@
 #define PROT_WRITE          0x2       /* page can be written */
 #define PROT_EXEC           0x4       /* page can be executed */
 
-#define BUFFER_SIZE     1024
+#define BUFFER_SIZE         1024
 
 #define CHARACTER(ch)       (ch & 0xff)
 

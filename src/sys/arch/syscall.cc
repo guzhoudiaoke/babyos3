@@ -34,33 +34,41 @@
 
 
 
-int32 (*syscall_t::s_system_call_table[])(trap_frame_t* frame) = {
-    syscall_t::sys_print,
-    syscall_t::sys_fork,
-    syscall_t::sys_exec,
-    syscall_t::sys_mmap,
-    syscall_t::sys_exit,
-    syscall_t::sys_wait,
-    syscall_t::sys_sleep,
+int32 (*syscall_t::s_system_call_table[])(trap_frame_t* frame);
+
+void syscall_t::init()
+{
+    s_system_call_table[PRINT]    = syscall_t::sys_print,
+    s_system_call_table[FORK]     = syscall_t::sys_fork,
+    s_system_call_table[EXEC]     = syscall_t::sys_exec,
+    s_system_call_table[MMAP]     = syscall_t::sys_mmap,
+    s_system_call_table[EXIT]     = syscall_t::sys_exit,
+    s_system_call_table[WAIT]     = syscall_t::sys_wait,
+    s_system_call_table[SLEEP]    = syscall_t::sys_sleep,
+    s_system_call_table[OPEN]     = syscall_t::sys_open,
+    s_system_call_table[CLOSE]    = syscall_t::sys_close,
+    s_system_call_table[READ]     = syscall_t::sys_read,
+    s_system_call_table[WRITE]    = syscall_t::sys_write,
+    s_system_call_table[LINK]     = syscall_t::sys_link,
+    s_system_call_table[UNLINK]   = syscall_t::sys_unlink,
+    s_system_call_table[MKDIR]    = syscall_t::sys_mkdir,
+    s_system_call_table[MKNOD]    = syscall_t::sys_mknod,
+    s_system_call_table[DUP]      = syscall_t::sys_dup,
+    s_system_call_table[STAT]     = syscall_t::sys_stat,
+    s_system_call_table[CHDIR]    = syscall_t::sys_chdir,
+    s_system_call_table[PIPE]     = syscall_t::sys_pipe,
+    s_system_call_table[SENDTO]   = syscall_t::sys_send_to,
+    s_system_call_table[RECVFROM] = syscall_t::sys_recv_from,
+    s_system_call_table[SOCKET]   = sys_socket_t::sys_socket;
+    s_system_call_table[BIND]     = sys_socket_t::sys_bind;
+    s_system_call_table[LISTEN]   = sys_socket_t::sys_listen;
+    s_system_call_table[ACCEPT]   = sys_socket_t::sys_accept;
+    s_system_call_table[CONNECT]  = sys_socket_t::sys_connect;
+
     //syscall_t::sys_signal,
     //syscall_t::sys_sigret,
     //syscall_t::sys_kill,
-    syscall_t::sys_open,
-    syscall_t::sys_close,
-    syscall_t::sys_read,
-    syscall_t::sys_write,
-    syscall_t::sys_link,
-    syscall_t::sys_unlink,
-    syscall_t::sys_mkdir,
-    syscall_t::sys_mknod,
-    syscall_t::sys_dup,
-    syscall_t::sys_stat,
-    syscall_t::sys_chdir,
-    syscall_t::sys_pipe,
-    syscall_t::sys_send_to,
-    syscall_t::sys_recv_from,
-    syscall_t::sys_socket,
-};
+}
 
 void syscall_t::do_syscall(trap_frame_t* frame)
 {
@@ -243,11 +251,6 @@ int32 syscall_t::sys_pipe(trap_frame_t* frame)
 {
     int* fd = (int *) get_argument(frame, 0);
     return os()->fs()->do_pipe(fd);
-}
-
-int32 syscall_t::sys_socket(trap_frame_t* frame)
-{
-    return sys_socket_t::do_sys_socket(frame);
 }
 
 int32 syscall_t::sys_send_to(trap_frame_t* frame)

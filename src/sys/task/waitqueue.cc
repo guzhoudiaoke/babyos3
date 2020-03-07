@@ -36,7 +36,6 @@ void wait_queue_t::init()
 
 void wait_queue_t::add(process_t* proc)
 {
-    os()->uart()->kprintf("wake add %p %d %s\n", proc, proc->m_pid, proc->m_name);
     locker_t locker(m_lock);
     m_procs.add_tail(&proc->m_wq_list_node);
 }
@@ -49,12 +48,9 @@ void wait_queue_t::remove(process_t* proc)
 
 void wait_queue_t::wake_up()
 {
-    os()->uart()->kprintf("wake up1\n");
     locker_t locker(m_lock);
-    os()->uart()->kprintf("wake up2\n");
     if (!m_procs.empty()) {
         process_t* p = list_entry(m_procs.head(), process_t, m_wq_list_node);
-        os()->uart()->kprintf("wake up3 :%p\n", p);
         os()->process_mgr()->wake_up_process(p);
     }
 }
