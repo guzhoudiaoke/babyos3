@@ -46,7 +46,18 @@ void vbe_t::init()
     m_height   = info->height;
     m_bytes_pp = info->bits_per_pixel / 8;
     m_base     = (uint8 *)IO2V(info->vram_base_addr);
-    m_asc16_addr = (uint8 *) os()->bootinfo()->asc16_font();
+    m_asc16_addr = (uint8 *) os()->mm()->kmalloc(4096);
+
+    int fd = os()->fs()->do_open("/bin/ASC16", file_t::MODE_RDWR);
+    if (fd < 0) {
+        os()->panic("vbe init failed: not find");
+    }
+
+    if (os()->fs()->do_read(fd, m_asc16_addr, 4096) != 4096) {
+        os()->panic("vbe init failed: size");
+    }
+
+    os()->fs()->do_close(fd);
 }
 
 uint32 vbe_t::width()

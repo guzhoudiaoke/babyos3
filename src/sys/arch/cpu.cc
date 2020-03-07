@@ -199,13 +199,13 @@ void cpu_t::do_exception(trap_frame_t* frame)
             return;
         }
 
-        os()->console()->kprintf(RED, "Exception: %s, current: %p, errno: %x, rip: %p, cs: %p, rsp: %p\n",
+        os()->uart()->kprintf("Exception: %s, current: %p, errno: %x, rip: %p, cs: %p, rsp: %p\n",
                                  exception_msg[trapno], current, frame->err, frame->rip, frame->cs, frame->rsp);
         os()->uart()->kprintf("errno: %x, rip: %p, cs: %p, rsp: %p\n",
                                  frame->err, frame->rip, frame->cs, frame->rsp);
     }
     else {
-        os()->console()->kprintf(RED, "Error Interrupt: %x, RESERVED!\n", trapno);
+        os()->uart()->kprintf("Error Interrupt: %x, RESERVED!\n", trapno);
     }
 
     while (1) {
@@ -233,7 +233,7 @@ void cpu_t::do_interrupt(uint64 trapno)
         m_local_apic.eoi();
         break;
     default:
-        os()->console()->kprintf(RED, "Interrupt: %x not known.\n", trapno);
+        os()->uart()->kprintf("Interrupt: %x not known.\n", trapno);
         break;
     }
 }

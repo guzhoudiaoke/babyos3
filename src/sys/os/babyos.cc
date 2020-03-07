@@ -156,15 +156,6 @@ void babyos_t::init()
     /* mm */
     m_mm.init();
 
-    /* VBE */
-    m_vbe.init();
-    uart()->puts("VBE init done\n");
-
-    /* console */
-    m_console.init();
-    uart()->puts("console init done\n");
-    console()->kprintf(YELLOW, "Welcome to babyos!\n");
-
     /* 8259a */
     m_i8259a.init();
     uart()->puts("8259a init done\n");
@@ -216,6 +207,18 @@ void babyos_t::init()
     sti();
     uart()->puts("sti done\n");
 
+    /* set cwd as root */
+    current->set_cwd(os()->fs()->get_root());
+
+    /* VBE */
+    m_vbe.init();
+    uart()->puts("VBE init done\n");
+
+    /* console */
+    m_console.init();
+    uart()->puts("console init done\n");
+    console()->kprintf(YELLOW, "Welcome to babyos!\n");
+
     /* start the first user process: init */
     start_init_proc();
     uart()->puts("start init proc\n");
@@ -227,8 +230,6 @@ void babyos_t::init()
 
 void babyos_t::start_init_proc()
 {
-    current->set_cwd(os()->fs()->get_root());
-
     int32 ret = 0;
     __asm__ volatile("int $0x80" : "=a" (ret) : "a" (syscall_t::FORK));
 
@@ -294,7 +295,7 @@ void babyos_t::update(uint64 tick)
 void babyos_t::panic(const char* s)
 {
     cli();
-    m_console.kprintf(RED, "[BABYOS PANICED]: %s\n", s);
+    m_uart.kprintf("[BABYOS PANICED]: %s\n", s);
     while (1) {
         halt();
     }

@@ -613,6 +613,7 @@ int main()
     while (true) {
         userlib_t::color_print(GREEN, "liuruyi $ ");
         userlib_t::gets(cmd_line, MAX_CMD_LEN);
+        userlib_t::printf("get cmd: %s\n", cmd_line);
         if (userlib_t::strlen(cmd_line) == 0) {
             continue;
         }

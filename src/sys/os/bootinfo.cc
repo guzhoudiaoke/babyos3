@@ -39,7 +39,6 @@ void bootinfo_t::init()
 {
     m_video_info = (video_info_t *) bootmem_t::early_pa2va(VIDEO_INFO_ADDR);
     m_mem_layout = (memory_layout_t *) bootmem_t::early_pa2va(MEM_INFO_ADDR);
-    m_asc16_font = (void *) bootmem_t::early_pa2va(FONT_ASC16_ADDR);
 }
 
 video_info_t* bootinfo_t::video_info()
@@ -50,9 +49,4 @@ video_info_t* bootinfo_t::video_info()
 memory_layout_t* bootinfo_t::memory_layout()
 {
     return m_mem_layout;
-}
-
-void* bootinfo_t::asc16_font()
-{
-    return m_asc16_font;
 }

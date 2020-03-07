@@ -250,15 +250,15 @@ uint32 local_apic_t::calibrate_clock()
     uint32 tsc_delta = (uint32) ((tsc_end - tsc_begin));
     delay_t::init(tsc_delta / CALIBRATE_LOOP * HZ);
 
-    os()->console()->kprintf(CYAN, "********** calibrate local APIC clock *********\n");
-    os()->console()->kprintf(CYAN, "tsc speed: %u.%u MHz.\n",
+    os()->uart()->kprintf("********** calibrate local APIC clock *********\n");
+    os()->uart()->kprintf("tsc speed: %u.%u MHz.\n",
                              (tsc_delta/CALIBRATE_LOOP) / (1000000/HZ),
                              (tsc_delta/CALIBRATE_LOOP) % (1000000/HZ));
 
-    os()->console()->kprintf(CYAN, "bus clock speed: %u.%u MHz.\n",
+    os()->uart()->kprintf("bus clock speed: %u.%u MHz.\n",
                              (clocks / CALIBRATE_LOOP) / (1000000/HZ),
                              (clocks / CALIBRATE_LOOP) % (1000000/HZ));
-    os()->console()->kprintf(CYAN, "********** calibrate local APIC clock *********\n");
+    os()->uart()->kprintf("********** calibrate local APIC clock *********\n");
 
     return clocks / CALIBRATE_LOOP;
 }

@@ -102,7 +102,6 @@ public:
 private:
     video_info_t*    m_video_info;
     memory_layout_t* m_mem_layout;
-    void*            m_asc16_font;
 };
 
 
