@@ -398,12 +398,12 @@ int32 vmm_t::do_munmap(uint64 addr, uint64 len)
     vm_area_t* prev = NULL;
     vm_area_t* vma = find_vma(addr, prev);
     if (vma == NULL) {
-        return -1;
+        return 0;
     }
 
     /* make sure m_start <= addr< addr+len <= m_end */
     if (addr < vma->m_start || addr+len > vma->m_end) {
-        return -1;
+        return 0;
     }
 
     /* alloc a new vma, because the vma may split to 2 vma, such as:
@@ -785,7 +785,7 @@ void vmm_t::set_segment_bound(uint64 start_code, uint64 end_code,
         // TODO: bss segment
     }
     m_start_brk = elf_brk;
-    m_brk = elf_brk;
+    m_brk = PAGE_ALIGN(elf_brk);
 }
 
 uint64 vmm_t::sys_brk(uint64 brk)
@@ -816,11 +816,13 @@ uint64 vmm_t::sys_brk(uint64 brk)
 out:
     ret = m_brk;
     m_sem.up();
+
     return ret;
 }
 
 uint64 vmm_t::do_brk(uint64 addr, uint64 len)
 {
+    os()->uart()->kprintf("do_brk: %p, %p\n", addr, len);
     vm_area_t* vma = NULL;
 
     len = PAGE_ALIGN(len);
@@ -836,7 +838,7 @@ uint64 vmm_t::do_brk(uint64 addr, uint64 len)
     if (addr != 0) {
         vma = find_vma(addr-1);
         if (vma != NULL && vma->m_end == addr) {
-            vma->m_end = addr = len;
+            vma->m_end = addr + len;
             goto out;
         }
     }
@@ -856,3 +858,13 @@ out:
     return addr;
 }
 
+
+uint64 vmm_t::sbrk(uint64 increment)
+{
+    uint64 addr = m_brk;
+    os()->uart()->kprintf("m_brk: %p, increment: %p\n", m_brk, increment);
+    sys_brk(m_brk + increment);
+
+    os()->uart()->kprintf("sbrk return %p, m_brk: %p\n", addr, m_brk);
+    return addr;
+}

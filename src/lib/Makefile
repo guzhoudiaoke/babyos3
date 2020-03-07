@@ -6,6 +6,7 @@ libc_OBJS = \
 	unistd.o \
 	stdio.o \
 	string.o \
+	malloc.o \
 
 LIBS += $(call mkobjs,libc.a)
 OBJS += $(call mkobjs,$(libc_OBJS))

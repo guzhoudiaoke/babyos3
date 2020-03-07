@@ -1,5 +1,5 @@
 /*
- *	babyos/user/shell.cc
+ *	babyos/lib/malloc.h
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,43 +19,23 @@
 
 
 /*
- *  2020-02-20		created
+ *  2020-03-07		created
  */
 
 
 
-
-#ifndef _SHELL_H_
-#define _SHELL_H_
-
-
-#include "types.h"
-#include "arg.h"
+#ifndef _MALLOC_H_
+#define _MALLOC_H_
 
 
-#define MAX_CMD_LEN 128
+#include "stdio.h"
 
 
-class shell_t {
-public:
-    shell_t();
-    ~shell_t();
+extern bool  malloc_init(void);
+extern void* malloc(uint64 size);
+extern void  free(void *ptr);
+extern void* realloc(void *ptr, uint64 size);
+extern void* calloc(uint64 nmemb, uint64 size);
 
-    void run();
-
-
-private:
-    const char* parse_cmd(const char* cmd_line, char* cmd);
-    void parse_cmd_line(const char* cmd_line, char* cmd, argument_t* arg);
-    void do_cmd(const char* cmd_line);
-
-    void test_fork_exec_wait_exit(const char* times);
-    void test_fork_wait_exit(const char* times);
-    void test_pipe(const char* times);
-
-private:
-    char m_command[MAX_CMD_LEN];
-    argument_t m_argument;
-};
 
 #endif

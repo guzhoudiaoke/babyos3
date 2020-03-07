@@ -89,6 +89,7 @@ int   accept(int sockfd, sock_addr_t* addr);
 
 int   send_to(int fd, void *buf, uint32 size, sock_addr_t* addr);
 int   recv_from(int fd, void *buf, uint32 size, sock_addr_t* addr);
+void* sbrk(uint64 increment);
 
 
 #endif

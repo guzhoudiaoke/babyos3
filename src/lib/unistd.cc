@@ -224,3 +224,8 @@ int recv_from(int fd, void *buf, uint32 size, sock_addr_t* addr)
 {
     return syscall(syscall_t::RECVFROM, fd, buf, size, addr);
 }
+
+void* sbrk(uint64 increment)
+{
+    return (void *) syscall(syscall_t::SBRK, increment);
+}

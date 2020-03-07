@@ -38,14 +38,13 @@
 class sys_socket_t {
 public:
     static void      init();
-    static int32     do_sys_socket(trap_frame_t* frame);
     //static int32     close_socket(socket_t* socket);
 
-    static int32     sys_socket(trap_frame_t* frame);
-    static int32     sys_bind(trap_frame_t* frame);
-    static int32     sys_listen(trap_frame_t* frame);
-    static int32     sys_accept(trap_frame_t* frame);
-    static int32     sys_connect(trap_frame_t* frame);
+    static uint64    sys_socket(trap_frame_t* frame);
+    static uint64    sys_bind(trap_frame_t* frame);
+    static uint64    sys_listen(trap_frame_t* frame);
+    static uint64    sys_accept(trap_frame_t* frame);
+    static uint64    sys_connect(trap_frame_t* frame);
 
 private:
     static int32     socket(uint32 family, uint32 type, uint32 protocol);

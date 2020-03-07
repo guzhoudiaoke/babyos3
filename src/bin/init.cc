@@ -42,15 +42,15 @@ int main()
 
 
     /* print cs to show work in user mode */
-    uint32 cs = 0xffffffff;
-    __asm__ volatile("movl %%cs, %%eax" : "=a" (cs));
-    printf("This is printed by init, cs = 0x%8x\n", cs);
+    //uint32 cs = 0xffffffff;
+    //__asm__ volatile("movl %%cs, %%eax" : "=a" (cs));
+    //printf("This is printed by init, cs = 0x%8x\n", cs);
 
 
     int32 pid = fork();
-    printf("fork done, pid = %d, ", pid);
+    //printf("fork done, pid = %d, ", pid);
     if (pid == 0) {
-        printf("this is child, will do exec\n");
+        //printf("this is child, will do exec\n");
 
         /* child */
         int ret = exec("/bin/shell", NULL);

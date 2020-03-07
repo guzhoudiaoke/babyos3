@@ -226,7 +226,7 @@ int32 sys_socket_t::connect(int fd, sock_addr_t* user_addr)
 
 
 /* socket syscalls */
-int32 sys_socket_t::sys_socket(trap_frame_t* frame)
+uint64 sys_socket_t::sys_socket(trap_frame_t* frame)
 {
     uint32 family = (uint32) syscall_t::get_argument(frame, 0);
     uint32 type = (uint32) syscall_t::get_argument(frame, 1);
@@ -234,28 +234,28 @@ int32 sys_socket_t::sys_socket(trap_frame_t* frame)
     return socket(family, type, protocol);
 }
 
-int32 sys_socket_t::sys_bind(trap_frame_t* frame)
+uint64 sys_socket_t::sys_bind(trap_frame_t* frame)
 {
     int fd = (int) syscall_t::get_argument(frame, 0);
     sock_addr_t* myaddr = (sock_addr_t *) syscall_t::get_argument(frame, 1);
     return bind(fd, myaddr);
 }
 
-int32 sys_socket_t::sys_listen(trap_frame_t* frame)
+uint64 sys_socket_t::sys_listen(trap_frame_t* frame)
 {
     int fd = (int) syscall_t::get_argument(frame, 0);
     uint32 backlog = (uint32) syscall_t::get_argument(frame, 1);
     return listen(fd, backlog);
 }
 
-int32 sys_socket_t::sys_accept(trap_frame_t* frame)
+uint64 sys_socket_t::sys_accept(trap_frame_t* frame)
 {
     int fd = (int) syscall_t::get_argument(frame, 0);
     sock_addr_t* peer_addr = (sock_addr_t *) syscall_t::get_argument(frame, 1);
     return accept(fd, peer_addr);
 }
 
-int32 sys_socket_t::sys_connect(trap_frame_t* frame)
+uint64 sys_socket_t::sys_connect(trap_frame_t* frame)
 {
     int fd = (int) syscall_t::get_argument(frame, 0);
     sock_addr_t* user_addr = (sock_addr_t *) syscall_t::get_argument(frame, 1);

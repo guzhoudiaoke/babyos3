@@ -34,7 +34,7 @@
 
 
 
-int32 (*syscall_t::s_system_call_table[])(trap_frame_t* frame);
+uint64 (*syscall_t::s_system_call_table[])(trap_frame_t* frame);
 
 void syscall_t::init()
 {
@@ -64,6 +64,7 @@ void syscall_t::init()
     s_system_call_table[LISTEN]   = sys_socket_t::sys_listen;
     s_system_call_table[ACCEPT]   = sys_socket_t::sys_accept;
     s_system_call_table[CONNECT]  = sys_socket_t::sys_connect;
+    s_system_call_table[SBRK]     = syscall_t::sys_sbrk;
 
     //syscall_t::sys_signal,
     //syscall_t::sys_sigret,
@@ -74,7 +75,6 @@ void syscall_t::do_syscall(trap_frame_t* frame)
 {
     uint64 id = frame->rax;
     if (id >= MAX_SYSCALL) {
-        //os()->console()->kprintf(RED, "unknown system call %x, current: %p\n", id, current->m_pid);
         os()->console()->kprintf(RED, "unknown system call %x\n", id);
         frame->rax = -1;
     }
@@ -104,7 +104,7 @@ uint64 syscall_t::get_argument(trap_frame_t* frame, uint32 index)
     return 0;
 }
 
-int32 syscall_t::sys_print(trap_frame_t* frame)
+uint64 syscall_t::sys_print(trap_frame_t* frame)
 {
     color_ref_t color = (color_ref_t) get_argument(frame, 0);
     char buffer[512] = {0};
@@ -116,18 +116,18 @@ int32 syscall_t::sys_print(trap_frame_t* frame)
     return 0;
 }
 
-int32 syscall_t::sys_fork(trap_frame_t* frame)
+uint64 syscall_t::sys_fork(trap_frame_t* frame)
 {
     process_t* proc = current->fork(frame);
     return proc == NULL ? -1 : proc->m_pid;
 }
 
-int32 syscall_t::sys_exec(trap_frame_t* frame)
+uint64 syscall_t::sys_exec(trap_frame_t* frame)
 {
     return current->exec(frame);
 }
 
-int32 syscall_t::sys_mmap(trap_frame_t* frame)
+uint64 syscall_t::sys_mmap(trap_frame_t* frame)
 {
     uint64 addr = get_argument(frame, 0), len = get_argument(frame, 1),
         prot = get_argument(frame, 2), flags = get_argument(frame, 3);
@@ -135,57 +135,38 @@ int32 syscall_t::sys_mmap(trap_frame_t* frame)
     return addr;
 }
 
-int32 syscall_t::sys_exit(trap_frame_t* frame)
+uint64 syscall_t::sys_exit(trap_frame_t* frame)
 {
     return current->exit();
 }
 
-int32 syscall_t::sys_wait(trap_frame_t* frame)
+uint64 syscall_t::sys_wait(trap_frame_t* frame)
 {
     pid_t pid = get_argument(frame, 0);
     return current->wait_children(pid);
 }
 
-int32 syscall_t::sys_sleep(trap_frame_t* frame)
+uint64 syscall_t::sys_sleep(trap_frame_t* frame)
 {
     uint32 ticks = get_argument(frame, 0) * HZ;
     current->sleep(ticks);
     return 0;
 }
 
-//int32 syscall_t::sys_signal(trap_frame_t* frame)
-//{
-//    uint32 sig = frame->ebx;
-//    sighandler_t sig_handler = (sighandler_t) frame->ecx;
-//    return current->m_signal.do_sigaction(sig, sig_handler);
-//}
-//
-//int32 syscall_t::sys_sigret(trap_frame_t* frame)
-//{
-//    return current->m_signal.do_sigreturn(frame);
-//}
-//
-//int32 syscall_t::sys_kill(trap_frame_t* frame)
-//{
-//    uint32 pid = frame->ebx;
-//    uint32 sig = frame->ecx;
-//    return os()->get_process_mgr()->send_signal_to(pid, sig);
-//}
-//
-int32 syscall_t::sys_open(trap_frame_t* frame)
+uint64 syscall_t::sys_open(trap_frame_t* frame)
 {
     const char* path = (const char *) get_argument(frame, 0);
     int32 mode = (int32) get_argument(frame, 1);
     return os()->fs()->do_open(path, mode);
 }
 
-int32 syscall_t::sys_close(trap_frame_t* frame)
+uint64 syscall_t::sys_close(trap_frame_t* frame)
 {
     int fd = (int) get_argument(frame, 0);
     return os()->fs()->do_close(fd);
 }
 
-int32 syscall_t::sys_read(trap_frame_t* frame)
+uint64 syscall_t::sys_read(trap_frame_t* frame)
 {
     int fd = (int) get_argument(frame, 0);
     char* buf = (char *) get_argument(frame, 1);
@@ -193,7 +174,7 @@ int32 syscall_t::sys_read(trap_frame_t* frame)
     return os()->fs()->do_read(fd, buf, size);
 }
 
-int32 syscall_t::sys_write(trap_frame_t* frame)
+uint64 syscall_t::sys_write(trap_frame_t* frame)
 {
     int fd = (int) get_argument(frame, 0);
     char* buf = (char *) get_argument(frame, 1);
@@ -201,26 +182,26 @@ int32 syscall_t::sys_write(trap_frame_t* frame)
     return os()->fs()->do_write(fd, buf, size);
 }
 
-int32 syscall_t::sys_link(trap_frame_t* frame)
+uint64 syscall_t::sys_link(trap_frame_t* frame)
 {
     char* path_old = (char *) get_argument(frame, 0);
     char* path_new = (char *) get_argument(frame, 1);
     return os()->fs()->do_link(path_old, path_new);
 }
 
-int32 syscall_t::sys_unlink(trap_frame_t* frame)
+uint64 syscall_t::sys_unlink(trap_frame_t* frame)
 {
     char* path = (char *) get_argument(frame, 0);
     return os()->fs()->do_unlink(path);
 }
 
-int32 syscall_t::sys_mkdir(trap_frame_t* frame)
+uint64 syscall_t::sys_mkdir(trap_frame_t* frame)
 {
     char* path = (char *) get_argument(frame, 0);
     return os()->fs()->do_mkdir(path);
 }
 
-int32 syscall_t::sys_mknod(trap_frame_t* frame)
+uint64 syscall_t::sys_mknod(trap_frame_t* frame)
 {
     char* path = (char *) get_argument(frame, 0);
     int major = get_argument(frame, 1);
@@ -228,32 +209,32 @@ int32 syscall_t::sys_mknod(trap_frame_t* frame)
     return os()->fs()->do_mknod(path, major, minor);
 }
 
-int32 syscall_t::sys_dup(trap_frame_t* frame)
+uint64 syscall_t::sys_dup(trap_frame_t* frame)
 {
     int fd = (int) get_argument(frame, 0);
     return os()->fs()->do_dup(fd);
 }
 
-int32 syscall_t::sys_stat(trap_frame_t* frame)
+uint64 syscall_t::sys_stat(trap_frame_t* frame)
 {
     int fd = (int) get_argument(frame, 0);
     stat_t* st = (stat_t *) get_argument(frame, 1);
     return os()->fs()->do_stat(fd, st);
 }
 
-int32 syscall_t::sys_chdir(trap_frame_t* frame)
+uint64 syscall_t::sys_chdir(trap_frame_t* frame)
 {
     const char* path = (const char *) get_argument(frame, 0);
     return os()->fs()->do_chdir(path);
 }
 
-int32 syscall_t::sys_pipe(trap_frame_t* frame)
+uint64 syscall_t::sys_pipe(trap_frame_t* frame)
 {
     int* fd = (int *) get_argument(frame, 0);
     return os()->fs()->do_pipe(fd);
 }
 
-int32 syscall_t::sys_send_to(trap_frame_t* frame)
+uint64 syscall_t::sys_send_to(trap_frame_t* frame)
 {
     int32 fd            = (int32) get_argument(frame, 0);
     char* buf           = (char *) get_argument(frame, 1);
@@ -263,7 +244,7 @@ int32 syscall_t::sys_send_to(trap_frame_t* frame)
     return os()->fs()->do_send_to(fd, buf, size, addr);
 }
 
-int32 syscall_t::sys_recv_from(trap_frame_t* frame)
+uint64 syscall_t::sys_recv_from(trap_frame_t* frame)
 {
     int32 fd            = (int32) get_argument(frame, 0);
     char* buf           = (char *) get_argument(frame, 1);
@@ -273,3 +254,29 @@ int32 syscall_t::sys_recv_from(trap_frame_t* frame)
     return os()->fs()->do_recv_from(fd, buf, size, addr);
 }
 
+
+uint64 syscall_t::sys_sbrk(trap_frame_t* frame)
+{
+    uint64 increment = (uint64) get_argument(frame, 0);
+    return current->m_vmm.sbrk(increment);
+}
+
+//uint64 syscall_t::sys_signal(trap_frame_t* frame)
+//{
+//    uint32 sig = frame->ebx;
+//    sighandler_t sig_handler = (sighandler_t) frame->ecx;
+//    return current->m_signal.do_sigaction(sig, sig_handler);
+//}
+//
+//uint64 syscall_t::sys_sigret(trap_frame_t* frame)
+//{
+//    return current->m_signal.do_sigreturn(frame);
+//}
+//
+//uint64 syscall_t::sys_kill(trap_frame_t* frame)
+//{
+//    uint32 pid = frame->ebx;
+//    uint32 sig = frame->ecx;
+//    return os()->get_process_mgr()->send_signal_to(pid, sig);
+//}
+//

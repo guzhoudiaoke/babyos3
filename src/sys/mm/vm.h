@@ -74,6 +74,7 @@ public:
 	uint64 do_mmap(uint64 addr, uint64 len, uint32 prot, uint32 flags);
 	int32  do_munmap(uint64 addr, uint64 len);
     uint64 sys_brk(uint64 brk);
+	uint64 sbrk(uint64 increment);
 
 	/* Look up the first VMA which satisfies  addr < vm_end,  NULL if none. */
 	vm_area_t* find_vma(uint64 addr);

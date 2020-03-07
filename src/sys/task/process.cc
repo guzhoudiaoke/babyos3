@@ -106,6 +106,7 @@ void process_t::copy_context(const process_t& rhs, trap_frame_t* frame)
 
 void process_t::copy_mm(const process_t& rhs)
 {
+    m_vmm.init();
     m_vmm.copy(rhs.m_vmm);
 }
 
