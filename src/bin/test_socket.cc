@@ -1,5 +1,5 @@
 /*
- *	babyos/user/test_local_socket.cc
+ *	babyos/user/test_socket.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *

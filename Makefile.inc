@@ -6,16 +6,16 @@ endef
 
 define start_directory
 DIRECTORY 	:= $1
-DIRECTORY1 	:= $(subst $(SRCTOP),,$1)
+DIRECTORYO 	:= $(subst $(SRCTOP),,$1)
 SUBDIRS 	:=
 endef
 
 define std_header
-stack 					:= $(stack).rec
-dirstackdo_$$(stack)   := $(do)
-dirstackds_$$(stack) 	:= $(ds)
-do  					:= $(do)$(DIRECTORY1)/
-ds 						:= $(ds)$(DIRECTORY)/
+stack 				 := $(stack).rec
+dirstackdo_$$(stack) := $(do)
+dirstackds_$$(stack) := $(ds)
+do  				 := $(do)$(DIRECTORYO)/
+ds 					 := $(ds)$(DIRECTORY)/
 endef
 
 define std_footer
@@ -34,31 +34,32 @@ endef
 
 define define_compiler
 $1/%.o: $(SRCTOP)/%.c
-	$2 $3 -o $$@ -c $$<
+	@$2 $3 -o $$@ -c $$<
 
 $1/%.o: $(SRCTOP)/%.cc
-	@echo Compiling $$@ dep $$< flag $(CPPFLAGS) incs $(INCS)
-	$2 $3 -o $$@ -c $$<
+	@echo Compiling $$@ $$<
+	@$2 $3 -o $$@ -c $$<
 
 $1/%.o: $(SRCTOP)/%.S
-	@echo Compiling $$@ dep $$< flag $(ASFLAGS) incs $(INCS)
-	$2 $(ASFLAGS) -o $$@ -c $$<
+	@echo Compiling $$@ $$<
+	@$2 $(ASFLAGS) -o $$@ -c $$<
 endef
 
 define define_linklibrary
 $1/%.a:
-	@echo Linking library $$@ dep $$^
-	$2 $$(ARFLAGS) $$@ $$^
+	@echo Linking library $$@ $$^
+	@$2 $$(ARFLAGS) $$@ $$^
 endef
 
 
 USERLIBS_LIST = \
-				.../lib/libc.a \
+				.../lib/libc/libc.a \
+				.../lib/libc++/libc++.a \
 
 mkobjs = $(addprefix $(do),$(1))
 mklibs = $(patsubst .../%,$(OBJTOP)/%,$(foreach lib,$(1),$(filter %lib$(lib).a,$(USERLIBS_LIST))))
 
-USERLIBS = $(call mklibs,c)
+USERLIBS = $(call mklibs,c c++)
 
 $(eval $(call top_level_config))
 

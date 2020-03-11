@@ -516,7 +516,7 @@ sig_segv:
     os()->console()->kprintf(RED, "cpu: %u, process: %u, segment fault, addr: %lx, err: %lx, cs: %p, rip: %p, rsp: %p\n",
                              os()->cpu(), current->m_pid, addr, frame->err, frame->cs, frame->rip, frame->rsp);
 
-    os()->uart()->kprintf("do_page_fault sgement fault, cpu: %u, process: %u, addr: %lx, err: %lx,"
+    os()->uart()->kprintf("do_page_fault segment fault, cpu: %u, process: %u, addr: %lx, err: %lx,"
                           "cs: %p, rip: %p, rsp: %p\n",
                           os()->cpu(), current->m_pid, addr, frame->err, frame->cs, frame->rip, frame->rsp);
 

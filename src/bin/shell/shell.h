@@ -1,5 +1,5 @@
 /*
- *	babyos/user/shell.cc
+ *	babyos/src/bin/shell/shell.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -29,8 +29,9 @@
 #define _SHELL_H_
 
 
-#include "types.h"
 #include "arg.h"
+#include "command.h"
+#include "parser.h"
 
 
 #define MAX_CMD_LEN 128
@@ -43,18 +44,10 @@ public:
 
     void run();
 
+private:
+    void process(char* cmdline);
 
 private:
-    const char* parse_cmd(const char* cmd_line, char* cmd);
-    void parse_cmd_line(const char* cmd_line, char* cmd, argument_t* arg);
-    void do_cmd(const char* cmd_line);
-
-    void test_fork_exec_wait_exit(const char* times);
-    void test_fork_wait_exit(const char* times);
-    void test_pipe(const char* times);
-
-private:
-    char m_command[MAX_CMD_LEN];
     argument_t m_argument;
 };
 

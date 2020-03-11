@@ -104,6 +104,19 @@ int strncmp(const char* s1, const char *s2, int n)
 }
 
 
+char* strchr(const char* s, char c)
+{
+    char* p = (char *) s;
+    while (*p != '\0') {
+        if (c == *p) {
+            return p;
+        }
+        p++;
+    }
+    return NULL;
+}
+
+
 void* memmov(void *dst, const void *src, uint32 n)
 {
     const char *s = (const char *) src;

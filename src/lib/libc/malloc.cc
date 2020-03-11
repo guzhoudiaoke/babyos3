@@ -662,7 +662,6 @@ void* realloc(void* oldptr, uint64 size)
 
 /*
  * calloc
- * This function is not tested by mdriver, and has been implemented for you.
  */
 void* calloc(uint64 nmemb, uint64 size)
 {

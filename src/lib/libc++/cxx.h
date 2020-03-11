@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/types.h
+ *	babyos/lib/libc++/cxx.h
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,35 +19,58 @@
 
 
 /*
- *  2020-01-20		created
+ *  2020-03-11		created
  */
 
 
-#ifndef _TYPES_H_
-#define _TYPES_H_
-
-#define NULL				(0)
-
-typedef unsigned char   uint8;
-typedef unsigned short  uint16;
-typedef unsigned int    uint32;
-typedef unsigned long   uint64;
-typedef char            int8;
-typedef short           int16;
-typedef int             int32;
-typedef long            int64;
-
-typedef uint32          pid_t;
-typedef uint64          size_t;
+#ifndef _CXX_H_
+#define _CXX_H_
 
 
-typedef struct rect_s {
-    int32 left;
-    int32 top;
-    uint32 width;
-    uint32 height;
-} rect_t;
+#include "malloc.h"
+#include "types.h"
 
+
+
+inline void* operator new(size_t size)
+{
+    return malloc(size);
+}
+
+inline void operator delete(void* ptr)
+{
+    return free(ptr);
+}
+
+inline void operator delete(void* ptr, size_t)
+{
+    return free(ptr);
+}
+
+inline void* operator new[](size_t size)
+{
+    return malloc(size);
+}
+
+inline void operator delete[](void* ptr)
+{
+    return free(ptr);
+}
+
+inline void operator delete[](void* ptr, size_t)
+{
+    return free(ptr);
+}
+
+inline void* operator new(size_t, void* ptr)
+{
+    return ptr;
+}
+
+inline void* operator new[](size_t, void* ptr)
+{
+    return ptr;
+}
 
 
 #endif

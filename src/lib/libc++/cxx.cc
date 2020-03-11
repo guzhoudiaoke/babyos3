@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/types.h
+ *	babyos/lib/libc++/cxx.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,35 +19,16 @@
 
 
 /*
- *  2020-01-20		created
+ *  2020-03-11		created
  */
 
 
-#ifndef _TYPES_H_
-#define _TYPES_H_
+extern "C"
+{
+    void __cxa_pure_virtual();
+}
 
-#define NULL				(0)
+void __cxa_pure_virtual()
+{
 
-typedef unsigned char   uint8;
-typedef unsigned short  uint16;
-typedef unsigned int    uint32;
-typedef unsigned long   uint64;
-typedef char            int8;
-typedef short           int16;
-typedef int             int32;
-typedef long            int64;
-
-typedef uint32          pid_t;
-typedef uint64          size_t;
-
-
-typedef struct rect_s {
-    int32 left;
-    int32 top;
-    uint32 width;
-    uint32 height;
-} rect_t;
-
-
-
-#endif
+}
