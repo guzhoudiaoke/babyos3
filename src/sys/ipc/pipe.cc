@@ -41,9 +41,9 @@ void pipe_t::init()
 
 void pipe_t::destroy()
 {
-    if (m_buffer != NULL) {
+    if (m_buffer != nullptr) {
         os()->mm()->kfree(m_buffer);
-        m_buffer = NULL;
+        m_buffer = nullptr;
     }
 }
 

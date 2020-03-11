@@ -141,7 +141,7 @@ static inline void set_next_link(void *bp, void *next)
 
 
 static void* heap_listp;
-const int free_list_num=12;
+const int free_list_num = 12;
 static void* free_list_heads[12];
 static void* free_list_tails[12];
 
@@ -194,11 +194,11 @@ static void free_list_insert(void *p)
     int id = get_free_list_head_id(size);
 
     /* clear prev and next link of p */
-    set_prev_link(p, NULL);
-    set_next_link(p, NULL);
+    set_prev_link(p, nullptr);
+    set_next_link(p, nullptr);
 
     /* add p to tail of list */
-    if (free_list_tails[id] == NULL) {
+    if (free_list_tails[id] == nullptr) {
         free_list_heads[id] = free_list_tails[id] = p;
     }
     else {
@@ -207,74 +207,6 @@ static void free_list_insert(void *p)
         free_list_tails[id] = p;
     }
 }
-
-
-#if 0
-/* insert a block to head of free list */
-static void free_list_insert3(void *p)
-{
-    /* get size of this block */
-    uint64 size = get_size(hdrp(p));
-
-    /* get free list index by size */
-    int id = get_free_list_head_id(size);
-
-    /* clear prev and next link of p */
-    set_prev_link(p, NULL);
-    set_next_link(p, NULL);
-
-    /* add p to head of list */
-    set_next_link(p, free_list_heads[id]);
-    if (free_list_heads[id] != NULL) {
-        set_prev_link(free_list_heads[id], p);
-    }
-    free_list_heads[id] = p;
-}
-
-/* insert a block into free list */
-static void free_list_insert2(void *p)
-{
-    /* get size of this block */
-    uint64 size = get_size(hdrp(p));
-
-    /* get free list index by size */
-    int id = get_free_list_head_id(size);
-
-    /* clear prev and next link of p */
-    set_prev_link(p, NULL);
-    set_next_link(p, NULL);
-
-    /* get free list head */
-    void *pre = NULL;
-    void *cur = free_list_heads[id];
-    while (cur != NULL && size > get_size(hdrp(cur))) {
-        pre = cur;
-        cur = get_next_link(cur);
-    }
-
-    if (pre == NULL) {
-        /* insert to head */
-        if (free_list_heads[id] == NULL) {
-            free_list_heads[id] = p;
-        }
-        else {
-            /* add p to head of list */
-            set_next_link(p, free_list_heads[id]);
-            set_prev_link(free_list_heads[id], p);
-            free_list_heads[id] = p;
-        }
-    }
-    else {
-        set_next_link(pre, p);
-        set_prev_link(p, pre);
-        if (cur != NULL) {
-            set_prev_link(cur, p);
-            set_next_link(p, cur);
-        }
-    }
-
-}
-#endif
 
 /* remove a block from free list */
 static void free_list_remove(void *p)
@@ -289,82 +221,40 @@ static void free_list_remove(void *p)
     if (free_list_heads[id] == p) {
         /* p is head of free list */
         free_list_heads[id] = get_next_link(free_list_heads[id]);
-        if (free_list_heads[id] != NULL) {
-            set_prev_link(free_list_heads[id], NULL);
+        if (free_list_heads[id] != nullptr) {
+            set_prev_link(free_list_heads[id], nullptr);
         }
         else {
-            free_list_tails[id] = NULL;
+            free_list_tails[id] = nullptr;
         }
     }
     else if (free_list_tails[id] == p) {
         free_list_tails[id] = get_prev_link(free_list_tails[id]);
-        set_next_link(free_list_tails[id], NULL);
+        set_next_link(free_list_tails[id], nullptr);
     }
     else {
         /* p is middle node of free list */
         void *prev = get_prev_link(p);
         void *next = get_next_link(p);
-        if (prev != NULL) {
+        if (prev != nullptr) {
             set_next_link(prev, next);
         }
-        if (next != NULL) {
+        if (next != nullptr) {
             set_prev_link(next, prev);
         }
     }
 
     /* clear prev and next link of p */
-    set_prev_link(p, NULL);
-    set_next_link(p, NULL);
+    set_prev_link(p, nullptr);
+    set_next_link(p, nullptr);
 }
-
-#if 0
-/* remove a block from free list */
-static void free_list_remove2(void *p)
-{
-    /* get size of this block */
-    uint64 size = get_size(hdrp(p));
-
-    /* get free list index by size */
-    int id = get_free_list_head_id(size);
-
-    /* get free list head */
-    if (free_list_heads[id] == p) {
-        /* p is head of free list */
-        free_list_heads[id] = get_next_link(free_list_heads[id]);
-        if (free_list_heads[id] != NULL) {
-            set_prev_link(free_list_heads[id], NULL);
-        }
-    }
-    else {
-        /* p is middle node of free list */
-        void *prev = get_prev_link(p);
-        void *next = get_next_link(p);
-        if (prev != NULL) {
-            set_next_link(prev, next);
-        }
-        if (next != NULL) {
-            set_prev_link(next, prev);
-        }
-    }
-
-    /* clear prev and next link of p */
-    set_prev_link(p, NULL);
-    set_next_link(p, NULL);
-}
-
-/* rounds up to the nearest multiple of ALIGNMENT */
-static uint64 align(uint64 x)
-{
-    return ALIGNMENT * ((x+ALIGNMENT-1)/ALIGNMENT);
-}
-#endif
 
 /* merge a block to heap */
 static void *coalesce(void *bp)
 {
     /* get prev and next block of bp */
     //void *prev = prev_blkp(bp);
-    void *prev = NULL;
+    void *prev = nullptr;
     void *next = next_blkp(bp);
 
     /* get prev allocated and next allocated */
@@ -433,7 +323,7 @@ static void *extend_heap(uint64 words)
     /* calc size to extend heap */
     size = (words % 2) ? (words+1) * WSIZE : words * WSIZE;
     if ((long)(bp = (char *) sbrk(size)) == -1) {
-        return NULL;
+        return nullptr;
     }
 
     /* Initialize free block header/footer and the epilogue header */
@@ -462,16 +352,16 @@ bool malloc_init(void)
     put((char *) heap_listp + (3*WSIZE), pack(0, 1, 1)); /* Epilogue header */
     heap_listp = (char *)heap_listp + (2*WSIZE); 
 
-    /* set all free list head and tail to NULL */
+    /* set all free list head and tail to nullptr */
     for (int i = 0; i < free_list_num; i++){
-        free_list_heads[i] = NULL;
-        free_list_tails[i] = NULL;
+        free_list_heads[i] = nullptr;
+        free_list_tails[i] = nullptr;
     }
 
     /* Extend the empty heap with a free block of CHUMSIZE bytes */
     void * p = extend_heap(CHUNKSIZE/WSIZE);
 
-    if (p == NULL) {
+    if (p == nullptr) {
         return false; 
     }
 
@@ -491,14 +381,14 @@ static void *find_fit(uint64 asize)
     for (; id < free_list_num; id++) {
         void *free_list_head = free_list_heads[id];
         void *p = free_list_head;
-        while (p != NULL) {
+        while (p != nullptr) {
             if (asize <= get_size(hdrp(p))) {
                 return p;
             }
             p = get_next_link(p);
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 /* try to place the left block */
@@ -532,18 +422,6 @@ static void place(void *bp, uint64 asize)
 }
 
 
-/* Given block ptr bp, compute address of previous free block */ 
-static inline void *get_next_SMALL(void *bp)
-{
-    return (void *)(*(uint64 *)bp);
-}
-
-/* Given block ptr bp, set address of previous free block */ 
-static inline void set_next_SMALL(void *bp, void *next)
-{
-    *((uint64 *)bp) = (uint64)next;
-}
-
 /*
  * malloc
  */
@@ -561,7 +439,7 @@ void* malloc(uint64 size)
     char *bp;
     /* Ignore spurious requests */
     if (size == 0) {
-        return NULL;
+        return nullptr;
     }
 
     /* Adjust block size to include overhead and alignment reqs. */
@@ -574,7 +452,7 @@ void* malloc(uint64 size)
     }
 
     /* Search the free list for a fit */
-    if ((bp = (char *) find_fit(asize)) != NULL) {
+    if ((bp = (char *) find_fit(asize)) != nullptr) {
         free_list_remove(bp);
         place(bp, asize);
         return bp;
@@ -582,8 +460,8 @@ void* malloc(uint64 size)
 
     /* No fit found. Get more memory and place the block */
     extendsize = max(asize,CHUNKSIZE);
-    if ((bp = (char *) extend_heap(extendsize/WSIZE)) == NULL) {
-        return NULL;
+    if ((bp = (char *) extend_heap(extendsize/WSIZE)) == nullptr) {
+        return nullptr;
     }
 
     place(bp, asize);
@@ -621,15 +499,15 @@ void free(void* ptr)
  */
 void* realloc(void* oldptr, uint64 size)
 {
-    /* old ptr is NULL, just malloc a new block of memory */
-    if (oldptr == NULL) {
+    /* old ptr is nullptr, just malloc a new block of memory */
+    if (oldptr == nullptr) {
         return malloc(size);
     }
 
     /* old size is 0, just free old ptr */
     if (size == 0) {
         free(oldptr);
-        return NULL;
+        return nullptr;
     }
 
     uint64 oldsize = get_size(hdrp(oldptr));
@@ -641,8 +519,8 @@ void* realloc(void* oldptr, uint64 size)
 
     /* malloc a new block of memory */
     void *newptr = malloc(size);
-    if (newptr == NULL) {
-        return NULL;
+    if (newptr == nullptr) {
+        return nullptr;
     }
 
     /* if size of old ptr bigger than new size, just copy size of new size */

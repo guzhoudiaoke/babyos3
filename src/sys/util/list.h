@@ -37,8 +37,8 @@ class list_node_t {
 public:
     void init(const T& data) {
         m_data = data;
-        m_prev = NULL;
-        m_next = NULL;
+        m_prev = nullptr;
+        m_next = nullptr;
     }
 
 public:
@@ -56,7 +56,7 @@ public:
 
     public:
         iterator() {
-            m_ptr = NULL;
+            m_ptr = nullptr;
         }
         iterator(list_node_t<T>* ptr) {
             m_ptr = ptr;
@@ -98,26 +98,26 @@ public:
     };
 
     list_t<T>() {
-        m_head = NULL;
-        m_tail = NULL;
-        m_pool = NULL;
+        m_head = nullptr;
+        m_tail = nullptr;
+        m_pool = nullptr;
         m_size = 0;
     }
 
     ~list_t<T>() {
         list_node_t<T>* p = m_head;
-        while (p != NULL) {
+        while (p != nullptr) {
             list_node_t<T>* d = p;
             p = p->m_next;
             free_node(d);
         }
-        m_head = m_tail = NULL;
+        m_head = m_tail = nullptr;
         m_size = 0;
     }
 
     void init(object_pool_t* pools) {
-        m_head = NULL;
-        m_tail = NULL;
+        m_head = nullptr;
+        m_tail = nullptr;
         m_size = 0;
 
         uint32 node_size = sizeof(list_node_t<T>);
@@ -131,8 +131,8 @@ public:
     }
 
     list_t<T>& operator = (const list_t<T>& list) {
-        m_head = NULL;
-        m_tail = NULL;
+        m_head = nullptr;
+        m_tail = nullptr;
         m_size = 0;
 
         uint32 node_size = sizeof(list_node_t<T>);
@@ -145,7 +145,7 @@ public:
         }
 
         const list_node_t<T>* p = list.m_head;
-        while (p != NULL) {
+        while (p != nullptr) {
             push_back(p->m_data);
             p = p->m_next;
         }
@@ -168,10 +168,10 @@ public:
 
     bool push_front(const T& data) {
         list_node_t<T>* node = alloc_node(data);
-        if (node == NULL) {
+        if (node == nullptr) {
             return false;
         }
-        if (m_head == NULL && m_tail == NULL) {
+        if (m_head == nullptr && m_tail == nullptr) {
             m_head = m_tail = node;
         }
         else {
@@ -185,10 +185,10 @@ public:
 
     bool push_back(const T& data) {
         list_node_t<T>* node = alloc_node(data);
-        if (node == NULL) {
+        if (node == nullptr) {
             return false;
         }
-        if (m_head == NULL && m_tail == NULL) {
+        if (m_head == nullptr && m_tail == nullptr) {
             m_head = m_tail = node;
         }
         else {
@@ -207,11 +207,11 @@ public:
         list_node_t<T> *del = m_tail;
         m_size--;
         if (m_size == 0) {
-            m_head = m_tail = NULL;
+            m_head = m_tail = nullptr;
         }
         else {
             m_tail = m_tail->m_prev;
-            m_tail->m_next = NULL;
+            m_tail->m_next = nullptr;
         }
         free_node(del);
         return true;
@@ -225,11 +225,11 @@ public:
         list_node_t<T> *del = m_head;
         m_size--;
         if (m_size == 0) {
-            m_head = m_tail = NULL;
+            m_head = m_tail = nullptr;
         }
         else {
             m_head = m_head->m_next;
-            m_head->m_prev = NULL;
+            m_head->m_prev = nullptr;
         }
         free_node(del);
         return true;
@@ -237,21 +237,21 @@ public:
 
     list_t<T>::iterator insert(list_t<T>::iterator &it, const T& data) {
         /* insert before end, just push back */
-        if (it.m_ptr == NULL) {
+        if (it.m_ptr == nullptr) {
             push_back(data);
             return list_t::iterator(m_tail);
         }
 
         /* insert before front */
-        if (it.m_ptr->m_prev == NULL) {
+        if (it.m_ptr->m_prev == nullptr) {
             push_front(data);
             return list_t::iterator(m_head);
         }
 
         /* insert middle */
         list_node_t<T>* node = alloc_node(data);
-        if (node == NULL) {
-            return list_t::iterator(NULL);
+        if (node == nullptr) {
+            return list_t::iterator(nullptr);
         }
 
         node->m_prev = it.m_ptr->m_prev;
@@ -275,9 +275,9 @@ public:
 
         /* no node left */
         if (m_size == 0) {
-            m_head = m_tail = NULL;
+            m_head = m_tail = nullptr;
             free_node(it.m_ptr);
-            return list_t::iterator(NULL);
+            return list_t::iterator(nullptr);
         }
 
         /* erase head */
@@ -290,16 +290,16 @@ public:
         /* erase tail */
         if (m_tail == it.m_ptr) {
             m_tail = m_tail->m_prev;
-            m_tail->m_next = NULL;
+            m_tail->m_next = nullptr;
             free_node(it.m_ptr);
             return list_t::iterator(m_tail);
         }
 
         /* erase middle node */
-        if (it.m_ptr->m_prev != NULL) {
+        if (it.m_ptr->m_prev != nullptr) {
             it.m_ptr->m_prev->m_next = it.m_ptr->m_next;
         }
-        if (it.m_ptr->m_next != NULL) {
+        if (it.m_ptr->m_next != nullptr) {
             it.m_ptr->m_next->m_prev = it.m_ptr->m_prev;
         }
 
@@ -322,7 +322,7 @@ public:
         return list_t::iterator(m_head);
     }
     iterator end() {
-        return list_t::iterator(NULL);
+        return list_t::iterator(nullptr);
     }
 
     uint32 size() {

@@ -224,7 +224,7 @@ void console_t::putc(int c, color_ref_t color)
 void console_t::kprintf(color_ref_t color, const char *fmt, ...)
 {
     static char buffer[c_buffer_size] = {0};
-    if (fmt == NULL) {
+    if (fmt == nullptr) {
         return;
     }
 

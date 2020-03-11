@@ -61,10 +61,9 @@ public:
 class parser_t {
 
 public:
-    parser_t();
+    parser_t(char* line);
     ~parser_t();
 
-    void init(char* line);
     command_t* parse();
 
 private:

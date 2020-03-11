@@ -99,7 +99,7 @@ void uart_t::puts(const char* s)
 void uart_t::kprintf(const char *fmt, ...)
 {
     static char buffer[c_buffer_size] = {0};
-    if (fmt == NULL) {
+    if (fmt == nullptr) {
         return;
     }
 

@@ -42,19 +42,20 @@ shell_t::~shell_t()
 
 void shell_t::process(char* cmdline)
 {
-    parser_t parser;
-    parser.init(cmdline);
+    parser_t* parser = new parser_t(cmdline);
+    command_t* cmd = parser->parse();
+    cmd->execute();
 
-    command_t* cmd = parser.parse();
-    cmd->exec();
+    delete parser;
+    delete cmd;
 }
 
 void shell_t::run()
 {
-    char* cmd_line = (char *) malloc(MAX_CMD_LEN);
+    char* cmd_line = (char *) malloc(MAX_LINE);
     while (true) {
         color_print(CYAN, "liuruyi $ ");
-        gets(cmd_line, MAX_CMD_LEN);
+        gets(cmd_line, MAX_LINE);
         if (strlen(cmd_line) == 0) {
             continue;
         }

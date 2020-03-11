@@ -40,7 +40,7 @@ void process_t::copy_files(const process_t& rhs)
 {
     m_cwd = os()->fs()->dup_inode(rhs.m_cwd);
     for (int i = 0; i < MAX_OPEN_FILE; i++) {
-        if (rhs.m_files[i] != NULL && rhs.m_files[i]->m_type != file_t::TYPE_NONE) {
+        if (rhs.m_files[i] != nullptr && rhs.m_files[i]->m_type != file_t::TYPE_NONE) {
             m_files[i] = os()->fs()->dup_file(rhs.m_files[i]);
         }
     }
@@ -82,7 +82,7 @@ void process_t::init(process_t* parent)
 
     /* files */
     for (int i = 0; i < MAX_OPEN_FILE; i++) {
-        m_files[i] = NULL;
+        m_files[i] = nullptr;
     }
 }
 
@@ -117,8 +117,8 @@ process_t* process_t::fork(trap_frame_t* frame)
 
     /* alloc a process_t */
     process_t* p = (process_t *) P2V(os()->mm()->alloc_pages(1));
-    if (p == NULL) {
-        return NULL;
+    if (p == nullptr) {
+        return nullptr;
     }
 
     /* init process */
@@ -150,7 +150,7 @@ process_t* process_t::fork(trap_frame_t* frame)
 
 int32 process_t::init_arguments(trap_frame_t* frame, argument_t* arg)
 {
-    if (arg == NULL) {
+    if (arg == nullptr) {
         frame->rdi = 0;
         frame->rsi = 0;
         return 0;
@@ -190,7 +190,7 @@ int32 process_t::init_user_stack(trap_frame_t* frame, argument_t* arg)
 {
     /* alloc vma */
     vm_area_t* vma = (vm_area_t *) os()->mm()->vma_cache()->alloc();
-    if (vma == NULL) {
+    if (vma == nullptr) {
         os()->console()->kprintf(RED, "BUG on alloc vm_area_t!\n");
         return -1;
     }
@@ -200,7 +200,7 @@ int32 process_t::init_user_stack(trap_frame_t* frame, argument_t* arg)
     vma->m_start = USER_STACK_TOP - PAGE_SIZE;
     vma->m_page_prot = PROT_READ | PROT_WRITE;
     vma->m_flags = VM_STACK;
-    vma->m_next = NULL;
+    vma->m_next = nullptr;
     if (current->m_vmm.insert_vma(vma) != 0) {
         os()->console()->kprintf(RED, "BUG on insert vma!\n");
         return -1;
@@ -223,7 +223,7 @@ int32 process_t::exec(trap_frame_t* frame)
     strcpy(m_name, (const char *) frame->rdi);
 
     /* save arg */
-    argument_t* arg = NULL;
+    argument_t* arg = nullptr;
     if (frame->rsi != 0) {
         arg = (argument_t *) P2V(os()->mm()->alloc_pages(0));
         memcpy(arg, (void *)frame->rsi, sizeof(argument_t));
@@ -248,7 +248,7 @@ int32 process_t::exec(trap_frame_t* frame)
 
 end:
     /* free arg */
-    if (arg != NULL) {
+    if (arg != nullptr) {
         os()->mm()->free_pages(V2P(arg), 0);
     }
 
@@ -301,7 +301,7 @@ void process_t::adope_children()
     process_t* child_reaper = os()->process_mgr()->get_child_reaper();
 
     dlist_node_t* node = m_children.head();
-    while (node != NULL) {
+    while (node != nullptr) {
         process_t* p = list_entry(node, process_t, m_child_list_node);
         p->m_parent = child_reaper;
         node = node->next();
@@ -326,7 +326,7 @@ repeat:
     bool flag = false;
 
     dlist_node_t* node = m_children.head();
-    for (; node != NULL; node = node->next()) {
+    for (; node != nullptr; node = node->next()) {
         process_t* p = list_entry(node, process_t, m_child_list_node);
         if (pid != -1u && pid != p->m_pid) {
             continue;
@@ -366,7 +366,7 @@ void process_t::close_all_files()
 {
     os()->fs()->put_inode(m_cwd);
     for (int i = 0; i < MAX_OPEN_FILE; i++) {
-        if (m_files[i] != NULL && m_files[i]->m_type != file_t::TYPE_NONE) {
+        if (m_files[i] != nullptr && m_files[i]->m_type != file_t::TYPE_NONE) {
             os()->fs()->close_file(m_files[i]);
         }
     }
@@ -403,7 +403,7 @@ int32 process_t::exit()
 int process_t::alloc_fd(file_t* file)
 {
     for (int i = 0; i < MAX_OPEN_FILE; i++) {
-        if (m_files[i] == NULL) {
+        if (m_files[i] == nullptr) {
             m_files[i] = file;
             return i;
         }
@@ -414,7 +414,7 @@ int process_t::alloc_fd(file_t* file)
 file_t* process_t::get_file(int fd)
 {
     if (fd < 0 || fd >= MAX_OPEN_FILE) {
-        return NULL;
+        return nullptr;
     }
     return m_files[fd];
 }
@@ -422,7 +422,7 @@ file_t* process_t::get_file(int fd)
 void process_t::free_fd(int fd)
 {
     if (fd >= 0 && fd < MAX_OPEN_FILE) {
-        current->m_files[fd] = NULL;
+        current->m_files[fd] = nullptr;
     }
 }
 

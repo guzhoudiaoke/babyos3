@@ -45,8 +45,8 @@
 class dlist_node_t {
 public:
     void init() {
-        m_prev = NULL;
-        m_next = NULL;
+        m_prev = nullptr;
+        m_next = nullptr;
     }
 
     dlist_node_t* prev() {

@@ -33,7 +33,7 @@
 void process_mgr_t::init()
 {
     atomic_set(&m_next_pid, 1);
-    m_child_reaper = NULL;
+    m_child_reaper = nullptr;
 
     m_run_queue_lock.init();
     m_proc_list_lock.init();
@@ -45,7 +45,7 @@ void process_mgr_t::init()
 process_t* process_mgr_t::find_process(pid_t pid)
 {
     dlist_node_t* node = m_proc_list.head();
-    while (node != NULL) {
+    while (node != nullptr) {
         process_t* p = list_entry(node, process_t, m_mgr_list_node);
         if (p->m_pid == pid) {
             return p;
@@ -53,13 +53,13 @@ process_t* process_mgr_t::find_process(pid_t pid)
         node = node->next();
     }
 
-    return NULL;
+    return nullptr;
 }
 
 bool process_mgr_t::in_run_queue(process_t* proc)
 {
     dlist_node_t* node = m_run_queue.head();
-    while (node != NULL) {
+    while (node != nullptr) {
         process_t* p = list_entry(node, process_t, m_rq_list_node);
         if (p == proc) {
             return true;
@@ -73,7 +73,7 @@ bool process_mgr_t::in_run_queue(process_t* proc)
 process_t* process_mgr_t::get_child_reaper()
 {
     /* if have not set init process, set it by idle process's child */
-    if (m_child_reaper == NULL) {
+    if (m_child_reaper == nullptr) {
         m_child_reaper = list_entry(os()->cpu()->get_idle_process()->m_children.head(),
                                     process_t,
                                     m_child_list_node);
@@ -103,7 +103,7 @@ void process_mgr_t::release_process(process_t* proc)
     remove_from_process_list(proc);
 
     /* remove from children of parent */
-    if (proc->m_parent != NULL) {
+    if (proc->m_parent != nullptr) {
         proc->m_parent->m_children.remove(&proc->m_child_list_node);
     }
 
@@ -178,7 +178,7 @@ uint32 process_mgr_t::get_next_pid()
     while (1) {
         pid = atomic_read(&m_next_pid);
         atomic_inc(&m_next_pid);
-        if (find_process(pid) == NULL) {
+        if (find_process(pid) == nullptr) {
             break;
         }
     }
@@ -196,7 +196,7 @@ uint32 process_mgr_t::get_next_pid()
 //    uint32 flags;
 //    lock->lock_irqsave(flags);
 //    process_t* p = os()->get_process_mgr()->find_process(pid);
-//    if (p != NULL) {
+//    if (p != nullptr) {
 //        p->m_sig_queue.push_back(si);
 //        p->calc_sig_pending();
 //    }

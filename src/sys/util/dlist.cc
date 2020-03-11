@@ -36,8 +36,8 @@ dlist_t::~dlist_t()
 
 void dlist_t::init()
 {
-    m_head = NULL;
-    m_tail = NULL;
+    m_head = nullptr;
+    m_tail = nullptr;
     m_length = 0;
 }
 
@@ -63,10 +63,10 @@ uint64 dlist_t::length()
 
 void dlist_t::add_tail(dlist_node_t* node)
 {
-    node->m_next = NULL;
+    node->m_next = nullptr;
     node->m_prev = m_tail;
 
-    if (m_tail == NULL) {
+    if (m_tail == nullptr) {
         /* empty list */
         m_head = node;
         m_tail = node;
@@ -81,10 +81,10 @@ void dlist_t::add_tail(dlist_node_t* node)
 
 void dlist_t::add_head(dlist_node_t* node)
 {
-    node->m_prev = NULL;
+    node->m_prev = nullptr;
     node->m_next = m_head;
 
-    if (m_head == NULL) {
+    if (m_head == nullptr) {
         /* empty list */
         m_head = node;
         m_tail = node;
@@ -99,7 +99,7 @@ void dlist_t::add_head(dlist_node_t* node)
 
 void dlist_t::insert(dlist_node_t* pos, dlist_node_t* node)
 {
-    if (pos->m_prev == NULL) {
+    if (pos->m_prev == nullptr) {
         add_head(node);
     }
     else {
@@ -113,11 +113,11 @@ void dlist_t::insert(dlist_node_t* pos, dlist_node_t* node)
 
 dlist_node_t* dlist_t::remove(dlist_node_t* node)
 {
-    if (node == NULL) {
+    if (node == nullptr) {
         return node;
     }
 
-    if (node->m_next == NULL) {
+    if (node->m_next == nullptr) {
         /* this is the tail of list */
         this->m_tail = node->m_prev;
     }
@@ -126,7 +126,7 @@ dlist_node_t* dlist_t::remove(dlist_node_t* node)
         node->m_next->m_prev = node->m_prev;
     }
 
-    if (node->m_prev == NULL) {
+    if (node->m_prev == nullptr) {
         /* this is head of list */
         this->m_head = node->m_next;
     }
@@ -143,7 +143,7 @@ dlist_node_t* dlist_t::remove(dlist_node_t* node)
 dlist_node_t* dlist_t::remove_head()
 {
     dlist_node_t* head = m_head;
-    if (head != NULL) {
+    if (head != nullptr) {
         head = remove(head);
     }
 
@@ -153,7 +153,7 @@ dlist_node_t* dlist_t::remove_head()
 dlist_node_t* dlist_t::remove_tail()
 {
     dlist_node_t* tail = m_tail;
-    if (tail != NULL) {
+    if (tail != nullptr) {
         tail = remove(tail);
     }
 

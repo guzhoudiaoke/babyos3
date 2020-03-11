@@ -117,12 +117,12 @@ void* mm_t::kmalloc(uint64 size)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void mm_t::kfree(void* p)
 {
-    if (p == NULL) {
+    if (p == nullptr) {
         return;
     }
 

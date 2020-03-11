@@ -54,7 +54,7 @@ void block_dev_t::init(uint32 dev)
 io_buffer_t* block_dev_t::find_from_cache(uint32 lba)
 {
     dlist_node_t* node = m_used_list.head();
-    while (node != NULL) {
+    while (node != nullptr) {
         io_buffer_t* buffer = list_entry(node, io_buffer_t, m_used_list_node);
         if (buffer->m_lba == lba) {
             return buffer;
@@ -62,7 +62,7 @@ io_buffer_t* block_dev_t::find_from_cache(uint32 lba)
         node = node->next();
     }
 
-    return NULL;
+    return nullptr;
 }
 
 io_buffer_t* block_dev_t::get_block(uint32 lba)
@@ -74,7 +74,7 @@ io_buffer_t* block_dev_t::get_block(uint32 lba)
     io_buffer_t* b = find_from_cache(lba);
 
     /* find */
-    if (b == NULL) {
+    if (b == nullptr) {
         /* get one from free list */
         if (!m_free_list.empty()) {
             b = list_entry(m_free_list.remove_head(), io_buffer_t, m_free_list_node);
@@ -89,7 +89,7 @@ io_buffer_t* block_dev_t::get_block(uint32 lba)
     }
     m_lock.unlock_irqrestore(flags);
 
-    if (b != NULL) {
+    if (b != nullptr) {
         b->lock();
     }
     return b;

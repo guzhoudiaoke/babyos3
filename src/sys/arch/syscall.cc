@@ -119,7 +119,7 @@ uint64 syscall_t::sys_print(trap_frame_t* frame)
 uint64 syscall_t::sys_fork(trap_frame_t* frame)
 {
     process_t* proc = current->fork(frame);
-    return proc == NULL ? -1 : proc->m_pid;
+    return proc == nullptr ? -1 : proc->m_pid;
 }
 
 uint64 syscall_t::sys_exec(trap_frame_t* frame)

@@ -51,7 +51,7 @@ void ide_t::init(uint32 dev)
 {
     m_lock.init();
     m_req_list.init();
-    m_current = NULL;
+    m_current = nullptr;
 
     //os()->i8259a()->enable_irq(IRQ_HARDDISK);
     os()->io_apic()->enable_irq(IRQ_HARDDISK, 0);
@@ -61,7 +61,7 @@ void ide_t::init(uint32 dev)
 
 void ide_t::add_request(request_t* req)
 {
-    if (m_current == NULL) {
+    if (m_current == nullptr) {
         m_current = req;
         do_request();
     }
@@ -76,7 +76,7 @@ void ide_t::add_request(request_t* req)
 
 void ide_t::do_request()
 {
-    if (m_current == NULL) {
+    if (m_current == nullptr) {
         return;
     }
 
@@ -107,7 +107,7 @@ void ide_t::end_request()
 
     m_current->m_buffer->done();
 
-    m_current = NULL;
+    m_current = nullptr;
     if (!m_req_list.empty()) {
         m_current = list_entry(m_req_list.head(), request_t, m_list_node);
         m_req_list.remove_head();

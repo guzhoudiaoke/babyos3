@@ -37,7 +37,7 @@ void timer_mgr_t::init()
 void timer_mgr_t::update()
 {
     dlist_node_t* node = m_timer_list.head();
-    while (node != NULL) {
+    while (node != nullptr) {
         timer_t* timer = list_entry(node, timer_t, m_list_node);
         timer->update();
         node = node->next();

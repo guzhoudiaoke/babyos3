@@ -68,7 +68,7 @@ int sprint_int(char* buffer, int n, int width, int base, bool sign)
 
 int sprint_str(char* buffer, char* s, int width)
 {
-    if (s == NULL) {
+    if (s == nullptr) {
         return 0;
     }
 
@@ -93,7 +93,7 @@ bool is_digit(char c)
 int vsprintf(char *buffer, const char *fmt, va_list ap)
 {
     buffer[0] = '\0';
-    if (fmt == NULL) {
+    if (fmt == nullptr) {
         return 0;
     }
 

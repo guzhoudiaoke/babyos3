@@ -34,7 +34,7 @@
 #include "parser.h"
 
 
-#define MAX_CMD_LEN 128
+#define MAX_LINE    1024
 
 
 class shell_t {

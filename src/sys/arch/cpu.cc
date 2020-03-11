@@ -259,7 +259,7 @@ void cpu_t::do_common_isr(trap_frame_t* frame)
 
 void cpu_t::init_idle()
 {
-    m_idle->init(NULL);
+    m_idle->init(nullptr);
     strcpy(m_idle->m_name, "idle");
 
     m_idle->m_context.rsp = ((uint64) m_kstack);
@@ -283,7 +283,7 @@ void cpu_t::schedule()
     rq_lock->lock_irqsave(flags);
 
     dlist_node_t* node = run_queue->head();
-    while (node != NULL) {
+    while (node != nullptr) {
         process_t* p = list_entry(node, process_t, m_rq_list_node);
         if (p->m_state == process_t::RUNNING && p->m_has_cpu == 0) {
             next = p;

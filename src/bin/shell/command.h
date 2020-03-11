@@ -31,6 +31,9 @@
 #include "types.h"
 
 
+#define MAX_CMD_LEN 128
+
+
 class redirect_file_t {
 public:
     redirect_file_t(char* s, char* e);
@@ -46,9 +49,9 @@ private:
 class command_t {
 public:
     command_t();
-    ~command_t();
+    virtual ~command_t();
 
-    virtual void exec() = 0;
+    virtual void execute() = 0;
 };
 
 class exec_command_t : public command_t {
@@ -56,7 +59,7 @@ public:
     exec_command_t();
     ~exec_command_t();
 
-    virtual void exec();
+    virtual void execute();
     void add_arg(char* s, char* e);
 
 public:
@@ -71,7 +74,7 @@ public:
     pipe_command_t(command_t* left, command_t* right);
     ~pipe_command_t();
 
-    virtual void exec();
+    virtual void execute();
 
 public:
     command_t* m_left;
@@ -83,7 +86,7 @@ public:
     list_command_t(command_t* left, command_t* right);
     ~list_command_t();
 
-    virtual void exec();
+    virtual void execute();
 
 public:
     command_t* m_left;

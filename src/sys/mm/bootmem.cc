@@ -90,7 +90,7 @@ uint64 bootmem_t::mem_alloc(uint32 size, bool page_align)
 pdpe_t* bootmem_t::get_pdp_table(pml4e_t* pml4_table, void* v)
 {
     pml4e_t pml4e = pml4_table[PML4E_INDEX(v)];
-    pdpe_t* pdp_table = NULL;
+    pdpe_t* pdp_table = nullptr;
     if ((pml4e) & PTE_P) {
         pdp_table = (pdpe_t *) (early_pa2va(pml4e & PAGE_MASK));
     }
@@ -107,7 +107,7 @@ pdpe_t* bootmem_t::get_pdp_table(pml4e_t* pml4_table, void* v)
 pde_t* bootmem_t::get_pd_table(pdpe_t* pdp_table, void* v)
 {
     pdpe_t pdpe = pdp_table[PDPE_INDEX(v)];
-    pde_t* pd_table = NULL;
+    pde_t* pd_table = nullptr;
     if ((pdpe) & PTE_P) {
         pd_table = (pde_t *) (early_pa2va(pdpe & PAGE_MASK));
     }
@@ -124,7 +124,7 @@ pde_t* bootmem_t::get_pd_table(pdpe_t* pdp_table, void* v)
 pte_t* bootmem_t::get_page_table(pde_t* pd_table, void* v)
 {
     pde_t pde = pd_table[PDE_INDEX(v)];
-    pte_t* page_table = NULL;
+    pte_t* page_table = nullptr;
     if ((pde) & PTE_P) {
         page_table = (pte_t *) (early_pa2va(pde & PAGE_MASK));
     }

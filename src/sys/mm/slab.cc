@@ -126,7 +126,7 @@ void kmem_cache_t::grow()
 slab_t* kmem_cache_t::get_slab()
 {
     slab_t* slab = list_entry(m_slabs_partial.head(), slab_t, m_list_node);
-    if (slab == NULL) {
+    if (slab == nullptr) {
         if (!m_slabs_free.empty()) {
             /* full -> partial */
             slab = list_entry(m_slabs_free.remove_head(), slab_t, m_list_node);
@@ -140,7 +140,7 @@ slab_t* kmem_cache_t::get_slab()
 void* kmem_cache_t::alloc_one()
 {
     slab_t* slab = get_slab();
-    if (slab == NULL) {
+    if (slab == nullptr) {
         grow();
     }
 

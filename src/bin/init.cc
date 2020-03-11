@@ -53,7 +53,7 @@ int main()
         //printf("this is child, will do exec\n");
 
         /* child */
-        int ret = exec("/bin/shell", NULL);
+        int ret = exec("/bin/shell", nullptr);
         if (ret != 0) {
             printf("BUG exec failed!!!\n");
             exit(-1);

@@ -60,12 +60,12 @@ socket_t* sys_socket_t::alloc_socket(uint32 family, uint32 type)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 int32 sys_socket_t::release_socket(socket_t* socket)
 {
-    if (socket != NULL) {
+    if (socket != nullptr) {
         socket->release();
     }
     return 0;
@@ -73,13 +73,13 @@ int32 sys_socket_t::release_socket(socket_t* socket)
 
 socket_t* sys_socket_t::look_up_socket(int fd)
 {
-    socket_t* socket = NULL;
+    socket_t* socket = nullptr;
     if (fd < 0 || fd >= MAX_OPEN_FILE) {
         return socket;
     }
 
     file_t* file = current->get_file(fd);
-    if (file == NULL) {
+    if (file == nullptr) {
         return socket;
     }
 
@@ -95,14 +95,14 @@ int32 sys_socket_t::socket(uint32 family, uint32 type, uint32 protocol)
 
     /* alloc a socket */
     socket_t* socket = alloc_socket(family, type);
-    if (socket == NULL) {
+    if (socket == nullptr) {
         return -ENOSR;
     }
     socket->create(family, type, protocol);
 
     /* alloc a file */
     file_t* file = os()->fs()->alloc_file();
-    if (file == NULL) {
+    if (file == nullptr) {
         release_socket(socket);
         return -ENOSR;
     }
@@ -122,7 +122,7 @@ int32 sys_socket_t::socket(uint32 family, uint32 type, uint32 protocol)
 int32 sys_socket_t::bind(int fd, sock_addr_t* myaddr)
 {
     socket_t* socket = look_up_socket(fd);
-    if (socket == NULL) {
+    if (socket == nullptr) {
         return -EBADF;
     }
 
@@ -132,7 +132,7 @@ int32 sys_socket_t::bind(int fd, sock_addr_t* myaddr)
 int32 sys_socket_t::listen(int fd, uint32 backlog)
 {
     socket_t* socket = look_up_socket(fd);
-    if (socket == NULL) {
+    if (socket == nullptr) {
         return -EBADF;
     }
 
@@ -151,7 +151,7 @@ int32 sys_socket_t::accept(int fd, sock_addr_t* client_addr)
     socket_t* socket = look_up_socket(fd);
 
     /* not find a socket */
-    if (socket == NULL) {
+    if (socket == nullptr) {
         return -EBADF;
     }
 
@@ -167,14 +167,14 @@ int32 sys_socket_t::accept(int fd, sock_addr_t* client_addr)
 
     /* alloc a new socket to accept the connect */
     socket_t* new_socket = alloc_socket(socket->m_family, socket->m_type);
-    if (new_socket == NULL) {
+    if (new_socket == nullptr) {
         return -ENOSR;
     }
     new_socket->dup(socket);
 
     /* alloc a file */
     file_t* file = os()->fs()->alloc_file();
-    if (file == NULL) {
+    if (file == nullptr) {
         release_socket(new_socket);
         return -ENOSR;
     }
@@ -193,7 +193,7 @@ int32 sys_socket_t::accept(int fd, sock_addr_t* client_addr)
         return ret;
     }
 
-    if (client_addr != NULL) {
+    if (client_addr != nullptr) {
         if (new_socket->get_addr(client_addr) < 0) {
             return -ECONNABORTED;
         }
@@ -205,7 +205,7 @@ int32 sys_socket_t::accept(int fd, sock_addr_t* client_addr)
 int32 sys_socket_t::connect(int fd, sock_addr_t* user_addr)
 {
     socket_t* socket = look_up_socket(fd);
-    if (socket == NULL) {
+    if (socket == nullptr) {
         return -EBADF;
     }
 

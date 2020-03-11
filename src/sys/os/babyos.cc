@@ -125,7 +125,7 @@ block_dev_t* babyos_t::block_dev()
 dev_op_t* babyos_t::get_dev(uint32 type)
 {
     if (type >= MAX_DEV) {
-        return NULL;
+        return nullptr;
     }
     return &m_devices[type];
 }

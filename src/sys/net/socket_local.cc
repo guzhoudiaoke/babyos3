@@ -56,7 +56,7 @@ socket_t* socket_local_t::alloc_local_socket()
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 void socket_local_t::release_local_socket(socket_t* socket)
@@ -74,7 +74,7 @@ socket_local_t* socket_local_t::lookup_local_socket(sock_addr_local_t* addr)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
 int32 socket_local_t::bind_local_socket(socket_local_t* socket, sock_addr_local_t* addr)
@@ -115,7 +115,7 @@ int32 socket_local_t::create(uint32 family, uint32 type, uint32 protocol)
     m_connecting_list.init();
     m_connecting_list_node.init();
     m_connecting_list_lock.init();
-    m_connected_socket = NULL;
+    m_connected_socket = nullptr;
     m_wait_connect_sem.init(0);
     m_wait_accept_sem.init(0);
 
@@ -146,7 +146,7 @@ int32 socket_local_t::release()
     uint64 flags;
     m_connecting_list_lock.lock_irqsave(flags);
     dlist_node_t* node = m_connecting_list.head();
-    while (node != NULL) {
+    while (node != nullptr) {
         socket_local_t* s = list_entry(node, socket_local_t, m_connecting_list_node);
         s->m_wait_accept_sem.up();
         node = node->next();
@@ -155,12 +155,12 @@ int32 socket_local_t::release()
 
     /* set peer state */
     socket_local_t* peer = (socket_local_t *) m_connected_socket;
-    if (old_state == socket_t::SS_CONNECTED && peer != NULL) {
+    if (old_state == socket_t::SS_CONNECTED && peer != nullptr) {
         peer->m_state = socket_t::SS_DISCONNECTING;
     }
 
     m_ref--;
-    if (peer != NULL) {
+    if (peer != nullptr) {
         peer->m_ref--;
     }
 
@@ -192,7 +192,7 @@ int32 socket_local_t::accept(socket_t* socket)
     }
 
     /* get a connect */
-    socket_local_t* client_socket = NULL;
+    socket_local_t* client_socket = nullptr;
 
     uint64 flags;
     m_connecting_list_lock.lock_irqsave(flags);
@@ -229,7 +229,7 @@ int32 socket_local_t::connect(sock_addr_t* server_addr)
 
     /* get server socket */
     socket_local_t* server_socket = socket_local_t::lookup_local_socket((sock_addr_local_t *) server_addr);
-    if (server_socket == NULL || server_socket->m_state != socket_t::SS_UNCONNECTED) {
+    if (server_socket == nullptr || server_socket->m_state != socket_t::SS_UNCONNECTED) {
         return -EINVAL;
     }
 

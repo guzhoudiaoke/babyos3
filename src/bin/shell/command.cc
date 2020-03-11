@@ -41,6 +41,15 @@ redirect_file_t::~redirect_file_t()
 {
 }
 
+char* redirect_file_t::name()
+{
+    return m_name;
+}
+
+
+/**********************************************************************/
+
+
 command_t::command_t()
 {
 }
@@ -49,15 +58,10 @@ command_t::~command_t()
 {
 }
 
-char* redirect_file_t::name()
-{
-    return m_name;
-}
-
 exec_command_t::exec_command_t()
 {
-    m_input = NULL;
-    m_output = NULL;
+    m_input = nullptr;
+    m_output = nullptr;
     m_background = false;
     m_argument.m_argc = 0;
 }
@@ -71,17 +75,22 @@ void exec_command_t::add_arg(char* s, char* e)
     strncpy(m_argument.m_argv[m_argument.m_argc++], s, e-s);
 }
 
-void exec_command_t::exec()
+void exec_command_t::execute()
 {
-    printf("cmd: %s, input: %s, output: %s\n", m_argument.m_argv[0], 
-            m_input == NULL ? "null" : m_input->name(),
-            m_output == NULL ? "null" : m_output->name());
-
-    printf("args(%d): ", m_argument.m_argc-1);
-    for (uint32 i = 1; i < m_argument.m_argc; i++) {
-        printf("%s, ", m_argument.m_argv[i]);
+    char cmd[MAX_CMD_LEN] = {0};
+    if (m_argument.m_argv[0][0] != '/') {
+        strcpy(cmd, "/bin/");
     }
-    printf("\nback: %d\n", m_background);
+    strcat(cmd, m_argument.m_argv[0]);
+
+    pid_t pid = fork();
+    if (pid == 0) {
+        int ret = exec(cmd, &m_argument);
+        if (ret < 0) {
+            exit(ret);
+        }
+    }
+    wait(pid);
 }
 
 
@@ -93,15 +102,22 @@ pipe_command_t::pipe_command_t(command_t* left, command_t* right)
 
 pipe_command_t::~pipe_command_t()
 {
+    printf("pipe_command_t destruct\n");
+    if (m_left != nullptr) {
+        delete m_left;
+    }
+    if (m_right != nullptr) {
+        delete m_right;
+    }
 }
 
-void pipe_command_t::exec()
+void pipe_command_t::execute()
 {
-    if (m_left != NULL) {
-        m_left->exec();
+    if (m_left != nullptr) {
+        m_left->execute();
     }
-    if (m_right != NULL) {
-        m_right->exec();
+    if (m_right != nullptr) {
+        m_right->execute();
     }
 }
 
@@ -113,16 +129,17 @@ list_command_t::list_command_t(command_t* left, command_t* right)
 
 list_command_t::~list_command_t()
 {
+    printf("list_command_t destruct\n");
 }
 
 
-void list_command_t::exec()
+void list_command_t::execute()
 {
-    if (m_left != NULL) {
-        m_left->exec();
+    if (m_left != nullptr) {
+        m_left->execute();
     }
-    if (m_right != NULL) {
-        m_right->exec();
+    if (m_right != nullptr) {
+        m_right->execute();
     }
 }
 

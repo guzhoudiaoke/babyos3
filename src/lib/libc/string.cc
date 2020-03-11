@@ -113,7 +113,7 @@ char* strchr(const char* s, char c)
         }
         p++;
     }
-    return NULL;
+    return nullptr;
 }
 
 

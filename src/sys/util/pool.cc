@@ -36,15 +36,15 @@ void object_pool_t::init(uint32 obj_size)
     }
 	m_obj_size = obj_size;
 	m_available = 0;
-	m_free_list = NULL;
+	m_free_list = nullptr;
     m_lock.init();
 }
 
 void object_pool_t::free_object_nolock(void* obj)
 {
 	object_pool_obj_t* o = (object_pool_obj_t*) obj;
-	o->m_next = NULL;
-	if (m_free_list == NULL) {
+	o->m_next = nullptr;
+	if (m_free_list == nullptr) {
 		m_free_list = o;
 	}
 	else {
@@ -66,7 +66,7 @@ void* object_pool_t::alloc_from_pool()
 {
     uint64 flags;
     m_lock.lock_irqsave(flags);
-	if (m_free_list == NULL) {
+	if (m_free_list == nullptr) {
         os()->uart()->kprintf("alloc from pool alloc\n");
 		uint8* mem = (uint8 *) P2V(os()->mm()->alloc_pages(0));
 		uint8* end = mem + PAGE_SIZE;

@@ -36,12 +36,12 @@ static const char* whitespace = " \t\r\n\v";
 
 static bool is_space(char ch)
 {
-    return strchr(whitespace, ch) != NULL;
+    return strchr(whitespace, ch) != nullptr;
 }
 
 static bool is_delimeter(char ch, const char* delim)
 {
-    return strchr(delim, ch) != NULL;
+    return strchr(delim, ch) != nullptr;
 }
 
 static int skip_space(char* line, int begin, int end)
@@ -135,36 +135,29 @@ command_t* cmd_parser_t::parse()
 }
 
 
-parser_t::parser_t()
+parser_t::parser_t(char* line)
 {
     m_begin = 0;
     m_end   = 0;
-    m_line  = NULL;
+    m_line  = line;
+
+    if (m_line != nullptr) {
+        m_end = strlen(m_line);
+    }
 }
 
 parser_t::~parser_t()
 {
 }
 
-void parser_t::init(char* line)
-{
-    m_begin = 0;
-    m_end   = 0;
-    m_line  = line;
-
-    if (m_line != NULL) {
-        m_end = strlen(m_line);
-    }
-}
-
 command_t* parser_t::parse()
 {
     if (m_begin >= m_end) {
-        return NULL;
+        return nullptr;
     }
 
     cmd_parser_t* cmd_parser = get_next_command();
-    command_t* cmd = NULL;
+    command_t* cmd = nullptr;
     switch (m_line[cmd_parser->m_end]) {
     case '|':
         cmd = new pipe_command_t(cmd_parser->parse(), parse());

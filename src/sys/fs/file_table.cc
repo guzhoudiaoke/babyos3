@@ -40,7 +40,7 @@ void file_table_t::init()
 
 file_t* file_table_t::alloc()
 {
-    file_t* file = NULL;
+    file_t* file = nullptr;
     uint64 flags;
     m_lock.lock_irqsave(flags);
     for (int i = 0; i < MAX_FILE_NUM; i++) {
@@ -77,7 +77,7 @@ int file_table_t::free(file_t* file)
     if (f.m_type == file_t::TYPE_PIPE) {
         f.m_pipe->close(f.m_writeable);
         os()->mm()->pipe_cache()->free(f.m_pipe);
-        f.m_pipe = NULL;
+        f.m_pipe = nullptr;
     }
     else if (f.m_type == file_t::TYPE_SOCKET) {
         f.m_socket->release();

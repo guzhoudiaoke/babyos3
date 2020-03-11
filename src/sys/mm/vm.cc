@@ -34,15 +34,15 @@
 
 void vmm_t::init()
 {
-    m_mmap = NULL;
-    m_pml4_table = NULL;
+    m_mmap = nullptr;
+    m_pml4_table = nullptr;
     m_sem.init(1);
 }
 
 int32 vmm_t::copy(const vmm_t& vmm)
 {
     m_pml4_table = copy_pml4_table(vmm.m_pml4_table);
-    if (m_pml4_table == NULL) {
+    if (m_pml4_table == nullptr) {
         return -1;
     }
 
@@ -59,8 +59,8 @@ pte_t* vmm_t::copy_page_table(pte_t* page_table)
 {
     /* alloc pdp_table */
     pte_t* ret = (pte_t *) P2V(os()->mm()->alloc_pages(0));
-    if (ret == NULL) {
-        return NULL;
+    if (ret == nullptr) {
+        return nullptr;
     }
 
     memcpy(ret, page_table, PAGE_SIZE);
@@ -89,8 +89,8 @@ pde_t* vmm_t::copy_pd_table(pde_t* pd_table)
 {
     /* alloc pdp_table */
     pde_t* ret = (pde_t *) P2V(os()->mm()->alloc_pages(0));
-    if (ret == NULL) {
-        return NULL;
+    if (ret == nullptr) {
+        return nullptr;
     }
 
     memcpy(ret, pd_table, PAGE_SIZE);
@@ -104,8 +104,8 @@ pde_t* vmm_t::copy_pd_table(pde_t* pd_table)
 
         pte_t* src = (pte_t *) P2V(pde & PAGE_MASK);
         pte_t* copy = copy_page_table(src);
-        if (copy == NULL) {
-            return NULL;
+        if (copy == nullptr) {
+            return nullptr;
         }
 
         ret[i] = V2P(copy) | (pde & (~PAGE_MASK));
@@ -118,8 +118,8 @@ pdpe_t* vmm_t::copy_pdp_table(pdpe_t* pdp_table)
 {
     /* alloc pdp_table */
     pdpe_t* ret = (pdpe_t *) P2V(os()->mm()->alloc_pages(0));
-    if (ret == NULL) {
-        return NULL;
+    if (ret == nullptr) {
+        return nullptr;
     }
 
     memcpy(ret, pdp_table, PAGE_SIZE);
@@ -133,8 +133,8 @@ pdpe_t* vmm_t::copy_pdp_table(pdpe_t* pdp_table)
 
         pde_t* src = (pde_t *) P2V(pdpe & PAGE_MASK);
         pde_t* copy = copy_pd_table(src);
-        if (copy == NULL) {
-            return NULL;
+        if (copy == nullptr) {
+            return nullptr;
         }
 
         ret[i] = V2P(copy) | (pdpe & (~PAGE_MASK));
@@ -147,8 +147,8 @@ pml4e_t* vmm_t::copy_pml4_table(pml4e_t* pml4_table)
 {
     /* alloc pml4_table */
     pml4e_t* ret = (pml4e_t *) P2V(os()->mm()->alloc_pages(0));
-    if (ret == NULL) {
-        return NULL;
+    if (ret == nullptr) {
+        return nullptr;
     }
 
     memcpy(ret, pml4_table, PAGE_SIZE);
@@ -164,7 +164,7 @@ pml4e_t* vmm_t::copy_pml4_table(pml4e_t* pml4_table)
 
         pdpe_t* src = (pdpe_t *) P2V(pml4e & PAGE_MASK);
         pdpe_t* copy = copy_pdp_table(src);
-        if (copy == NULL) {
+        if (copy == nullptr) {
             goto failed;
         }
         ret[i] = V2P(copy) | (pml4e & (~PAGE_MASK));
@@ -176,23 +176,23 @@ failed:
     os()->panic("failed to copy pml4 table, panic for now\n");
 
     /* TODO: destroy allocated memory */
-    return NULL;
+    return nullptr;
 }
 
 int32 vmm_t::copy_vma(vm_area_t* mmap)
 {
-    vm_area_t* tail = NULL;
+    vm_area_t* tail = nullptr;
     vm_area_t* p = mmap;
-    while (p != NULL) {
+    while (p != nullptr) {
         vm_area_t* vma = (vm_area_t *) os()->mm()->vma_cache()->alloc();
-        if (vma == NULL) {
+        if (vma == nullptr) {
             return -1;
         }
 
         *vma = *p;
-        vma->m_next = NULL;
+        vma->m_next = nullptr;
 
-        if (tail == NULL) {
+        if (tail == nullptr) {
             m_mmap = vma;
         }
         else {
@@ -206,38 +206,38 @@ int32 vmm_t::copy_vma(vm_area_t* mmap)
     return 0;
 }
 
-/* Look up the first VMA which satisfies  addr < vm_end,  NULL if none. */
+/* Look up the first VMA which satisfies  addr < vm_end,  nullptr if none. */
 vm_area_t* vmm_t::find_vma(uint64 addr)
 {
     vm_area_t* vma = m_mmap;
-    while (vma != NULL) {
+    while (vma != nullptr) {
         if (addr < vma->m_end) {
             return vma;
         }
         vma = vma->m_next;
     }
-    return NULL;
+    return nullptr;
 }
 
 vm_area_t* vmm_t::find_vma(uint64 addr, vm_area_t*& prev)
 {
-    prev = NULL;
+    prev = nullptr;
     vm_area_t* vma = m_mmap;
-    while (vma != NULL) {
+    while (vma != nullptr) {
         if (addr < vma->m_end) {
             return vma;
         }
         prev = vma;
         vma = vma->m_next;
     }
-    return NULL;
+    return nullptr;
 }
 
 uint32 vmm_t::insert_vma(vm_area_t* vma)
 {
-    vm_area_t* prev = NULL;
+    vm_area_t* prev = nullptr;
     vm_area_t* p = m_mmap;
-    while (p != NULL) {
+    while (p != nullptr) {
         if (p->m_start >= vma->m_end) {
             break;
         }
@@ -245,7 +245,7 @@ uint32 vmm_t::insert_vma(vm_area_t* vma)
         p = p->m_next;
     }
 
-    if (prev != NULL && prev->m_end > vma->m_start) {
+    if (prev != nullptr && prev->m_end > vma->m_start) {
         os()->console()->kprintf(RED,
                                  "insert_vma: inserting: [%x, %x], overlaped with [%x, %x]\n",
                                  vma->m_start, vma->m_end, prev->m_start, prev->m_end);
@@ -253,7 +253,7 @@ uint32 vmm_t::insert_vma(vm_area_t* vma)
     }
 
     vma->m_next = p;
-    if (prev != NULL) {
+    if (prev != nullptr) {
         prev->m_next = vma;
     }
     else {
@@ -261,7 +261,7 @@ uint32 vmm_t::insert_vma(vm_area_t* vma)
     }
 
     /* merge prev and vma */
-    if (prev != NULL && prev->m_end == vma->m_start) {
+    if (prev != nullptr && prev->m_end == vma->m_start) {
         if (prev->m_page_prot == vma->m_page_prot && prev->m_flags == vma->m_flags) {
             prev->m_end = vma->m_end;
             prev->m_next = p;
@@ -271,7 +271,7 @@ uint32 vmm_t::insert_vma(vm_area_t* vma)
     }
 
     /* merge vma and p */
-    if (p != NULL && vma->m_end == p->m_start) {
+    if (p != nullptr && vma->m_end == p->m_start) {
         if (vma->m_page_prot == p->m_page_prot && vma->m_flags == p->m_flags) {
             vma->m_end = p->m_end;
             vma->m_next = p->m_next;
@@ -288,7 +288,7 @@ uint64 vmm_t::get_unmapped_area(uint64 len)
     uint32 addr = VM_UNMAPPED_BASE;
 
     vm_area_t* vma = find_vma(addr);
-    while (vma != NULL) {
+    while (vma != nullptr) {
         if (USER_VM_SIZE - len < addr) {
             return 0;
         }
@@ -331,7 +331,7 @@ uint64 vmm_t::do_mmap(uint64 addr, uint64 len, uint32 prot, uint32 flags)
 
         /* check [addr, addr+len] not in a vm_area */
         vm_area_t* p = find_vma(addr);
-        if (p != NULL && addr + len > p->m_start) {
+        if (p != nullptr && addr + len > p->m_start) {
             os()->console()->kprintf(RED, "do_mmap: addr: %p is overlaped with vma: [%p, %p]\n", 
                     addr, p->m_start, p->m_end);
             return -1;
@@ -347,7 +347,7 @@ uint64 vmm_t::do_mmap(uint64 addr, uint64 len, uint32 prot, uint32 flags)
 
     /* alloc a vma from pool */
     vm_area_t* vma = (vm_area_t *) os()->mm()->vma_cache()->alloc();
-    if (vma == NULL) {
+    if (vma == nullptr) {
         os()->console()->kprintf(RED, "do_mmap: failed to alloc vma\n");
         return -1;
     }
@@ -357,7 +357,7 @@ uint64 vmm_t::do_mmap(uint64 addr, uint64 len, uint32 prot, uint32 flags)
     vma->m_end = addr + len;
     vma->m_flags = (prot & (VM_READ | VM_WRITE | VM_EXEC));
     vma->m_page_prot = prot;
-    vma->m_next = NULL;
+    vma->m_next = nullptr;
 
     /* insert vma into list, and do merge */
     if (insert_vma(vma)) {
@@ -370,7 +370,7 @@ uint64 vmm_t::do_mmap(uint64 addr, uint64 len, uint32 prot, uint32 flags)
 
 uint32 vmm_t::remove_vma(vm_area_t* vma, vm_area_t* prev)
 {
-    if (prev != NULL) {
+    if (prev != nullptr) {
         prev->m_next = vma->m_next;
     }
     else {
@@ -395,9 +395,9 @@ int32 vmm_t::do_munmap(uint64 addr, uint64 len)
     }
 
     /* find the vma, addr < vma->m_end */
-    vm_area_t* prev = NULL;
+    vm_area_t* prev = nullptr;
     vm_area_t* vma = find_vma(addr, prev);
-    if (vma == NULL) {
+    if (vma == nullptr) {
         return 0;
     }
 
@@ -409,7 +409,7 @@ int32 vmm_t::do_munmap(uint64 addr, uint64 len)
     /* alloc a new vma, because the vma may split to 2 vma, such as:
      * [start, addr, addr+len, end] => [start, addr], [addr+len, end] */
     vm_area_t* vma_new = (vm_area_t *) os()->mm()->vma_cache()->alloc();
-    if (vma_new == NULL) {
+    if (vma_new == nullptr) {
         return -1;
     }
 
@@ -486,9 +486,9 @@ uint32 vmm_t::do_page_fault(trap_frame_t* frame)
     vm_area_t* vma = find_vma(addr);
 
     /* not find the vma or out of range */
-    if (vma == NULL || vma->m_start > addr) {
+    if (vma == nullptr || vma->m_start > addr) {
         if (frame->err & 0x4) {
-            if (vma != NULL && (vma->m_flags & VM_STACK) && addr + 64 >= frame->rsp) {
+            if (vma != nullptr && (vma->m_flags & VM_STACK) && addr + 64 >= frame->rsp) {
                 expand_stack(vma, addr);
                 goto good_area;
             }
@@ -499,7 +499,7 @@ uint32 vmm_t::do_page_fault(trap_frame_t* frame)
 
 good_area:
     /* find a vma and the addr in this vma */
-    if (vma != NULL && vma->m_start <= addr) {
+    if (vma != nullptr && vma->m_start <= addr) {
         if (frame->err & 0x1) {
             return do_protection_fault(vma, addr, (uint64) (frame->err & 2));
         }
@@ -645,7 +645,7 @@ void vmm_t::release()
 {
     /* 1. pages */
     vm_area_t* vma = m_mmap;
-    while (vma != NULL) {
+    while (vma != nullptr) {
         free_page_range(vma->m_start, vma->m_end);
         vma = vma->m_next;
     }
@@ -655,12 +655,12 @@ void vmm_t::release()
 
     /* 3. vmas */
     vma = m_mmap;
-    while (vma != NULL) {
+    while (vma != nullptr) {
         vm_area_t* del = vma;
         vma = vma->m_next;
         os()->mm()->vma_cache()->free(del);
     }
-    m_mmap = NULL;
+    m_mmap = nullptr;
 }
 
 void vmm_t::map_pages(pml4e_t *pml4_table, void *va, uint64 pa, uint64 size, uint32 perm)
@@ -690,7 +690,7 @@ void vmm_t::map_pages(pml4e_t *pml4_table, void *va, uint64 pa, uint64 size, uin
 pdpe_t* vmm_t::get_pdp_table(pml4e_t* pml4_table, void* v)
 {
     pml4e_t pml4e = pml4_table[PML4E_INDEX(v)];
-    pdpe_t* pdp_table = NULL;
+    pdpe_t* pdp_table = nullptr;
     if ((pml4e) & PTE_P) {
         pdp_table = (pdpe_t *) (P2V(pml4e & PAGE_MASK));
     }
@@ -707,7 +707,7 @@ pdpe_t* vmm_t::get_pdp_table(pml4e_t* pml4_table, void* v)
 pde_t* vmm_t::get_pd_table(pdpe_t* pdp_table, void* v)
 {
     pdpe_t pdpe = pdp_table[PDPE_INDEX(v)];
-    pde_t* pd_table = NULL;
+    pde_t* pd_table = nullptr;
     if ((pdpe) & PTE_P) {
         pd_table = (pde_t *) (P2V(pdpe & PAGE_MASK));
     }
@@ -724,7 +724,7 @@ pde_t* vmm_t::get_pd_table(pdpe_t* pdp_table, void* v)
 pte_t* vmm_t::get_page_table(pde_t* pd_table, void* v)
 {
     pde_t pde = pd_table[PDE_INDEX(v)];
-    pte_t* page_table = NULL;
+    pte_t* page_table = nullptr;
     if ((pde) & PTE_P) {
         page_table = (pte_t *) (P2V(pde & PAGE_MASK));
     }
@@ -823,7 +823,7 @@ out:
 uint64 vmm_t::do_brk(uint64 addr, uint64 len)
 {
     os()->uart()->kprintf("do_brk: %p, %p\n", addr, len);
-    vm_area_t* vma = NULL;
+    vm_area_t* vma = nullptr;
 
     len = PAGE_ALIGN(len);
     if (len == 0) {
@@ -837,14 +837,14 @@ uint64 vmm_t::do_brk(uint64 addr, uint64 len)
 
     if (addr != 0) {
         vma = find_vma(addr-1);
-        if (vma != NULL && vma->m_end == addr) {
+        if (vma != nullptr && vma->m_end == addr) {
             vma->m_end = addr + len;
             goto out;
         }
     }
 
     vma = (vm_area_t *) os()->mm()->vma_cache()->alloc();
-    if (vma == NULL) {
+    if (vma == nullptr) {
         return -ENOMEM;
     }
 
