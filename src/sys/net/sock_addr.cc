@@ -25,7 +25,7 @@
 
 
 #include "sock_addr.h"
-#include "string.h"
+#include "kstring.h"
 
 
 bool sock_addr_local_t::operator == (const sock_addr_local_t& addr)

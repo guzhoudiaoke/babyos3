@@ -35,13 +35,13 @@ int main(int argc, char** argv)
         exit(0);
     }
 
-    int fd = open(argv[1], file_t::MODE_RDONLY);
+    int fd = open(argv[1], MODE_RDONLY);
     if (fd < 0) {
         printf("can't open %s\n", argv[1]);
         exit(0);
     }
 
-    int fd2 = open(argv[2], file_t::MODE_CREATE | file_t::MODE_WRONLY);
+    int fd2 = open(argv[2], MODE_CREATE | MODE_WRONLY);
     if (fd2 < 0) {
         printf("can't create %s\n", argv[2]);
         exit(0);

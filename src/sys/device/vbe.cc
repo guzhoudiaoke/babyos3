@@ -26,7 +26,7 @@
 #include "vbe.h"
 #include "types.h"
 #include "kernel.h"
-#include "string.h"
+#include "kstring.h"
 #include "bootmem.h"
 #include "babyos.h"
 
@@ -48,7 +48,7 @@ void vbe_t::init()
     m_base     = (uint8 *)IO2V(info->vram_base_addr);
     m_asc16_addr = (uint8 *) os()->mm()->kmalloc(4096);
 
-    int fd = os()->fs()->do_open("/bin/ASC16", file_t::MODE_RDWR);
+    int fd = os()->fs()->do_open("/bin/ASC16", MODE_RDWR);
     if (fd < 0) {
         os()->panic("vbe init failed: not find");
     }

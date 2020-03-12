@@ -26,16 +26,16 @@
 
 
 #include "unistd.h"
-#include "file.h"
+#include "filemode.h"
 #include "stdio.h"
 
 
 int main()
 {
-    if (open("/dev/console", file_t::MODE_RDWR) < 0) {
+    if (open("/dev/console", MODE_RDWR) < 0) {
         mkdir("/dev/");
         mknod("/dev/console", 0, 1);
-        open("/dev/console", file_t::MODE_RDWR);
+        open("/dev/console", MODE_RDWR);
     }
     dup(0); /* stdout */
     dup(0); /* stderr */
@@ -47,7 +47,7 @@ int main()
     //printf("This is printed by init, cs = 0x%8x\n", cs);
 
 
-    int32 pid = fork();
+    int pid = fork();
     //printf("fork done, pid = %d, ", pid);
     if (pid == 0) {
         //printf("this is child, will do exec\n");

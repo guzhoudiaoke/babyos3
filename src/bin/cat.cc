@@ -48,7 +48,7 @@ int main(int argc, char** argv)
     }
 
     for (int i = 1; i < argc; i++) {
-        int fd = open(argv[i], file_t::MODE_RDONLY);
+        int fd = open(argv[i], MODE_RDONLY);
         if (fd < 0) {
             printf("cat: cannot open %s\n", argv[i]);
             exit(0);

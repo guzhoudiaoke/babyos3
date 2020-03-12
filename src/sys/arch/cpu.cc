@@ -25,7 +25,7 @@
 
 #include "cpu.h"
 #include "x86.h"
-#include "string.h"
+#include "kstring.h"
 #include "babyos.h"
 #include "traps.h"
 #include "syscall.h"

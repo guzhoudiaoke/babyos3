@@ -45,10 +45,10 @@ void sys_socket_t::init()
 
 socket_t* sys_socket_t::alloc_socket(uint32 family, uint32 type)
 {
-    if (family == socket_t::AF_LOCAL) {
+    if (family == AF_LOCAL) {
         return socket_local_t::alloc_local_socket();
     }
-    else if (family == socket_t::AF_INET) {
+    else if (family == AF_INET) {
         if (type == socket_t::SOCK_RAW) {
             //return socket_raw_t::alloc_raw_socket();
         }
@@ -89,7 +89,7 @@ socket_t* sys_socket_t::look_up_socket(int fd)
 
 int32 sys_socket_t::socket(uint32 family, uint32 type, uint32 protocol)
 {
-    if (family >= socket_t::AF_MAX) {
+    if (family >= AF_MAX) {
         return -EINVAL;
     }
 

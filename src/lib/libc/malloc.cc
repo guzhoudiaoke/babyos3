@@ -25,7 +25,7 @@
 
 
 
-#include "mm.h"
+#include "stddef.h"
 #include "string.h"
 #include "unistd.h"
 #include "stdio.h"
@@ -36,21 +36,21 @@
 
 
 /* Basic constants and macros */ 
-static const uint64 WSIZE = 8;
-static const uint64 DSIZE = 16;
-static const uint64 CHUNKSIZE = 1<<12;
+static const size_t WSIZE = 8;
+static const size_t DSIZE = 16;
+static const size_t CHUNKSIZE = 1<<12;
 
 
 /* Get max of two value */
-static inline uint64 max(uint64 a, uint64 b)
+static inline size_t max(size_t a, size_t b)
 {
     return a > b ? a : b;
 }
   
 /* Pack a size and allocated bit into a word */ 
-static inline uint64 pack(uint64 size, bool prev_alloc, bool alloc)
+static inline size_t pack(size_t size, bool prev_alloc, bool alloc)
 {
-    uint64 ret = size;
+    size_t ret = size;
     if (alloc) {
         ret |= 1;
     }
@@ -61,20 +61,20 @@ static inline uint64 pack(uint64 size, bool prev_alloc, bool alloc)
 }
 
 /* Read a word at address p */
-static inline uint64 get(void *p)
+static inline size_t get(void *p)
 {
-    return *((uint64 *)p);
+    return *((size_t *)p);
 }
 
 /* write a word at address p */
-static inline void put(void *p, uint64 val)
+static inline void put(void *p, size_t val)
 {
-    *((uint64 *)p) = val;
+    *((size_t *)p) = val;
 }
 
 
 /* Read the size fields from address p */ 
-static inline uint64 get_size(void *p)
+static inline size_t get_size(void *p)
 {
     return get(p) & (~0x7);
 }
@@ -119,24 +119,24 @@ static inline void * prev_blkp(void *bp)
 /* Given block ptr bp, compute address of previous free block */ 
 static inline void *get_prev_link(void *bp)
 {
-    return (void *)(*(uint64 *)bp);
+    return (void *)(*(size_t *)bp);
 }
 
 /* Given block ptr bp, compute address of next free block */ 
 static inline void *get_next_link(void *bp)
 {
-    return (void *)(*(uint64 *)(((char *)bp + WSIZE)));
+    return (void *)(*(size_t *)(((char *)bp + WSIZE)));
 }
 
 /* Given block ptr bp, set address of previous free block */ 
 static inline void set_prev_link(void *bp, void *prev)
 {
-    *((uint64 *)bp) = (uint64)prev;}
+    *((size_t *)bp) = (size_t)prev;}
 
 /* Given block ptr bp, set address of next free block */ 
 static inline void set_next_link(void *bp, void *next)
 {
-    *((uint64 *)((char *)bp + WSIZE)) = (uint64)next;
+    *((size_t *)((char *)bp + WSIZE)) = (size_t)next;
 }
 
 
@@ -146,7 +146,7 @@ static void* free_list_heads[12];
 static void* free_list_tails[12];
 
 /* Get index of free list by size */
-static inline int get_free_list_head_id(uint64 asize)
+static inline int get_free_list_head_id(size_t asize)
 {
     if (asize <= 32) {
         return 0;
@@ -188,7 +188,7 @@ static inline int get_free_list_head_id(uint64 asize)
 static void free_list_insert(void *p)
 {
     /* get size of this block */
-    uint64 size = get_size(hdrp(p));
+    size_t size = get_size(hdrp(p));
 
     /* get free list index by size */
     int id = get_free_list_head_id(size);
@@ -212,7 +212,7 @@ static void free_list_insert(void *p)
 static void free_list_remove(void *p)
 {
     /* get size of this block */
-    uint64 size = get_size(hdrp(p));
+    size_t size = get_size(hdrp(p));
 
     /* get free list index by size */
     int id = get_free_list_head_id(size);
@@ -258,15 +258,15 @@ static void *coalesce(void *bp)
     void *next = next_blkp(bp);
 
     /* get prev allocated and next allocated */
-    //uint64 prev_alloc = get_alloc(ftrp(prev));
-    uint64 prev_alloc = get_prev_alloc(hdrp(bp));
-    uint64 next_alloc = get_alloc(hdrp(next));
+    //size_t prev_alloc = get_alloc(ftrp(prev));
+    size_t prev_alloc = get_prev_alloc(hdrp(bp));
+    size_t next_alloc = get_alloc(hdrp(next));
     if (!prev_alloc) {
         prev = prev_blkp(bp);
     }
 
     /* get size of bp */
-    uint64 size = get_size(hdrp(bp));
+    size_t size = get_size(hdrp(bp));
 
     if (prev_alloc && next_alloc) { 
         /* Case 1, both prev and next block have allocated */
@@ -315,10 +315,10 @@ static void *coalesce(void *bp)
 /*
  * extend the heap by words
  */
-static void *extend_heap(uint64 words)
+static void *extend_heap(size_t words)
 {
     char *bp;
-    uint64 size;
+    size_t size;
 
     /* calc size to extend heap */
     size = (words % 2) ? (words+1) * WSIZE : words * WSIZE;
@@ -374,7 +374,7 @@ bool malloc_init(void)
 /*
  * find a fit block from heap
  */
-static void *find_fit(uint64 asize)
+static void *find_fit(size_t asize)
 {
     int id = get_free_list_head_id(asize);
 
@@ -392,9 +392,9 @@ static void *find_fit(uint64 asize)
 }
 
 /* try to place the left block */
-static void place(void *bp, uint64 asize) 
+static void place(void *bp, size_t asize) 
 { 
-    uint64 csize = get_size(hdrp(bp)); 
+    size_t csize = get_size(hdrp(bp)); 
     if ((csize - asize) >= (2*DSIZE)) { 
         /* the left block have more than 2 DSIZE, add to heap */
         put(hdrp(bp), pack(asize, get_prev_alloc(hdrp(bp)), 1)); 
@@ -425,7 +425,7 @@ static void place(void *bp, uint64 asize)
 /*
  * malloc
  */
-void* malloc(uint64 size)
+void* malloc(size_t size)
 {
     static bool inited = false;
     if (!inited) {
@@ -434,8 +434,8 @@ void* malloc(uint64 size)
     }
 
     /* IMPLEMENT THIS */
-    uint64 asize; /* Adjusted block size */
-    uint64 extendsize; /* Amount to extend heap if no fit */
+    size_t asize; /* Adjusted block size */
+    size_t extendsize; /* Amount to extend heap if no fit */
     char *bp;
     /* Ignore spurious requests */
     if (size == 0) {
@@ -477,7 +477,7 @@ void* malloc(uint64 size)
 void free(void* ptr)
 {
     /* get size of ptr */
-    uint64 size = get_size(hdrp(ptr));
+    size_t size = get_size(hdrp(ptr));
 
     /* set size and not allocated flag to header and footer */
     put(hdrp(ptr), pack(size, get_prev_alloc(hdrp(ptr)), 0));
@@ -497,7 +497,7 @@ void free(void* ptr)
 /*
  * realloc
  */
-void* realloc(void* oldptr, uint64 size)
+void* realloc(void* oldptr, size_t size)
 {
     /* old ptr is nullptr, just malloc a new block of memory */
     if (oldptr == nullptr) {
@@ -510,7 +510,7 @@ void* realloc(void* oldptr, uint64 size)
         return nullptr;
     }
 
-    uint64 oldsize = get_size(hdrp(oldptr));
+    size_t oldsize = get_size(hdrp(oldptr));
     size = (size+2*DSIZE-1)/DSIZE*DSIZE;
     if (oldsize >= size) {
         return oldptr;
@@ -541,7 +541,7 @@ void* realloc(void* oldptr, uint64 size)
 /*
  * calloc
  */
-void* calloc(uint64 nmemb, uint64 size)
+void* calloc(size_t nmemb, size_t size)
 {
     void* ptr;
     size *= nmemb;

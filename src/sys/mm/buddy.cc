@@ -26,7 +26,7 @@
 #include "buddy.h"
 #include "babyos.h"
 #include "page.h"
-#include "math.h"
+#include "kmath.h"
 #include "x86.h"
 #include "mm.h"
 

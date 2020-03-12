@@ -27,7 +27,8 @@
 #define _STRING_H_
 
 
-#include "types.h"
+#include "stddef.h"
+
 
 
 char* strcat(char* dst, const char* src);
@@ -39,9 +40,16 @@ int   strcmp(const char* s1, const char *s2);
 int   strncmp(const char* s1, const char *s2, int n);
 char* strchr(const char* s, char c);
 
-void* memmov(void *dst, const void *src, uint32 n);
-void* memcpy(void *dst, const void *src, uint32 n);
-void* memset(void *dst, uint32 c, uint32 n);
+void* memmov(void *dst, const void *src, unsigned n);
+void* memcpy(void *dst, const void *src, unsigned n);
+void* memset(void *dst, unsigned c, unsigned n);
+
+
+
+
+
+extern size_t strspn(const char * s, const char * c);
+extern char * strstr(const char * h, const char * n);
 
 
 #endif

@@ -35,16 +35,11 @@
 #include "sock_addr.h"
 #include "sock_ring_buffer.h"
 #include "errno.h"
+#include "sock.h"
 
 
 class socket_t {
 public:
-    typedef enum address_family_e {
-        AF_LOCAL = 1,
-        AF_INET = 2,
-        AF_MAX,
-    } address_family_t;
-
     typedef enum sock_type_e {
         SOCK_STREAM = 1,
         SOCK_DGRAM,

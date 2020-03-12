@@ -27,7 +27,7 @@
 #include "babyos.h"
 #include "vm.h"
 #include "x86.h"
-#include "string.h"
+#include "kstring.h"
 #include "errno.h"
 //#include "signal.h"
 

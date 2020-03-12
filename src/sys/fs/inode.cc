@@ -27,7 +27,7 @@
 #include "inode.h"
 #include "babyos.h"
 #include "block_dev.h"
-#include "string.h"
+#include "kstring.h"
 
 
 void inode_t::init(uint16 major, uint16 minor, uint16 nlink)

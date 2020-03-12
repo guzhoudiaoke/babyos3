@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/sock_addr.cc
+ *	babyos/include/dirent.h
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,44 +19,20 @@
 
 
 /*
- *  2020-02-26		created
+ *  2020-03-12		created
  */
 
 
+#ifndef _DIRENT_H_
+#define _DIRENT_H_
 
 
-#ifndef _SOCK_ADDR_H_
-#define _SOCK_ADDR_H_
+#define MAX_PATH_LEN 14
 
-
-
-#include "types.h"
-
-#define MAX_LOCAL_PATH      108
-
-
-class sock_addr_t {
-public:
-    uint16 m_family;        /* address family, AF_xxx */
-};
-
-/* socket local */
-class sock_addr_local_t : public sock_addr_t {
-public:
-    bool operator == (const sock_addr_local_t& addr);
-    char m_path[MAX_LOCAL_PATH];
-};
-
-
-/* socket inet */
-class sock_addr_inet_t : public sock_addr_t {
-public:
-    static const uint32 INADDR_ANY = 0;
-
-    bool operator == (const sock_addr_inet_t& addr);
-    uint32 m_ip;
-    uint16 m_port;
-};
+typedef struct dir_entry_s {
+    unsigned  short m_inum;
+    char      m_name[MAX_PATH_LEN];
+} dir_entry_t;
 
 
 #endif

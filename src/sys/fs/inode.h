@@ -49,11 +49,6 @@ public:
 
 class inode_t {
 public:
-    enum inode_type {
-        I_TYPE_DIR = 1,
-        I_TYPE_FILE,
-        I_TYPE_DEV,
-    };
     void init(uint16 major, uint16 minor, uint16 nlink);
     void lock();
     void unlock();

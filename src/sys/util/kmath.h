@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/buddy.cc
+ *	babyos/kernel/kmath.h
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -23,36 +23,19 @@
  */
 
 
-#include "math.h"
+#ifndef _KMATH_H_
+#define _KMATH_H_
 
 
-uint32 math_t::log(int32 x, int32 n)
-{
-    int32 ret = 0, num = 1;
-    while (num < n) {
-        num *= x;
-        ret++;
-    }
+#include "types.h"
 
-    return ret;
-}
 
-uint32 math_t::min(uint32 a, uint32 b)
-{
-    return a < b ? a : b;
-}
+class math_t {
+public:
+    static uint32 min(uint32 a, uint32 b);
+    static uint32 max(uint32 a, uint32 b);
+    static uint32 log(int32 x, int32 n);
+    static uint64 pow(int32 x, int32 p);
+};
 
-uint32 math_t::max(uint32 a, uint32 b)
-{
-    return a > b ? a : b;
-}
-
-uint64 math_t::pow(int32 x, int32 p)
-{
-    uint64 ret = 1;
-    for (int32 i = 0; i < p; i++) {
-        ret *= x;
-    }
-    return ret;
-}
-
+#endif

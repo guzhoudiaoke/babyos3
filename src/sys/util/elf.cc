@@ -26,8 +26,8 @@
 
 #include "elf.h"
 #include "babyos.h"
-#include "string.h"
-#include "math.h"
+#include "kstring.h"
+#include "kmath.h"
 
 static int32 read_file_from(int fd, void* buffer, uint64 offset, uint64 size)
 {
@@ -147,7 +147,7 @@ int32 elf_t::load(trap_frame_t* frame, const char* path)
     int ret = 0;
 
     /* 1. open file */
-    int fd = os()->fs()->do_open(path, file_t::MODE_RDWR);
+    int fd = os()->fs()->do_open(path, MODE_RDWR);
     if (fd < 0) {
         os()->console()->kprintf(RED, "command not found: %s\n", get_command(path));
         ret = -1;

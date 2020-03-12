@@ -29,48 +29,13 @@
 
 #include "types.h"
 #include "traps.h"
+#include "syscall_def.h"
 
 
 class syscall_t {
 public:
-    enum {
-        PRINT = 0,
-        FORK,
-        EXEC,
-        MMAP,
-        EXIT,
-        WAIT,
-        SLEEP,
-        OPEN,
-        CLOSE,
-        READ,
-        WRITE,
-        LINK,
-        UNLINK,
-        MKDIR,
-        MKNOD,
-        DUP,
-        STAT,
-        CHDIR,
-        PIPE,
-        SENDTO,
-        RECVFROM,
-        SOCKET,
-        BIND,
-        LISTEN,
-        ACCEPT,
-        CONNECT,
-        SBRK,
-        //SIGNAL,
-        //SIGRET,
-        //KILL,
-        MAX_SYSCALL,
-    };
-
-
-public:
-    static void  init();
-    static void  do_syscall(trap_frame_t* frame);
+    static void   init();
+    static void   do_syscall(trap_frame_t* frame);
     static uint64 get_argument(trap_frame_t* frame, uint32 index);
 
     static uint64 sys_print(trap_frame_t* frame);

@@ -1,6 +1,6 @@
 $(eval $(call start_directory,boot))
 $(eval $(call std_header))
-$(eval $(call add_to_include_path))
+$(eval $(call add_to_sys_include_path))
 
 SUB_OBJS = \
 			boot.o \
@@ -16,12 +16,12 @@ LOADERFLAGS  := -m elf_x86_64 -Ttext 0x0000
 OBJCOPYFLAGS := -S -O binary -j .text
 
 $(do)boot: $(call mkobjs,boot.o)
-	$(LD) $(LDFLAGS) $(BOOTFLAGS) -o $@ $^
+	@$(LD) $(LDFLAGS) $(BOOTFLAGS) -o $@ $^
 
 $(do)loader.o: $(call mkobjs,head.o loadmain.o)
-	$(LD) $(LOADERFLAGS) -o $@ $^
+	@$(LD) $(LOADERFLAGS) -o $@ $^
 
 $(do)loader: $(do)loader.o
-	$(OBJCOPY) $(OBJCOPYFLAGS) $< $@
+	@$(OBJCOPY) $(OBJCOPYFLAGS) $< $@
 
 $(eval $(call std_footer))

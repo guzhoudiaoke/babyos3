@@ -33,6 +33,8 @@
 #include "file_table.h"
 #include "inode.h"
 #include "sock_addr.h"
+#include "stat.h"
+#include "dirent.h"
 
 
 #define ROOT_DEV 1
@@ -40,7 +42,6 @@
 
 #define BSIZE   SECT_SIZE
 
-#define MAX_PATH 14
 #define MAX_INODE_CACHE 64
 
 
@@ -51,19 +52,6 @@ typedef struct super_block_s {
     uint32 m_ninodes;   /* num of inodes */
 } super_block_t;
 
-
-typedef struct dir_entry_s {
-    uint16 m_inum;
-    char   m_name[MAX_PATH];
-} dir_entry_t;
-
-
-typedef struct stat_s {
-    uint16 m_type;
-    uint16 m_nlinks;
-    uint32 m_dev;
-    uint32 m_size;
-} stat_t;
 
 
 class fs_tester_t;

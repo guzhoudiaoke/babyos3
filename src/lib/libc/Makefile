@@ -1,6 +1,6 @@
 $(eval $(call start_directory,libc))
 $(eval $(call std_header))
-$(eval $(call add_to_include_path))
+$(eval $(call add_to_lib_include_path))
 
 SUB_OBJS = \
 	unistd.o \

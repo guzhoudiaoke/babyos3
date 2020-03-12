@@ -63,14 +63,13 @@ static int next_delimeter(char* line, int begin, int end, const char* delim)
 
 /****************************************************************************/
 
-token_t::token_t(char* line, int begin, int end)
+range_t::range_t(int begin, int end)
 {
-    m_line = line;
     m_begin = begin;
     m_end = end;
 }
 
-token_t::~token_t()
+range_t::~range_t()
 {
 }
 
@@ -86,7 +85,7 @@ cmd_parser_t::~cmd_parser_t()
 {
 }
 
-token_t* cmd_parser_t::get_next_token()
+range_t cmd_parser_t::get_next_token()
 {
     m_begin = skip_space(m_line, m_begin, m_end);
 
@@ -99,13 +98,13 @@ token_t* cmd_parser_t::get_next_token()
     }
 
     m_begin = end;
-    return new token_t(m_line, begin, end);
+    return range_t(begin, end);
 }
 
 redirect_file_t* cmd_parser_t::parse_file()
 {
-    token_t* next = get_next_token();
-    redirect_file_t *file = new redirect_file_t(&m_line[next->m_begin], &m_line[next->m_end]);
+    range_t next = get_next_token();
+    redirect_file_t *file = new redirect_file_t(&m_line[next.m_begin], &m_line[next.m_end]);
     return file;
 }
 
@@ -113,8 +112,8 @@ command_t* cmd_parser_t::parse()
 {
     exec_command_t* cmd = new exec_command_t();
     while (m_begin < m_end) {
-        token_t* token = get_next_token();
-        switch (m_line[token->m_begin]) {
+        range_t token = get_next_token();
+        switch (m_line[token.m_begin]) {
         case '<':
             cmd->m_input = parse_file();
             break;
@@ -126,7 +125,7 @@ command_t* cmd_parser_t::parse()
             m_begin++;
             break;
         default:
-            cmd->add_arg(&m_line[token->m_begin], &m_line[token->m_end]);
+            cmd->add_arg(&m_line[token.m_begin], &m_line[token.m_end]);
             break;
         }
         m_begin = skip_space(m_line, m_begin, m_end);

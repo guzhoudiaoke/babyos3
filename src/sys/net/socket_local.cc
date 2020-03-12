@@ -25,7 +25,7 @@
 
 
 #include "socket_local.h"
-#include "string.h"
+#include "kstring.h"
 #include "babyos.h"
 
 

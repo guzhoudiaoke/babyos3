@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/math.h
+ *	babyos/lib/libc/signal.h
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,23 +19,15 @@
 
 
 /*
- *  2020-02-15		created
+ *  2020-03-12		created
  */
 
 
-#ifndef _MATH_H_
-#define _MATH_H_
+#ifndef _SIGNAL_H_
+#define _SIGNAL_H_
 
 
-#include "types.h"
+typedef int sig_atomic_t;
 
-
-class math_t {
-public:
-    static uint32 min(uint32 a, uint32 b);
-    static uint32 max(uint32 a, uint32 b);
-    static uint32 log(int32 x, int32 n);
-    static uint64 pow(int32 x, int32 p);
-};
 
 #endif

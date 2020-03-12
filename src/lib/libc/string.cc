@@ -117,7 +117,7 @@ char* strchr(const char* s, char c)
 }
 
 
-void* memmov(void *dst, const void *src, uint32 n)
+void* memmov(void *dst, const void *src, unsigned n)
 {
     const char *s = (const char *) src;
     char *d = (char *) dst;
@@ -137,15 +137,15 @@ void* memmov(void *dst, const void *src, uint32 n)
     return dst;
 }
 
-void* memcpy(void *dst, const void *src, uint32 n)
+void* memcpy(void *dst, const void *src, unsigned n)
 {
     return memmov(dst, src, n);
 }
 
-void* memset(void *dst, uint32 c, uint32 n)
+void* memset(void *dst, unsigned c, unsigned n)
 {
     char* d = (char *) dst;
-    for (uint32 i = 0; i < n; i++) {
+    for (unsigned i = 0; i < n; i++) {
         *d++ = (c & 0xff);
     }
 

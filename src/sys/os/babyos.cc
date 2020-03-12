@@ -26,6 +26,7 @@
 #include "x86.h"
 #include "delay.h"
 #include "syscall.h"
+#include "syscall_def.h"
 #include "pipe.h"
 #include "syscall.h"
 #include "sys_socket.h"
@@ -236,12 +237,12 @@ void babyos_t::init()
 void babyos_t::start_init_proc()
 {
     int32 ret = 0;
-    __asm__ volatile("int $0x80" : "=a" (ret) : "a" (syscall_t::FORK));
+    __asm__ volatile("int $0x80" : "=a" (ret) : "a" (FORK));
 
     if (ret == 0) {
         __asm__ volatile("int $0x80"
                          : "=a" (ret)
-                         : "a" (syscall_t::EXEC), "D" ("/bin/init"), "S" (0));
+                         : "a" (EXEC), "D" ("/bin/init"), "S" (0));
         os()->panic("exec return!\n");
     }
 }
@@ -304,7 +305,7 @@ void test_syscall()
 {
     char str[100] = "Hello babyos, this is printed by syscall\n";
     os()->uart()->puts("test syscall\n");
-    __asm__ volatile("int $0x80" : : "D" (WHITE), "S" (str), "a" (syscall_t::PRINT));
+    __asm__ volatile("int $0x80" : : "D" (WHITE), "S" (str), "a" (PRINT));
 }
 
 void test_ide()
@@ -337,7 +338,7 @@ void test_fs()
     current->set_cwd(os()->fs()->get_root());
 
     os()->uart()->kprintf("before open\n");
-    int fd = os()->fs()->do_open("/bin/test", file_t::MODE_RDWR);
+    int fd = os()->fs()->do_open("/bin/test", MODE_RDWR);
     os()->uart()->kprintf("after open: %d\n", fd);
     if (fd < 0) {
         os()->panic("BUG on open file test!\n");

@@ -28,7 +28,7 @@
 #include "fs.h"
 #include "babyos.h"
 #include "console.h"
-#include "string.h"
+#include "kstring.h"
 #include "block_dev.h"
 #include "pipe.h"
 #include "socket.h"
@@ -79,7 +79,7 @@ uint32 file_system_t::inode_offset(uint32 id)
 
 int file_system_t::read_inode(inode_t* inode, void* dst, uint64 offset, uint64 size)
 {
-    if (inode->m_type == inode_t::I_TYPE_DEV) {
+    if (inode->m_type == I_TYPE_DEV) {
         dev_op_t* op = os()->get_dev(inode->m_major);
         if (op == nullptr) {
             return -1;
@@ -333,11 +333,11 @@ static const char* skip_elem(const char* path, char* name)
     }
 
     int len = path - begin;
-    if (len >= MAX_PATH) {
-        len = MAX_PATH;
+    if (len >= MAX_PATH_LEN) {
+        len = MAX_PATH_LEN;
     }
 
-    memset(name, 0, MAX_PATH);
+    memset(name, 0, MAX_PATH_LEN);
     strncpy(name, begin, len);
     while (*path == '/') {
         path++;
@@ -360,7 +360,7 @@ inode_t* file_system_t::namei(const char* path, int parent, char* name)
 
     while ((path = skip_elem(path, name)) != nullptr) {
         inode->lock();
-        if (inode->m_type != inode_t::I_TYPE_DIR) {
+        if (inode->m_type != I_TYPE_DIR) {
             inode->unlock();
             put_inode(inode);
             return nullptr;
@@ -393,7 +393,7 @@ inode_t* file_system_t::namei(const char* path, int parent, char* name)
 
 inode_t* file_system_t::namei(const char* path)
 {
-    char name[MAX_PATH] = {0};
+    char name[MAX_PATH_LEN] = {0};
     return namei(path, 0, name);
 }
 
@@ -404,7 +404,7 @@ inode_t* file_system_t::nameiparent(const char* path, char *name)
 
 int file_system_t::write_inode(inode_t* inode, void* src, uint64 offset, uint64 size)
 {
-    if (inode->m_type == inode_t::I_TYPE_DEV) {
+    if (inode->m_type == I_TYPE_DEV) {
         dev_op_t* op = os()->get_dev(inode->m_major);
         if (op == nullptr) {
             return -1;
@@ -467,8 +467,8 @@ int file_system_t::dir_link(inode_t* inode, char* name, uint32 inum)
     }
 
     dir.m_inum = inum;
-    memset(dir.m_name, 0, MAX_PATH);
-    strncpy(dir.m_name, name, MAX_PATH);
+    memset(dir.m_name, 0, MAX_PATH_LEN);
+    strncpy(dir.m_name, name, MAX_PATH_LEN);
 
     write_inode(inode, &dir, offset, sizeof(dir));
 
@@ -477,7 +477,7 @@ int file_system_t::dir_link(inode_t* inode, char* name, uint32 inum)
 
 inode_t* file_system_t::create(const char* path, uint16 type, uint16 major, uint16 minor)
 {
-    char name[MAX_PATH] = {0};
+    char name[MAX_PATH_LEN] = {0};
     inode_t* inode_dir = nullptr;
     if ((inode_dir = nameiparent(path, name)) == nullptr) {
         return nullptr;
@@ -491,7 +491,7 @@ inode_t* file_system_t::create(const char* path, uint16 type, uint16 major, uint
         put_inode(inode_dir);
 
         inode->lock();
-        if (inode->m_type == inode_t::I_TYPE_FILE && type == inode_t::I_TYPE_FILE) {
+        if (inode->m_type == I_TYPE_FILE && type == I_TYPE_FILE) {
             return inode;
         }
         inode->unlock();
@@ -511,7 +511,7 @@ inode_t* file_system_t::create(const char* path, uint16 type, uint16 major, uint
     inode->m_type = type;
     inode->write_to_disk();
 
-    if (inode->m_type == inode_t::I_TYPE_DIR) {
+    if (inode->m_type == I_TYPE_DIR) {
         inode_dir->m_nlinks++;
         inode_dir->write_to_disk();
         if (dir_link(inode, (char *) ".", inode->m_inum) < 0 || 
@@ -550,8 +550,8 @@ int file_system_t::do_open(const char* path, int mode)
     inode_t* inode = nullptr;
     file_t* file = nullptr;
 
-    if (mode & file_t::MODE_CREATE) {
-        if ((inode = create(path, inode_t::I_TYPE_FILE, 0, 0)) == nullptr) {
+    if (mode & MODE_CREATE) {
+        if ((inode = create(path, I_TYPE_FILE, 0, 0)) == nullptr) {
             return -1;
         }
     }
@@ -563,7 +563,7 @@ int file_system_t::do_open(const char* path, int mode)
 
     int fd = -1;
     do {
-        if (inode->m_type == inode_t::I_TYPE_DIR && mode != file_t::MODE_RDONLY) {
+        if (inode->m_type == I_TYPE_DIR && mode != MODE_RDONLY) {
             break;
         }
         if ((file = alloc_file()) == nullptr) {
@@ -578,8 +578,8 @@ int file_system_t::do_open(const char* path, int mode)
     inode->unlock();
     if (fd >= 0) {
         file->init(file_t::TYPE_INODE, inode, nullptr, 0,
-                   !(mode & file_t::MODE_WRONLY),
-                   (mode & file_t::MODE_WRONLY) || (mode & file_t::MODE_RDWR));
+                   !(mode & MODE_WRONLY),
+                   (mode & MODE_WRONLY) || (mode & MODE_RDWR));
     }
 
     return fd;
@@ -647,7 +647,7 @@ int64 file_system_t::do_write(int fd, void* buffer, uint32 count)
 int file_system_t::do_mkdir(const char* path)
 {
     inode_t* inode = nullptr;
-    if ((inode = create(path, inode_t::I_TYPE_DIR, 0, 0)) == nullptr) {
+    if ((inode = create(path, I_TYPE_DIR, 0, 0)) == nullptr) {
         return -1;
     }
     inode->unlock();
@@ -665,7 +665,7 @@ int file_system_t::do_link(const char* path_old, const char* path_new)
     }
 
     inode->lock();
-    if (inode->m_type == inode_t::I_TYPE_DIR) {
+    if (inode->m_type == I_TYPE_DIR) {
         inode->unlock();
         put_inode(inode);
         return -1;
@@ -675,7 +675,7 @@ int file_system_t::do_link(const char* path_old, const char* path_new)
     inode->write_to_disk();
     inode->unlock();
 
-    char name[MAX_PATH] = {0};
+    char name[MAX_PATH_LEN] = {0};
     if ((dir = nameiparent(path_new, name)) == nullptr) {
         goto failed;
     }
@@ -723,7 +723,7 @@ int file_system_t::do_unlink(const char* path)
     inode_t* inode = nullptr;
     dir_entry_t de;
 
-    char name[MAX_PATH] = {0};
+    char name[MAX_PATH_LEN] = {0};
     unsigned offset = 0;
 
     if ((dir = nameiparent(path, name)) == nullptr) {
@@ -744,7 +744,7 @@ int file_system_t::do_unlink(const char* path)
         goto failed;
     }
 
-    if (inode->m_type == inode_t::I_TYPE_DIR && !dir_empty(inode)) {
+    if (inode->m_type == I_TYPE_DIR && !dir_empty(inode)) {
         inode->unlock();
         put_inode(inode);
         goto failed;
@@ -753,7 +753,7 @@ int file_system_t::do_unlink(const char* path)
     memset(&de, 0, sizeof(de));
     write_inode(dir, (char *) &de, offset, sizeof(de));
 
-    if (inode->m_type == inode_t::I_TYPE_DIR) {
+    if (inode->m_type == I_TYPE_DIR) {
         dir->m_nlinks--;
         dir->write_to_disk();
     }
@@ -775,7 +775,7 @@ failed:
 
 int file_system_t::do_mknod(const char* path, int major, int minor)
 {
-    inode_t* inode = create(path, inode_t::I_TYPE_DEV, major, minor);
+    inode_t* inode = create(path, I_TYPE_DEV, major, minor);
     if (inode == nullptr) {
         return -1;
     }
@@ -827,7 +827,7 @@ int file_system_t::do_chdir(const char* path)
     if (inode == nullptr) {
         return -1;
     }
-    if (inode->m_type != inode_t::I_TYPE_DIR) {
+    if (inode->m_type != I_TYPE_DIR) {
         inode->unlock();
         put_inode(inode);
         return -1;

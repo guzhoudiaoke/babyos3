@@ -30,12 +30,24 @@
 #define CHARACTER(ch)       (ch & 0xff)
 
 
+FILE _stdin;
+FILE _stdout;
+FILE _stderr;
+
+
+FILE * stdin = &_stdin;
+FILE * stdout = &_stdout;
+FILE * stderr = &_stderr;
+
+
+
+
 int sprint_int(char* buffer, int n, int width, int base, bool sign)
 {
     static char digits[] = "0123456789abcdef";
     char buf[16] = {0};
 
-    uint32 num = (uint32)n;
+    unsigned num = (unsigned)n;
     if (sign && (sign = (n < 0))) {
         num = -n;
     }
@@ -124,17 +136,17 @@ int vsprintf(char *buffer, const char *fmt, va_list ap)
 
         switch (c) {
         case 'd':
-            total += sprint_int(buffer + total, va_arg(ap, int32), width, 10, true);
+            total += sprint_int(buffer + total, va_arg(ap, int), width, 10, true);
             break;
         case 'u':
-            total += sprint_int(buffer + total, va_arg(ap, int32), width, 10, false);
+            total += sprint_int(buffer + total, va_arg(ap, int), width, 10, false);
             break;
         case 'x':
         case 'p':
-            total += sprint_int(buffer + total, va_arg(ap, int32), width, 16, false);
+            total += sprint_int(buffer + total, va_arg(ap, int), width, 16, false);
             break;
         case 'c':
-            buffer[total++] = (char) CHARACTER(va_arg(ap, int32));
+            buffer[total++] = (char) CHARACTER(va_arg(ap, int));
             break;
         case 's':
             total += sprint_str(buffer + total, va_arg(ap, char *), width);
@@ -178,10 +190,10 @@ int printf(const char *fmt, ...)
 }
 
 
-void gets(char* buf, uint32 max)
+void gets(char* buf, unsigned max)
 {
     memset(buf, 0, max);
-    uint32 i = 0;
+    unsigned i = 0;
     while (i < max) {
         char c;
         int n = read(fd_stdin, &c, 1);

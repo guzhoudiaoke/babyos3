@@ -27,7 +27,7 @@
 #include "process.h"
 #include "x86.h"
 #include "babyos.h"
-#include "string.h"
+#include "kstring.h"
 #include "elf.h"
 #include "kernel.h"
 

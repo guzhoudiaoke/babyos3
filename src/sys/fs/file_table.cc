@@ -25,7 +25,7 @@
 
 
 #include "file_table.h"
-#include "string.h"
+#include "kstring.h"
 #include "babyos.h"
 #include "pipe.h"
 #include "socket.h"

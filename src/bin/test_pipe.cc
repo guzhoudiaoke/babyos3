@@ -24,7 +24,6 @@
 
 
 
-#include "file.h"
 #include "unistd.h"
 #include "stdio.h"
 #include "string.h"
@@ -50,7 +49,7 @@ void test_pipe(const char* times)
 
         printf("succ to create pipe: %d, %d\n", fd[0], fd[1]);
 
-        int32 pid = fork();
+        int pid = fork();
         if (pid == 0) {
             close(fd[0]);
 

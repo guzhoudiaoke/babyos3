@@ -27,7 +27,7 @@
 #include "process_mgr.h"
 #include "babyos.h"
 #include "x86.h"
-#include "string.h"
+#include "kstring.h"
 
 
 void process_mgr_t::init()

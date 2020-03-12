@@ -24,7 +24,6 @@
 
 
 
-#include "file.h"
 #include "unistd.h"
 #include "stdio.h"
 #include "string.h"
@@ -42,7 +41,7 @@ void test_fork_wait_exit(const char* times)
     }
 
     for (int i = 0; i < t; i++) {
-        int32 pid = fork();
+        int pid = fork();
         if (pid == 0) {
             printf("%u\n", i);
             exit(0);

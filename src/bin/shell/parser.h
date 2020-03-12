@@ -29,12 +29,11 @@
 #include "command.h"
 
 
-class token_t {
+class range_t {
 public:
-    token_t(char* line, int begin, int end);
-    ~token_t();
+    range_t(int begin, int end);
+    ~range_t();
 
-    char* m_line;
     int   m_begin;
     int   m_end;
 };
@@ -49,7 +48,7 @@ public:
 
 private:
     redirect_file_t* parse_file();
-    token_t* get_next_token();
+    range_t get_next_token();
 
 public:
     char *m_line;

@@ -28,11 +28,11 @@
 
 
 
-#include "types.h"
 #include "syscall.h"
-#include "fs.h"
-#include "socket.h"
 #include "arg.h"
+#include "sock.h"
+#include "filemode.h"
+#include "stat.h"
 #include <stdarg.h>
 
 
@@ -44,33 +44,33 @@
 
 
 
-uint64 syscall(int id);
+long syscall(int id);
 
 template<typename T1>
-uint64 syscall(int id, T1 arg1);
+long syscall(int id, T1 arg1);
 
 template<typename T1, typename T2>
-uint64 syscall(int id, T1 arg1, T2 arg2);
+long syscall(int id, T1 arg1, T2 arg2);
 
 template<typename T1, typename T2, typename T3>
-uint64 syscall(int id, T1 arg1, T2 arg2, T3 arg3);
+long syscall(int id, T1 arg1, T2 arg2, T3 arg3);
 
 template<typename T1, typename T2, typename T3, typename T4>
-uint64 syscall(int id, T1 arg1, T2 arg2, T3 arg3, T4 arg4);
+long syscall(int id, T1 arg1, T2 arg2, T3 arg3, T4 arg4);
 
 
-int   color_print(uint32 color, const char* str);
+int   color_print(unsigned color, const char* str);
 int   fork();
 int   exec(const char* path, argument_t* arg);
-void* mmap(uint64 addr, uint64 len, uint32 prot, uint32 flags);
+void* mmap(long addr, long len, unsigned prot, unsigned flags);
 void  exit(int val);
-void  wait(uint32 pid);
-void  sleep(uint32 sec);
+void  wait(unsigned pid);
+void  sleep(unsigned sec);
 
 int   open(const char* path, int mode);
 int   close(int fd);
-int64 read(int fd, void* buf, uint64 size);
-int64 write(int fd, void* buf, uint64 size);
+long  read(int fd, void* buf, long size);
+long  write(int fd, void* buf, long size);
 int   mkdir(const char* path);
 int   link(const char* path_old, const char* path_new);
 int   unlink(const char* path);
@@ -87,9 +87,9 @@ int   listen(int sockfd, int backlog);
 int   connect(int sockfd, const sock_addr_t* addr);
 int   accept(int sockfd, sock_addr_t* addr);
 
-int   send_to(int fd, void *buf, uint32 size, sock_addr_t* addr);
-int   recv_from(int fd, void *buf, uint32 size, sock_addr_t* addr);
-void* sbrk(uint64 increment);
+int   send_to(int fd, void *buf, unsigned size, sock_addr_t* addr);
+int   recv_from(int fd, void *buf, unsigned size, sock_addr_t* addr);
+void* sbrk(long increment);
 
 
 #endif

@@ -24,9 +24,10 @@
 
 
 #include "unistd.h"
+#include "syscall_def.h"
 
 
-uint64 syscall(int id)
+long syscall(int id)
 {
     int ret;
     __asm__ volatile("int $0x80" : "=a" (ret) : "a" (id));
@@ -34,9 +35,9 @@ uint64 syscall(int id)
 }
 
 template<typename T1>
-uint64 syscall(int id, T1 arg1)
+long syscall(int id, T1 arg1)
 {
-    uint64 ret = 0;
+    long ret = 0;
     __asm__ volatile(
         "int $0x80"
         : "=a" (ret)
@@ -46,9 +47,9 @@ uint64 syscall(int id, T1 arg1)
 }
 
 template<typename T1, typename T2>
-uint64 syscall(int id, T1 arg1, T2 arg2)
+long syscall(int id, T1 arg1, T2 arg2)
 {
-    uint64 ret = 0;
+    long ret = 0;
     __asm__ volatile(
         "int $0x80"
         : "=a" (ret)
@@ -58,9 +59,9 @@ uint64 syscall(int id, T1 arg1, T2 arg2)
 }
 
 template<typename T1, typename T2, typename T3>
-uint64 syscall(int id, T1 arg1, T2 arg2, T3 arg3)
+long syscall(int id, T1 arg1, T2 arg2, T3 arg3)
 {
-    uint64 ret = 0;
+    long ret = 0;
     __asm__ volatile(
         "int $0x80"
         : "=a" (ret)
@@ -70,9 +71,9 @@ uint64 syscall(int id, T1 arg1, T2 arg2, T3 arg3)
 }
 
 template<typename T1, typename T2, typename T3, typename T4>
-uint64 syscall(int id, T1 arg1, T2 arg2, T3 arg3, T4 arg4)
+long syscall(int id, T1 arg1, T2 arg2, T3 arg3, T4 arg4)
 {
-    uint64 ret = 0;
+    long ret = 0;
     __asm__ volatile(
         "int $0x80"
         : "=a" (ret)
@@ -81,99 +82,99 @@ uint64 syscall(int id, T1 arg1, T2 arg2, T3 arg3, T4 arg4)
     return ret;
 }
 
-int color_print(uint32 color, const char* str)
+int color_print(unsigned color, const char* str)
 {
-    return syscall(syscall_t::PRINT, color, str);
+    return syscall(PRINT, color, str);
 }
 
 int fork()
 {
-    return syscall(syscall_t::FORK);
+    return syscall(FORK);
 }
 
 int exec(const char* path, argument_t* arg)
 {
-    return syscall(syscall_t::EXEC, path, arg);
+    return syscall(EXEC, path, arg);
 }
 
-void* mmap(uint64 addr, uint64 len, uint32 prot, uint32 flags)
+void* mmap(long addr, unsigned long len, unsigned prot, unsigned flags)
 {
-    return (void *) syscall(syscall_t::MMAP, addr, len, prot, flags);
+    return (void *) syscall(MMAP, addr, len, prot, flags);
 }
 
 void exit(int val)
 {
-    syscall(syscall_t::EXIT, val);
+    syscall(EXIT, val);
 }
 
-void wait(uint32 pid)
+void wait(unsigned pid)
 {
-    syscall(syscall_t::WAIT, pid);
+    syscall(WAIT, pid);
 }
 
-void sleep(uint32 sec)
+void sleep(unsigned sec)
 {
-    syscall(syscall_t::SLEEP, sec);
+    syscall(SLEEP, sec);
 }
 
 int open(const char* path, int mode)
 {
-    return syscall(syscall_t::OPEN, path, mode);
+    return syscall(OPEN, path, mode);
 }
 
 int close(int fd)
 {
-    return syscall(syscall_t::CLOSE, fd);
+    return syscall(CLOSE, fd);
 }
 
-int64 read(int fd, void* buf, uint64 size)
+long read(int fd, void* buf, long size)
 {
-    return syscall(syscall_t::READ, fd, buf, size);
+    return syscall(READ, fd, buf, size);
 }
 
-int64 write(int fd, void* buf, uint64 size)
+long write(int fd, void* buf, long size)
 {
-    return syscall(syscall_t::WRITE, fd, buf, size);
+    return syscall(WRITE, fd, buf, size);
 }
 
 int mkdir(const char* path)
 {
-    return syscall(syscall_t::MKDIR, path);
+    return syscall(MKDIR, path);
 }
 
 int link(const char* path_old, const char* path_new)
 {
-    return syscall(syscall_t::LINK, path_old, path_new);
+    return syscall(LINK, path_old, path_new);
 }
 
 int unlink(const char* path)
 {
-    return syscall(syscall_t::UNLINK, path);
+    return syscall(UNLINK, path);
 }
 
 int mknod(const char* path, int major, int minor)
 {
-    return syscall(syscall_t::MKNOD, path, major, minor);
+    return syscall(MKNOD, path, major, minor);
 }
 
 int dup(int fd)
 {
-    return syscall(syscall_t::DUP, fd);
+    return syscall(DUP, fd);
 }
 
 int chdir(const char* path)
 {
-    return syscall(syscall_t::CHDIR, path);
+    return syscall(CHDIR, path);
 }
 
 int fstat(int fd, stat_t* st)
 {
-    return syscall(syscall_t::STAT, fd, st);
+    return syscall(STAT, fd, st);
 }
 
 int stat(const char* path, stat_t* st)
 {
-    int fd = open(path, file_t::MODE_RDONLY);
+    int fd = open(path, MODE_RDONLY);
     if (fd < 0) {
         return -1;
     }
@@ -185,47 +186,47 @@ int stat(const char* path, stat_t* st)
 
 int pipe(int fd[2])
 {
-    return syscall(syscall_t::PIPE, fd);
+    return syscall(PIPE, fd);
 }
 
 int socket(int domain, int type, int protocol)
 {
-    return syscall(syscall_t::SOCKET, domain, type, protocol);
+    return syscall(SOCKET, domain, type, protocol);
 }
 
 int bind(int sockfd, const sock_addr_t* addr)
 {
-    return syscall(syscall_t::BIND, sockfd, addr);
+    return syscall(BIND, sockfd, addr);
 }
 
 int listen(int sockfd, int backlog)
 {
-    return syscall(syscall_t::LISTEN, sockfd, backlog);
+    return syscall(LISTEN, sockfd, backlog);
 }
 
 int connect(int sockfd, const sock_addr_t* addr)
 {
     
-    return syscall(syscall_t::CONNECT, sockfd, addr);
+    return syscall(CONNECT, sockfd, addr);
 }
 
 int accept(int sockfd, sock_addr_t* addr)
 {
     
-    return syscall(syscall_t::ACCEPT, sockfd, addr);
+    return syscall(ACCEPT, sockfd, addr);
 }
 
-int send_to(int fd, void *buf, uint32 size, sock_addr_t* addr)
+int send_to(int fd, void *buf, unsigned size, sock_addr_t* addr)
 {
-    return syscall(syscall_t::SENDTO, fd, buf, size, addr);
+    return syscall(SENDTO, fd, buf, size, addr);
 }
 
-int recv_from(int fd, void *buf, uint32 size, sock_addr_t* addr)
+int recv_from(int fd, void *buf, unsigned size, sock_addr_t* addr)
 {
-    return syscall(syscall_t::RECVFROM, fd, buf, size, addr);
+    return syscall(RECVFROM, fd, buf, size, addr);
 }
 
-void* sbrk(uint64 increment)
+void* sbrk(long increment)
 {
-    return (void *) syscall(syscall_t::SBRK, increment);
+    return (void *) syscall(SBRK, increment);
 }

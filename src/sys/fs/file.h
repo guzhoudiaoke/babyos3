@@ -26,7 +26,10 @@
 #ifndef _FILE_H_
 #define _FILE_H_
 
+
 #include "types.h"
+#include "filemode.h"
+
 
 class inode_t;
 class pipe_t;
@@ -34,12 +37,6 @@ class socket_t;
 
 class file_t {
 public:
-    enum {
-        MODE_RDONLY = 0x1,
-        MODE_WRONLY = 0x2,
-        MODE_RDWR = 0x4,
-        MODE_CREATE = 0x200,
-    };
     enum {
         TYPE_NONE,
         TYPE_PIPE,

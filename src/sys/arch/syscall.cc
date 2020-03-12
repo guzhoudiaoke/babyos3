@@ -27,11 +27,10 @@
 #include "kernel.h"
 #include "syscall.h"
 #include "babyos.h"
-#include "string.h"
+#include "kstring.h"
 #include "x86.h"
 #include "sock_addr.h"
 #include "sys_socket.h"
-
 
 
 uint64 (*syscall_t::s_system_call_table[])(trap_frame_t* frame);

@@ -25,13 +25,13 @@
 #ifndef _COLOR_H_
 #define _COLOR_H_
 
-#include "types.h"
+#include "stddef.h"
 
 
-#define RGB(r, g, b)   ( ((uint32) (b) << 16) | ((uint32) (g)) << 8 | r )
-#define RGB_GET_R(rgb) ( (uint8) (rgb) )
-#define RGB_GET_G(rgb) ( (uint8) ((uint16)rgb >> 8) )
-#define RGB_GET_B(rgb) ( (uint8) (rgb >> 16) )
+#define RGB(r, g, b)   ( ((unsigned int) (b) << 16) | ((unsigned int) (g)) << 8 | r )
+#define RGB_GET_R(rgb) ( (unsigned char) (rgb) )
+#define RGB_GET_G(rgb) ( (unsigned char) ((unsigned short)rgb >> 8) )
+#define RGB_GET_B(rgb) ( (unsigned char) (rgb >> 16) )
 
 #define RED     RGB(0xff, 0x00, 0x00)
 #define GREEN   RGB(0x00, 0xff, 0x00)
@@ -45,12 +45,12 @@
 #define YELLOW  RGB(0xff, 0xff, 0x00)
 
 typedef struct rgb_s {
-    uint8 r;
-    uint8 g;
-    uint8 b;
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
 } rgb_t;
 
-typedef uint32 color_ref_t;
+typedef unsigned color_ref_t;
 
 
 #endif

@@ -1,6 +1,6 @@
 $(eval $(call start_directory,os))
 $(eval $(call std_header))
-$(eval $(call add_to_include_path))
+$(eval $(call add_to_sys_include_path))
 
 SUB_OBJS = \
 		  main.o \

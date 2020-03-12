@@ -24,7 +24,6 @@
 
 
 
-#include "file.h"
 #include "unistd.h"
 #include "stdio.h"
 #include "string.h"
@@ -46,7 +45,7 @@ void test_fork_exec_wait_exit(const char* times)
     argument.m_argc = 1;
     argument.m_argv[0][0] = 0;
     for (int i = 0; i < t; i++) {
-        int32 pid = fork();
+        int pid = fork();
         if (pid == 0) {
             int ret = exec("/bin/ls", &argument);
             if (ret < 0) {

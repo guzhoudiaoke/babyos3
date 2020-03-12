@@ -27,9 +27,8 @@
 #define _CXX_H_
 
 
+#include "stddef.h"
 #include "malloc.h"
-#include "types.h"
-
 
 
 inline void* operator new(size_t size)

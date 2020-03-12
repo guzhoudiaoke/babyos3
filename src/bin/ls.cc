@@ -27,6 +27,7 @@
 #include "unistd.h"
 #include "string.h"
 #include "stdio.h"
+#include "dirent.h"
 
 
 void get_name(const char* path, char* name)
@@ -43,14 +44,14 @@ void get_name(const char* path, char* name)
     strcpy(name, p);
 }
 
-void list_file(const char* name, uint32 size)
+void list_file(const char* name, unsigned size)
 {
     printf("%20s %u\n", name, size);
 }
 
 void ls(const char* path)
 {
-    int fd = open(path, file_t::MODE_RDONLY);
+    int fd = open(path, MODE_RDONLY);
     if (fd < 0) {
         printf("ls: cannot open %s\n", path);
         return;
@@ -66,10 +67,10 @@ void ls(const char* path)
     dir_entry_t de;
 
     switch (st.m_type) {
-    case inode_t::I_TYPE_FILE:
+    case I_TYPE_FILE:
         list_file(name, st.m_size);
         break;
-    case inode_t::I_TYPE_DIR:
+    case I_TYPE_DIR:
         printf("%s: \n", path);
         while (read(fd, &de, sizeof(de)) == sizeof(de)) {
             if (de.m_inum == 0) {

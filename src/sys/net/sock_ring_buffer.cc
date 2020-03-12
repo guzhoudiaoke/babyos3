@@ -28,7 +28,7 @@
 #include "sock_ring_buffer.h"
 #include "socket.h"
 #include "babyos.h"
-#include "math.h"
+#include "kmath.h"
 
 
 void sock_ring_buffer_t::init(socket_t* socket, uint32 order)

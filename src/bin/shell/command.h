@@ -28,8 +28,6 @@
 
 
 #include "arg.h"
-#include "types.h"
-
 
 #define MAX_CMD_LEN 128
 

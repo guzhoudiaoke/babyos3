@@ -24,10 +24,10 @@
 
 
 
-#include "file.h"
 #include "unistd.h"
 #include "stdio.h"
 #include "string.h"
+#include "sock_addr.h"
 
 
 static void do_server(int sockfd)
@@ -49,7 +49,7 @@ static void do_server(int sockfd)
 
 static void socket_server()
 {
-    int listen_fd = socket(socket_t::AF_LOCAL, 0, 0);
+    int listen_fd = socket(AF_LOCAL, 0, 0);
     if (listen_fd < 0) {
         printf("err, server create socket failed, error %d\n", listen_fd);
         return;
@@ -57,7 +57,7 @@ static void socket_server()
     printf("server create socket succ: %d\n", listen_fd);
 
     sock_addr_local_t addr;
-    addr.m_family = socket_t::AF_LOCAL;
+    addr.m_family = AF_LOCAL;
     strcpy(addr.m_path, "/test_socket");
 
     int ret = 0;
@@ -105,7 +105,7 @@ static void do_client(int sockfd, int data)
 
 static void socket_client(int data)
 {
-    int sock_fd = socket(socket_t::AF_LOCAL, 0, 0);
+    int sock_fd = socket(AF_LOCAL, 0, 0);
     if (sock_fd < 0) {
         printf("client create socket failed, error %u\n", sock_fd);
         return;
@@ -114,7 +114,7 @@ static void socket_client(int data)
 
 
     sock_addr_local_t addr;
-    addr.m_family = socket_t::AF_LOCAL;
+    addr.m_family = AF_LOCAL;
     strcpy(addr.m_path, "/test_socket");
 
     int ret = 0;
@@ -129,9 +129,9 @@ static void socket_client(int data)
 
 int main(int argc, char** argv)
 {
-    int32 pid1 = -1;
-    int32 pid2 = -1;
-    int32 pid3 = -1;
+    int pid1 = -1;
+    int pid2 = -1;
+    int pid3 = -1;
 
     pid1 = fork();
     if (pid1 == 0) {

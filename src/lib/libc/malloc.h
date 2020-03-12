@@ -28,14 +28,15 @@
 #define _MALLOC_H_
 
 
+#include "stddef.h"
 #include "stdio.h"
 
 
 extern bool  malloc_init(void);
-extern void* malloc(uint64 size);
+extern void* malloc(size_t size);
 extern void  free(void *ptr);
-extern void* realloc(void *ptr, uint64 size);
-extern void* calloc(uint64 nmemb, uint64 size);
+extern void* realloc(void *ptr, size_t size);
+extern void* calloc(size_t nmemb, size_t size);
 
 
 #endif
