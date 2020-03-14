@@ -40,7 +40,7 @@
 static int l_checkmode (const char *mode) {
   return (*mode != '\0' && strchr("rwa", *(mode++)) != NULL &&
          (*mode != '+' || (++mode, 1)) &&  /* skip if char is '+' */
-         (strspn(mode, L_MODEEXT) == strlen(mode)));  /* check extensions */
+         (strspn(mode, L_MODEEXT) == (size_t)strlen(mode)));  /* check extensions */
 }
 
 #endif

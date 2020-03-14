@@ -51,7 +51,7 @@ char* strrev(char* str, int len)
     return str;
 }
 
-int strlen(const char* s)
+size_t strlen(const char* s)
 {
     int len = 0;
     while (*s++) {
@@ -151,3 +151,64 @@ void* memset(void *dst, unsigned c, unsigned n)
 
     return dst;
 }
+
+int memcmp(const void* v1, const void* v2, size_t n)
+{
+    auto* s1 = (const uint8_t*)v1;
+    auto* s2 = (const uint8_t*)v2;
+    while (n-- > 0) {
+        if (*s1++ != *s2++)
+            return s1[-1] < s2[-1] ? -1 : 1;
+    }
+    return 0;
+}
+
+void* memchr(const void* ptr, int c, size_t size)
+{
+    char ch = c;
+    auto* cptr = (const char*)ptr;
+    for (size_t i = 0; i < size; ++i) {
+        if (cptr[i] == ch)
+            return const_cast<char*>(cptr + i);
+    }
+    return nullptr;
+}
+
+
+size_t strspn(const char* s, const char* accept)
+{
+    const char* p = s;
+cont:
+    char ch = *p++;
+    char ac;
+    for (const char* ap = accept; (ac = *ap++) != '\0';) {
+        if (ac == ch)
+            goto cont;
+    }
+    return p - 1 - s;
+}
+
+char* strstr(const char* haystack, const char* needle)
+{
+    char nch;
+    char hch;
+
+    if ((nch = *needle++) != 0) {
+        size_t len = strlen(needle);
+        do {
+            do {
+                if ((hch = *haystack++) == 0)
+                    return nullptr;
+            } while (hch != nch);
+        } while (strncmp(haystack, needle, len) != 0);
+        --haystack;
+    }
+    return const_cast<char*>(haystack);
+}
+
+
+int strcoll(const char* s1, const char* s2)
+{
+    return strcmp(s1, s2);
+}
+

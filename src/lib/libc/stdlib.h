@@ -31,4 +31,27 @@
 #include "malloc.h"
 
 
+#define EXIT_SUCCESS 0
+#define EXIT_FAILURE 1
+
+
+int system(const char* command);
+char* getenv(const char* name);
+
+double strtod(const char*, char** endptr);
+char* strpbrk(const char*, const char* accept);
+
+
+#define RAND_MAX 32767
+
+int rand();
+void srand(unsigned seed);
+
+long int random();
+void srandom(unsigned seed);
+
+void abort();
+
+
+
 #endif

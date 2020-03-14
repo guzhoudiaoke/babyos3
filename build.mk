@@ -25,9 +25,10 @@ SUBDIRS     := src
 $(eval $(call include_subdirs))
 
 
-$(eval $(call define_compiler,$(OBJTOP)/lib,$(SRCTOP)/lib,$(CC) $(LIB_INCS)))
-$(eval $(call define_compiler,$(OBJTOP)/bin,$(SRCTOP)/bin,$(CC) $(LIB_INCS)))
-$(eval $(call define_compiler,$(OBJTOP)/sys,$(SRCTOP)/sys,$(CC),$(SYS_INCS)))
+$(eval $(call define_compiler,$(OBJTOP)/sys,$(SRCTOP)/sys,$(CPP),$(SYS_INCS)))
+$(eval $(call define_compiler,$(OBJTOP),$(SRCTOP),$(CPP) $(LIB_INCS)))
+#$(eval $(call define_compiler,$(OBJTOP)/lib,$(SRCTOP)/lib,$(CC) $(LIB_INCS)))
+#$(eval $(call define_compiler,$(OBJTOP)/bin,$(SRCTOP)/bin,$(CC) $(LIB_INCS)))
 $(eval $(call define_linklibrary,$(OBJTOP),$(AR)))
 
 

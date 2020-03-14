@@ -1,7 +1,8 @@
 .DEFAULT_GOAL := all
 
 # tools
-CC 		 := g++
+CC 		 := gcc
+CPP      := g++
 AR 		 := ar
 LD 		 := ld
 OBJCOPY  := objcopy

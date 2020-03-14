@@ -29,10 +29,11 @@
 #include "x86.h"
 
 
-void request_t::init(uint32 dev, uint32 lba, uint32 cmd, io_buffer_t* b)
+void request_t::init(uint32 dev, uint32 lba, uint32 offset, uint32 cmd, io_buffer_t* b)
 {
     m_dev = dev;
     m_lba = lba;
+    m_offset = offset;
     m_cmd = cmd;
     m_buffer = b;
 }
@@ -80,7 +81,7 @@ void ide_t::do_request()
         return;
     }
 
-    uint32 lba = m_current->m_lba;
+    uint32 lba = m_current->m_lba + m_current->m_offset;
     wait();
 
     outb(0x3f6, 0);     // generate interrupt
@@ -95,14 +96,14 @@ void ide_t::do_request()
     }
     else {
         outb(0x1f7, IO_CMD_WRITE);
-        outsl(0x1f0, m_current->m_buffer->m_buffer, SECT_SIZE/4);
+        outsl(0x1f0, m_current->m_buffer->m_buffer+m_current->m_offset*SECT_SIZE, SECT_SIZE/4);
     }
 }
 
 void ide_t::end_request()
 {
     if (m_current->m_cmd == request_t::CMD_READ) {
-        insl(0x1f0, m_current->m_buffer->m_buffer, SECT_SIZE/4);
+        insl(0x1f0, m_current->m_buffer->m_buffer+m_current->m_offset*SECT_SIZE, SECT_SIZE/4);
     }
 
     m_current->m_buffer->done();

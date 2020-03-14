@@ -55,16 +55,17 @@
 #if defined(__cplusplus) && !defined(LUA_USE_LONGJMP)	/* { */
 
 /* C++ exceptions */
-#define LUAI_THROW(L,c)		throw(c)
-#define LUAI_TRY(L,c,a) \
-	try { a } catch(...) { if ((c)->status == 0) (c)->status = -1; }
-#define luai_jmpbuf		int  /* dummy variable */
+#define LUAI_THROW(L,c)		longjmp((c)->b, 1)
+#define LUAI_TRY(L,c,a)		if (setjmp((c)->b) == 0) { a }
+//#define LUAI_THROW(L,c)		
+//#define LUAI_TRY(L,c,a)		
+#define luai_jmpbuf		jmp_buf
 
 #elif defined(LUA_USE_POSIX)				/* }{ */
 
 /* in POSIX, try _longjmp/_setjmp (more efficient) */
-#define LUAI_THROW(L,c)		_longjmp((c)->b, 1)
-#define LUAI_TRY(L,c,a)		if (_setjmp((c)->b) == 0) { a }
+#define LUAI_THROW(L,c)		longjmp((c)->b, 1)
+#define LUAI_TRY(L,c,a)		if (setjmp((c)->b) == 0) { a }
 #define luai_jmpbuf		jmp_buf
 
 #else							/* }{ */
@@ -107,7 +108,7 @@ static void seterrorobj (lua_State *L, int errcode, StkId oldtop) {
 }
 
 
-l_noret luaD_throw (lua_State *L, int errcode) {
+void luaD_throw (lua_State *L, int errcode) {
   if (L->errorJmp) {  /* thread has an error handler? */
     L->errorJmp->status = errcode;  /* set status */
     LUAI_THROW(L, L->errorJmp);  /* jump to it */

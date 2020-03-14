@@ -140,10 +140,10 @@ static inline void set_next_link(void *bp, void *next)
 }
 
 
-static void* heap_listp;
+static void* heap_listp = nullptr;
 const int free_list_num = 12;
-static void* free_list_heads[12];
-static void* free_list_tails[12];
+static void* free_list_heads[12] = {nullptr};
+static void* free_list_tails[12] = {nullptr};
 
 /* Get index of free list by size */
 static inline int get_free_list_head_id(size_t asize)
@@ -427,12 +427,6 @@ static void place(void *bp, size_t asize)
  */
 void* malloc(size_t size)
 {
-    static bool inited = false;
-    if (!inited) {
-        malloc_init();
-        inited = true;
-    }
-
     /* IMPLEMENT THIS */
     size_t asize; /* Adjusted block size */
     size_t extendsize; /* Amount to extend heap if no fit */
@@ -455,6 +449,7 @@ void* malloc(size_t size)
     if ((bp = (char *) find_fit(asize)) != nullptr) {
         free_list_remove(bp);
         place(bp, asize);
+        //printf("malloc return %p, size: %x\n", bp, size);
         return bp;
     }
 
@@ -466,6 +461,7 @@ void* malloc(size_t size)
 
     place(bp, asize);
 
+    //printf("malloc return %p, size: %x\n", bp, size);
     return bp;
 }
 
@@ -476,8 +472,11 @@ void* malloc(size_t size)
  */
 void free(void* ptr)
 {
+    return;
+
     /* get size of ptr */
     size_t size = get_size(hdrp(ptr));
+    //printf("free, ptr: %p, size: %x\n", ptr, size);
 
     /* set size and not allocated flag to header and footer */
     put(hdrp(ptr), pack(size, get_prev_alloc(hdrp(ptr)), 0));

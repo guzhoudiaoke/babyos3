@@ -91,5 +91,7 @@ int   send_to(int fd, void *buf, unsigned size, sock_addr_t* addr);
 int   recv_from(int fd, void *buf, unsigned size, sock_addr_t* addr);
 void* sbrk(long increment);
 
+int lseek(int fd, unsigned offset, int whence);
+
 
 #endif

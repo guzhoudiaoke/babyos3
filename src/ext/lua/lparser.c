@@ -64,19 +64,19 @@ static void expr (LexState *ls, expdesc *v);
 
 
 /* semantic error */
-static l_noret semerror (LexState *ls, const char *msg) {
+static void semerror (LexState *ls, const char *msg) {
   ls->t.token = 0;  /* remove "near <token>" from final message */
   luaX_syntaxerror(ls, msg);
 }
 
 
-static l_noret error_expected (LexState *ls, int token) {
+static void error_expected (LexState *ls, int token) {
   luaX_syntaxerror(ls,
       luaO_pushfstring(ls->L, "%s expected", luaX_token2str(ls, token)));
 }
 
 
-static l_noret errorlimit (FuncState *fs, int limit, const char *what) {
+static void errorlimit (FuncState *fs, int limit, const char *what) {
   lua_State *L = fs->ls->L;
   const char *msg;
   int line = fs->f->linedefined;
@@ -461,7 +461,7 @@ static void breaklabel (LexState *ls) {
 ** generates an error for an undefined 'goto'; choose appropriate
 ** message when label name is a reserved word (which can only be 'break')
 */
-static l_noret undefgoto (LexState *ls, Labeldesc *gt) {
+static void undefgoto (LexState *ls, Labeldesc *gt) {
   const char *msg = isreserved(gt->name)
                     ? "<%s> at line %d not inside a loop"
                     : "no visible label '%s' for <goto> at line %d";

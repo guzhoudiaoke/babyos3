@@ -3,10 +3,19 @@ $(eval $(call std_header))
 $(eval $(call add_to_lib_include_path))
 
 SUB_OBJS = \
+	crt0.o \
+	init.o \
 	unistd.o \
 	stdio.o \
 	string.o \
 	malloc.o \
+	stdlib.o \
+	errno.o \
+	math.o \
+	time.o \
+	locale.o \
+	signal.o \
+	setjmp.o \
 
 LIBS += $(call mkobjs,libc.a)
 OBJS += $(call mkobjs,$(SUB_OBJS))

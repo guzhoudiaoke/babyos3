@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/io_buffer.h
+ *	babyos/lib/libc/errno.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,40 +19,24 @@
 
 
 /*
- *  2020-02-17		created
+ *  2020-03-12		created
  */
 
 
+#include "errno.h"
 
-#ifndef _IO_BUFFER_H_
-#define _IO_BUFFER_H_
+extern "C" {
 
-#include "types.h"
-#include "kernel.h"
-#include "sem.h"
-#include "dlist.h"
-#include "fs.h"
+int errno = 0;
 
 
-class io_buffer_t {
-public:
-
-    void init();
-    void lock();
-    void unlock();
-    void wait();
-    void done();
-
-public:
-    uint32          m_lba;
-    uint32          m_done;
-    semaphore_t     m_sem;
-    semaphore_t     m_sem_wait_done;
-    uint8           m_buffer[BSIZE];
-
-    dlist_node_t    m_used_list_node;
-    dlist_node_t    m_free_list_node;
-};
 
 
-#endif
+char * strerror(int errnum) {
+    // TODO
+    return nullptr;
+}
+
+
+
+}

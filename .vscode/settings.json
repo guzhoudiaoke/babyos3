@@ -13,5 +13,11 @@
         "ostream": "cpp",
         "sstream": "cpp",
         "numeric": "cpp"
-    }
+    },
+    "cSpell.words": [
+        "inum",
+        "nblocks",
+        "ninodes",
+        "nlinks"
+    ]
 }

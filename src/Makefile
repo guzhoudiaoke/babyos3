@@ -4,7 +4,7 @@ dirstackds_$$(stack) 	:= $(ds)
 ds 						:= $(ds)$(DIRECTORY)/
 
 
-SUBDIRS := sys lib bin
+SUBDIRS := sys lib bin ext
 $(eval $(call include_subdirs))
 
 

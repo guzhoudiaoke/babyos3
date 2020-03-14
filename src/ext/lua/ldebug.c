@@ -582,19 +582,19 @@ static const char *varinfo (lua_State *L, const TValue *o) {
 }
 
 
-l_noret luaG_typeerror (lua_State *L, const TValue *o, const char *op) {
+void luaG_typeerror (lua_State *L, const TValue *o, const char *op) {
   const char *t = luaT_objtypename(L, o);
   luaG_runerror(L, "attempt to %s a %s value%s", op, t, varinfo(L, o));
 }
 
 
-l_noret luaG_concaterror (lua_State *L, const TValue *p1, const TValue *p2) {
+void luaG_concaterror (lua_State *L, const TValue *p1, const TValue *p2) {
   if (ttisstring(p1) || cvt2str(p1)) p1 = p2;
   luaG_typeerror(L, p1, "concatenate");
 }
 
 
-l_noret luaG_opinterror (lua_State *L, const TValue *p1,
+void luaG_opinterror (lua_State *L, const TValue *p1,
                          const TValue *p2, const char *msg) {
   lua_Number temp;
   if (!tonumber(p1, &temp))  /* first operand is wrong? */
@@ -606,7 +606,7 @@ l_noret luaG_opinterror (lua_State *L, const TValue *p1,
 /*
 ** Error when both values are convertible to numbers, but not to integers
 */
-l_noret luaG_tointerror (lua_State *L, const TValue *p1, const TValue *p2) {
+void luaG_tointerror (lua_State *L, const TValue *p1, const TValue *p2) {
   lua_Integer temp;
   if (!tointeger(p1, &temp))
     p2 = p1;
@@ -614,7 +614,7 @@ l_noret luaG_tointerror (lua_State *L, const TValue *p1, const TValue *p2) {
 }
 
 
-l_noret luaG_ordererror (lua_State *L, const TValue *p1, const TValue *p2) {
+void luaG_ordererror (lua_State *L, const TValue *p1, const TValue *p2) {
   const char *t1 = luaT_objtypename(L, p1);
   const char *t2 = luaT_objtypename(L, p2);
   if (strcmp(t1, t2) == 0)
@@ -637,7 +637,7 @@ const char *luaG_addinfo (lua_State *L, const char *msg, TString *src,
 }
 
 
-l_noret luaG_errormsg (lua_State *L) {
+void luaG_errormsg (lua_State *L) {
   if (L->errfunc != 0) {  /* is there an error handling function? */
     StkId errfunc = restorestack(L, L->errfunc);
     setobjs2s(L, L->top, L->top - 1);  /* move argument */
@@ -649,7 +649,7 @@ l_noret luaG_errormsg (lua_State *L) {
 }
 
 
-l_noret luaG_runerror (lua_State *L, const char *fmt, ...) {
+void luaG_runerror (lua_State *L, const char *fmt, ...) {
   CallInfo *ci = L->ci;
   const char *msg;
   va_list argp;

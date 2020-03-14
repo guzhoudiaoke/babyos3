@@ -944,7 +944,7 @@ static void f_call (lua_State *L, void *ud) {
 }
 
 
-
+#include <stdio.h>
 LUA_API int lua_pcallk (lua_State *L, int nargs, int nresults, int errfunc,
                         lua_KContext ctx, lua_KFunction k) {
   struct CallS c;

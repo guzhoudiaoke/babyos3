@@ -230,3 +230,8 @@ void* sbrk(long increment)
 {
     return (void *) syscall(SBRK, increment);
 }
+
+int lseek(int fd, unsigned offset, int whence)
+{
+    return 0;
+}

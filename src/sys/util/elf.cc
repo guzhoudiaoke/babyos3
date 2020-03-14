@@ -47,7 +47,10 @@ static int32 load_elf_segment(elf64_phdr_t* ph, int fd)
     pml4e_t* pml4_table = current->m_vmm.get_pml4_table();
     void* vaddr = (void*) (ph->p_vaddr & PAGE_MASK);
     uint64 offset = ph->p_vaddr - (uint64)vaddr;
-    uint64 len = PAGE_ALIGN(ph->p_memsz + ((uint64)vaddr & (PAGE_SIZE-1)));
+    uint64 len = PAGE_ALIGN(ph->p_memsz + ((uint64)ph->p_vaddr & (PAGE_SIZE-1)));
+
+    os()->uart()->kprintf("vaddr: %p, ph->p_vaddr: %p, offset: %x, len: %x, memsz: %x, filesz: %x\n", 
+            vaddr, ph->p_vaddr, offset, len, ph->p_memsz, ph->p_filesz);
 
     /* mmap */
     int64 ret = current->m_vmm.do_mmap((uint64) vaddr,
@@ -55,6 +58,7 @@ static int32 load_elf_segment(elf64_phdr_t* ph, int fd)
                                         PROT_READ | PROT_WRITE | PROT_EXEC,
                                         MAP_FIXED);
     if (ret < 0) {
+        os()->console()->kprintf(RED, "Failed mmap: %p, len: %x\n", vaddr, len);
         return -1;
     }
 
@@ -65,6 +69,7 @@ static int32 load_elf_segment(elf64_phdr_t* ph, int fd)
     /* read data */
     uint8* va = (uint8 *) P2V(pa);
     if (read_file_from(fd, va+offset, ph->p_offset, ph->p_filesz) != 0) {
+        os()->console()->kprintf(RED, "Failed read data offset: %d, size: %d\n", ph->p_offset, ph->p_filesz);
         return -1;
     }
 
@@ -113,6 +118,7 @@ static int32 load_elf_binary(elf64_hdr_t* elf, int fd)
         /* read prog_hdr */
         elf64_phdr_t ph;
         if (read_file_from(fd, &ph, file_offset, sizeof(elf64_phdr_t)) != 0) {
+            os()->console()->kprintf(RED, "Failed to read at offset: %d!\n", file_offset);
             return -1;
         }
 
@@ -122,6 +128,7 @@ static int32 load_elf_binary(elf64_hdr_t* elf, int fd)
         }
 
         if (load_elf_segment(&ph, fd) != 0) {
+            os()->console()->kprintf(RED, "Failed to load elf segment\n");
             return -1;
         }
 

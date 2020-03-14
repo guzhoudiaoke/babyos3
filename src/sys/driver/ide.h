@@ -41,7 +41,7 @@
 
 class request_t {
 public:
-    void init(uint32 dev, uint32 lba, uint32 cmd, io_buffer_t* b);
+    void init(uint32 dev, uint32 lba, uint32 offset, uint32 cmd, io_buffer_t* b);
 
 public:
     enum {
@@ -51,6 +51,7 @@ public:
 
     uint32          m_dev;
     uint32          m_lba;
+    uint32          m_offset;
     uint32          m_cmd;
     io_buffer_t*    m_buffer;
     dlist_node_t    m_list_node;

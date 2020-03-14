@@ -108,16 +108,19 @@ void block_dev_t::release_block(io_buffer_t* b)
 
 io_buffer_t* block_dev_t::read(uint32 lba)
 {
+    lba *= 4;
     io_buffer_t* b = get_block(lba);
     if (b->m_done) {
         return b;
     }
 
-    request_t* req = (request_t *)m_request_cache.alloc();
-    req->init(m_dev, lba, request_t::CMD_READ, b);
-    os()->ide()->add_request(req);
-
-    b->wait();
+    for (int i = 0; i < 4; i++) {
+        request_t* req = (request_t *)m_request_cache.alloc();
+        req->init(m_dev, lba, i, request_t::CMD_READ, b);
+        os()->ide()->add_request(req);
+        b->wait();
+        m_request_cache.free(req);
+    }
 
     return b;
 }
@@ -125,10 +128,12 @@ io_buffer_t* block_dev_t::read(uint32 lba)
 int block_dev_t::write(io_buffer_t* b)
 {
     request_t req;
-    req.init(m_dev, b->m_lba, request_t::CMD_WRITE, b);
-    os()->ide()->add_request(&req);
 
-    b->wait();
+    for (int i = 0; i < 4; i++) {
+        req.init(m_dev, b->m_lba, i, request_t::CMD_WRITE, b);
+        os()->ide()->add_request(&req);
+        b->wait();
+    }
 
     return 0;
 }

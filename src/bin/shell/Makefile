@@ -11,7 +11,7 @@ OBJS += $(call mkobjs,$(SUB_OBJS))
 USERAPPS += $(call mkobjs,shell)
 
 $(do)shell: $(call mkobjs, $(SUB_OBJS)) $(USERLIBS)
-	@$(LD) $(LDFLAGS) $(USERFLAGS) -o $@ $^
+	@$(LD) $(LDFLAGS) -o $@ $^
 
 $(eval $(call std_footer))
 

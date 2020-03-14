@@ -65,7 +65,7 @@ void *luaM_growaux_ (lua_State *L, void *block, int *size, size_t size_elems,
 }
 
 
-l_noret luaM_toobig (lua_State *L) {
+void luaM_toobig (lua_State *L) {
   luaG_runerror(L, "memory allocation error: block too big");
 }
 

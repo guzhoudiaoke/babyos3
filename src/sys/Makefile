@@ -2,10 +2,9 @@ $(eval $(call start_directory,sys))
 $(eval $(call std_header))
 $(eval $(call add_to_sys_include_path))
 
-kernel_OBJS := 
+SUB_OBJS := 
 
-
-KOBJS := $(call mkobjs,$(kernel_OBJS))
+KOBJS := $(call mkobjs,$(SUB_OBJS))
 SUBDIRS := boot mm fs driver util task ipc device net os arch
 $(eval $(call include_subdirs))
 
