@@ -15,7 +15,12 @@ SUB_OBJS = \
 	time.o \
 	locale.o \
 	signal.o \
-	setjmp.o \
+	sprintf.o \
+	fileop.o \
+	printf.o \
+	gets.o \
+	ctype.o \
+	flags.o \
 
 LIBS += $(call mkobjs,libc.a)
 OBJS += $(call mkobjs,$(SUB_OBJS))
