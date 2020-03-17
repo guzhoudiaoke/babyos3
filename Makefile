@@ -12,8 +12,8 @@ QEMU     := qemu-system-x86_64
 LDFLAGS  := -g -m elf_x86_64
 CPPFLAGS := -g -m64 -Wall -Werror -fno-exceptions -mcmodel=kernel -fno-pic -static -fno-builtin -fno-strict-aliasing
 CPPFLAGS += -MD -fno-omit-frame-pointer -ffreestanding -fno-common -nostdlib -gdwarf-2 -DX64 -mtls-direct-seg-refs 
-CPPFLAGS += -mno-red-zone -fno-rtti -I src/include
-ASFLAGS  := -g -m64
+CPPFLAGS += -mno-red-zone -fno-rtti -I src/include -I src/include/babyos
+ASFLAGS  := -g -m64 -I src/include -I src/include/babyos
 ARFLAGS  := -r
 
 # top dir

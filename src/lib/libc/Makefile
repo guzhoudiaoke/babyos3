@@ -11,7 +11,6 @@ SUB_OBJS = \
 	malloc.o \
 	stdlib.o \
 	errno.o \
-	math.o \
 	time.o \
 	locale.o \
 	signal.o \

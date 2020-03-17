@@ -23,7 +23,7 @@
  */
 
 
-#include <cdefs.h>
+#include <sys/cdefs.h>
 #include "stddef.h"
 #include "stdarg.h"
 #include "string.h"
@@ -132,6 +132,7 @@ int sprint_long(char* buffer, long n, int width, int base, bool sign)
 
     return width;
 }
+
 int vsprintf(char *buffer, const char* fmt, va_list ap)
 {
     buffer[0] = '\0';
@@ -224,7 +225,6 @@ int vsprintf(char *buffer, const char* fmt, va_list ap)
 
     return total;
 }
-
 
 int sprintf(char* buffer, const char *fmt, ...)
 {

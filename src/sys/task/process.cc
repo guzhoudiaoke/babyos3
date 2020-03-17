@@ -328,7 +328,7 @@ repeat:
     dlist_node_t* node = m_children.head();
     for (; node != nullptr; node = node->next()) {
         process_t* p = list_entry(node, process_t, m_child_list_node);
-        if (pid != -1u && pid != p->m_pid) {
+        if (pid != -1 && pid != p->m_pid) {
             continue;
         }
 

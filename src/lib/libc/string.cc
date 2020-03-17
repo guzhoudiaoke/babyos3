@@ -24,6 +24,7 @@
 
 
 #include "string.h"
+#include "stdint.h"
 
 
 char* strcat(char* dst, const char* src)
@@ -59,7 +60,6 @@ size_t strlen(const char* s)
     }
     return len;
 }
-
 
 char* strcpy(char* dst, const char* src)
 {
@@ -103,7 +103,6 @@ int strncmp(const char* s1, const char *s2, int n)
     return n == 0 ? 0 : *s1 - *s2;
 }
 
-
 char* strchr(const char* s, char c)
 {
     char* p = (char *) s;
@@ -115,7 +114,6 @@ char* strchr(const char* s, char c)
     }
     return nullptr;
 }
-
 
 void* memmov(void *dst, const void *src, unsigned n)
 {
@@ -157,8 +155,9 @@ int memcmp(const void* v1, const void* v2, size_t n)
     auto* s1 = (const uint8_t*)v1;
     auto* s2 = (const uint8_t*)v2;
     while (n-- > 0) {
-        if (*s1++ != *s2++)
+        if (*s1++ != *s2++) {
             return s1[-1] < s2[-1] ? -1 : 1;
+        }
     }
     return 0;
 }
@@ -168,8 +167,9 @@ void* memchr(const void* ptr, int c, size_t size)
     char ch = c;
     auto* cptr = (const char*)ptr;
     for (size_t i = 0; i < size; ++i) {
-        if (cptr[i] == ch)
+        if (cptr[i] == ch) {
             return const_cast<char*>(cptr + i);
+        }
     }
     return nullptr;
 }
@@ -188,27 +188,31 @@ cont:
     return p - 1 - s;
 }
 
-char* strstr(const char* haystack, const char* needle)
+char* strstr(const char *s, const char *find)
 {
-    char nch;
-    char hch;
+	char c, sc;
+	size_t len;
 
-    if ((nch = *needle++) != 0) {
-        size_t len = strlen(needle);
-        do {
-            do {
-                if ((hch = *haystack++) == 0)
-                    return nullptr;
-            } while (hch != nch);
-        } while (strncmp(haystack, needle, len) != 0);
-        --haystack;
-    }
-    return const_cast<char*>(haystack);
+	if ((c = *find++) != '\0') {
+		len = strlen(find);
+		do {
+			do {
+				if ((sc = *s++) == '\0')
+					return (NULL);
+			} while (sc != c);
+		} while (strncmp(s, find, len) != 0);
+		s--;
+	}
+	return ((char *)s);
 }
-
 
 int strcoll(const char* s1, const char* s2)
 {
     return strcmp(s1, s2);
 }
 
+char * strerror(int errnum)
+{
+    // TODO
+    return nullptr;
+}

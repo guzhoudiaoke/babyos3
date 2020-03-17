@@ -32,10 +32,6 @@ int errno = 0;
 
 
 
-char * strerror(int errnum) {
-    // TODO
-    return nullptr;
-}
 
 
 

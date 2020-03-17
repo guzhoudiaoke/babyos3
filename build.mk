@@ -1,11 +1,12 @@
 USERLIBS_LIST = \
 				.../lib/libc/libc.a \
+				.../lib/libm/libm.a \
 				.../lib/libc++/libc++.a \
 
 mkobjs = $(addprefix $(do),$(1))
 mklibs = $(patsubst .../%,$(OBJTOP)/%,$(foreach lib,$(1),$(filter %lib$(lib).a,$(USERLIBS_LIST))))
 
-USERLIBS = $(call mklibs,c c++)
+USERLIBS = $(call mklibs,c c++ m)
 
 $(eval $(call top_level_config))
 
@@ -27,8 +28,6 @@ $(eval $(call include_subdirs))
 
 $(eval $(call define_compiler,$(OBJTOP)/sys,$(SRCTOP)/sys,$(CPP),$(SYS_INCS)))
 $(eval $(call define_compiler,$(OBJTOP),$(SRCTOP),$(CPP) $(LIB_INCS)))
-#$(eval $(call define_compiler,$(OBJTOP)/lib,$(SRCTOP)/lib,$(CC) $(LIB_INCS)))
-#$(eval $(call define_compiler,$(OBJTOP)/bin,$(SRCTOP)/bin,$(CC) $(LIB_INCS)))
 $(eval $(call define_linklibrary,$(OBJTOP),$(AR)))
 
 

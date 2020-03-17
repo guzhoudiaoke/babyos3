@@ -233,5 +233,5 @@ void* sbrk(long increment)
 
 int lseek(int fd, unsigned offset, int whence)
 {
-    return 0;
+    return syscall(LSEEK, offset, whence);
 }
