@@ -42,12 +42,21 @@ shell_t::~shell_t()
 
 void shell_t::process(char* cmdline)
 {
-    parser_t* parser = new parser_t(cmdline);
-    command_t* cmd = parser->parse();
-    cmd->execute();
+    pid_t pid;
+    if ((pid = fork()) == 0) {
+        parser_t* parser = new parser_t(cmdline);
+        command_t* cmd = parser->parse();
 
-    delete parser;
-    delete cmd;
+        printf("exec\n");
+        cmd->execute();
+
+        delete parser;
+        delete cmd;
+    }
+
+    printf("wait\n");
+    wait(pid);
+    printf("wait done\n");
 }
 
 void shell_t::run()
@@ -78,7 +87,6 @@ int main()
     shell_t shell;
     shell.run();
 
-    exit(0);
-    return 1;
+    return 0;
 }
 

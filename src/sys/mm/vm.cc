@@ -41,6 +41,13 @@ void vmm_t::init()
 
 int32 vmm_t::copy(const vmm_t& vmm)
 {
+	m_start_code = vmm.m_start_code;
+    m_end_code = vmm.m_end_code;
+	m_start_data = vmm.m_start_data;
+    m_end_data = vmm.m_end_data;
+	m_start_brk = vmm.m_start_brk;
+    m_brk = vmm.m_brk;
+
     m_pml4_table = copy_pml4_table(vmm.m_pml4_table);
     if (m_pml4_table == nullptr) {
         return -1;

@@ -788,8 +788,9 @@ int file_system_t::do_dup(int fd)
 {
     file_t* file = current->get_file(fd);
     if (file != nullptr) {
-        int fd = current->alloc_fd(file);
-        if (fd < 0) {
+        int fd2 = current->alloc_fd(file);
+        os()->uart()->kprintf("dup %d->%d\n", fd, fd2);
+        if (fd2 < 0) {
             return -1;
         }
         dup_file(file);

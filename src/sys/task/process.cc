@@ -61,6 +61,7 @@ void process_t::init(process_t* parent)
     m_wait_child.init();
     m_has_cpu = 0;
     m_state = RUNNING;
+    m_task_lock.init();
 
     /* nodes */
     m_child_list_node.init();
@@ -256,7 +257,7 @@ end:
         exit();
     }
 
-
+    os()->uart()->kprintf("exec done\n");
     return ret;
 }
 
@@ -374,6 +375,8 @@ void process_t::close_all_files()
 
 int32 process_t::exit()
 {
+    os()->uart()->kprintf("%d %s, exit\n", m_pid, m_name);
+
     /* remove the mem resource */
     m_vmm.release();
 

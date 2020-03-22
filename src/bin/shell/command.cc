@@ -23,7 +23,6 @@
  */
 
 
-
 #include "command.h"
 #include "unistd.h"
 #include "stdio.h"
@@ -58,6 +57,8 @@ command_t::~command_t()
 {
 }
 
+/*******************************************************************************/
+
 exec_command_t::exec_command_t()
 {
     m_input = nullptr;
@@ -83,16 +84,34 @@ void exec_command_t::execute()
     }
     strcat(cmd, m_argument.m_argv[0]);
 
-    pid_t pid = fork();
-    if (pid == 0) {
-        int ret = exec(cmd, &m_argument);
-        if (ret < 0) {
-            exit(ret);
+    if (m_input != nullptr) {
+        int fd = open(m_input->name(), MODE_RDONLY);
+        if (fd < 0) {
+            printf("failed to open %s\n", m_input->name());
+            return;
         }
+
+        close(0);
+        dup(fd);
+        close(fd);
     }
-    wait(pid);
+    if (m_output != nullptr) {
+        int fd = open(m_output->name(), MODE_WRONLY | MODE_CREATE);
+        if (fd < 0) {
+            printf("failed to open %s\n", m_output->name());
+            return;
+        }
+
+        close(1);
+        dup(fd);
+        close(fd);
+    }
+
+    exec(cmd, &m_argument);
+    printf("exec failed\n");
 }
 
+/*******************************************************************************/
 
 pipe_command_t::pipe_command_t(command_t* left, command_t* right)
 {
@@ -113,13 +132,40 @@ pipe_command_t::~pipe_command_t()
 
 void pipe_command_t::execute()
 {
-    if (m_left != nullptr) {
+    printf("pip cmd execute\n");
+    int fd[2];
+    if (pipe(fd) < 0) {
+        printf("pipe failed\n");
+        exit(-1);
+    }
+    
+    printf("after pipe fd: %d, %d\n", fd[0], fd[1]);
+
+    pid_t pid1, pid2;
+    if ((pid1 = fork()) == 0) {
+        close(1);
+        dup(fd[1]);
+        close(fd[0]);
+        close(fd[1]);
         m_left->execute();
     }
-    if (m_right != nullptr) {
+    if ((pid2 = fork()) == 0) {
+        close(0);
+        dup(fd[0]);
+        close(fd[0]);
+        close(fd[1]);
         m_right->execute();
     }
+    close(fd[0]);
+    close(fd[1]);
+
+    printf("pid1: %d\n", pid1);
+    printf("pid2: %d\n", pid2);
+    wait(pid1);
+    wait(pid2);
 }
+
+/*******************************************************************************/
 
 list_command_t::list_command_t(command_t* left, command_t* right)
 {
@@ -132,7 +178,6 @@ list_command_t::~list_command_t()
     printf("list_command_t destruct\n");
 }
 
-
 void list_command_t::execute()
 {
     if (m_left != nullptr) {
@@ -142,4 +187,3 @@ void list_command_t::execute()
         m_right->execute();
     }
 }
-

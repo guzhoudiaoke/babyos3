@@ -201,8 +201,6 @@ void cpu_t::do_exception(trap_frame_t* frame)
 
         os()->uart()->kprintf("Exception: %s, current: %p, errno: %x, rip: %p, cs: %p, rsp: %p\n",
                                  exception_msg[trapno], current, frame->err, frame->rip, frame->cs, frame->rsp);
-        os()->uart()->kprintf("errno: %x, rip: %p, cs: %p, rsp: %p\n",
-                                 frame->err, frame->rip, frame->cs, frame->rsp);
     }
     else {
         os()->uart()->kprintf("Error Interrupt: %x, RESERVED!\n", trapno);

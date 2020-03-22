@@ -189,6 +189,7 @@ end:
     /* 6. close file */
     os()->fs()->do_close(fd);
 
+    os()->uart()->kprintf("load elf done\n");
     return ret;
 }
 

@@ -126,7 +126,6 @@ public:
 	uint64		m_start_code, m_end_code;
 	uint64		m_start_data, m_end_data;
 	uint64		m_start_brk, m_brk;
-	uint64		m_start_start;
 	uint64		m_start_arg, m_end_arg;
 	uint64		m_start_env, m_end_env;
 };
