@@ -32,18 +32,40 @@
 
 void* memmov(void* dst, const void* src, uint32 n)
 {
-    const char* s = (const char *) src;
-    char* d = (char *) dst;
+    uint32 count = n / 8;
+    n = n % 8;
 
-    if (s < d && s + n > d) {
-        s += n, d += n;
-        while (n--) {
-            *--d = *--s;
+    const uint64* s1 = (const uint64 *) src;
+    uint64* d1 = (uint64 *) dst;
+
+    if (count > 0) {
+        if (s1 < d1 && s1 + count > d1) {
+            s1 += count, d1 += count;
+            while (count--) {
+                *--d1 = *--s1;
+            }
+        }
+        else {
+            while (count--) {
+                *d1++ = *s1++;
+            }
         }
     }
-    else {
-        while (n--) {
-            *d++ = *s++;
+
+    const char* s = (const char *) s1;
+    char* d = (char *) d1;
+
+    if (n != 0) {
+        if (s < d && s + n > d) {
+            s += n, d += n;
+            while (n--) {
+                *--d = *--s;
+            }
+        }
+        else {
+            while (n--) {
+                *d++ = *s++;
+            }
         }
     }
 

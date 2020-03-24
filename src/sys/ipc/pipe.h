@@ -30,6 +30,7 @@
 #include "types.h"
 #include "sem.h"
 #include "spinlock.h"
+#include "waitqueue.h"
 
 
 #define PIPE_BUF_SIZE PAGE_SIZE
@@ -54,6 +55,9 @@ private:
     spinlock_t  m_lock;
     semaphore_t m_space;    // how many space can use to put
     semaphore_t m_item;     // how many item can get
+
+    wait_queue_t m_reader_wq;
+    wait_queue_t m_writer_wq;
 
     bool        m_readable;
     bool        m_writable;

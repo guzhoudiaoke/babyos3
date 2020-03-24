@@ -37,6 +37,8 @@ void pipe_t::init()
     m_readable = true;
     m_writable = true;
     m_buffer = (char *) os()->mm()->kmalloc(BUFFER_SIZE);
+    m_reader_wq.init();
+    m_writer_wq.init();
 }
 
 void pipe_t::destroy()
@@ -46,35 +48,7 @@ void pipe_t::destroy()
         m_buffer = nullptr;
     }
 }
-
-int pipe_t::get_char(char& ch)
-{
-    int ret = -1;
-    m_item.down();
-    if (m_writable) {
-        ch = m_buffer[m_read_index];
-        m_read_index = (m_read_index + 1) % PIPE_BUF_SIZE;
-        ret = 0;
-    }
-    m_space.up();
-
-    return ret;
-}
-
-int pipe_t::put_char(char ch)
-{
-    int ret = -1;
-    m_space.down();
-    if (m_readable) {
-        m_buffer[m_write_index] = ch;
-        m_write_index = (m_write_index + 1) % PIPE_BUF_SIZE;
-        ret = 0;
-    }
-    m_item.up();
-
-    return ret;
-}
-
+//
 int32 pipe_t::read(void* buf, uint32 size)
 {
     os()->uart()->kprintf("%d read: %d\n", current->m_pid, size);
@@ -82,11 +56,12 @@ int32 pipe_t::read(void* buf, uint32 size)
     int n = 0;
     char* p = (char *) buf;
 
-    m_lock.lock();
+    uint64 flags;
+    m_lock.lock_irqsave(flags);
     while (m_write_index == m_read_index && m_writable) {
-        m_lock.unlock();
-        m_item.down();
-        m_lock.lock();
+        m_lock.unlock_irqrestore(flags);
+        current->sleep_on(&m_reader_wq);
+        m_lock.lock_irqsave(flags);
     }
 
     for (uint32 i = 0; i < size; i++) {
@@ -96,8 +71,9 @@ int32 pipe_t::read(void* buf, uint32 size)
         n++;
         p[i] = m_buffer[m_read_index++ % BUFFER_SIZE];
     }
-    m_space.up();
-    m_lock.unlock();
+
+    m_writer_wq.wake_up();
+    m_lock.unlock_irqrestore(flags);
 
     os()->uart()->kprintf("%d read done: %d\n", current->m_pid, n);
     return n;
@@ -110,24 +86,27 @@ int32 pipe_t::write(void* buf, uint32 size)
     int n = 0;
     char* p = (char *) buf;
 
-    m_lock.lock();
+    uint64 flags;
+    m_lock.lock_irqsave(flags);
     for (uint32 i = 0; i < size; i++) {
         while (m_write_index == m_read_index + BUFFER_SIZE) {
             if (!m_readable) {
-                m_lock.unlock();
+                m_lock.unlock_irqrestore(flags);
                 return n;
             }
 
-            m_lock.unlock();
-            m_space.down();
-            m_lock.lock();
+            m_reader_wq.wake_up();
+
+            m_lock.unlock_irqrestore(flags);
+            current->sleep_on(&m_writer_wq);
+            m_lock.lock_irqsave(flags);
         }
         n++;
         m_buffer[m_write_index++ % BUFFER_SIZE] = p[i];
     }
 
-    m_item.up();
-    m_lock.unlock();
+    m_reader_wq.wake_up();
+    m_lock.unlock_irqrestore(flags);
 
     os()->uart()->kprintf("%d write done: %d\n", current->m_pid, n);
     return n;
@@ -142,11 +121,11 @@ void pipe_t::close(bool write_end)
 
     if (write_end) {
         m_writable = false;
-        m_item.up();
+        m_reader_wq.wake_up();
     }
     else {
         m_readable = false;
-        m_space.up();
+        m_writer_wq.wake_up();
     }
 
     if (!m_readable && !m_writable) {
@@ -157,4 +136,3 @@ void pipe_t::close(bool write_end)
         m_lock.unlock_irqrestore(flags);
     }
 }
-

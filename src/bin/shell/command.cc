@@ -121,7 +121,6 @@ pipe_command_t::pipe_command_t(command_t* left, command_t* right)
 
 pipe_command_t::~pipe_command_t()
 {
-    printf("pipe_command_t destruct\n");
     if (m_left != nullptr) {
         delete m_left;
     }
@@ -132,15 +131,12 @@ pipe_command_t::~pipe_command_t()
 
 void pipe_command_t::execute()
 {
-    printf("pip cmd execute\n");
     int fd[2];
     if (pipe(fd) < 0) {
         printf("pipe failed\n");
         exit(-1);
     }
     
-    printf("after pipe fd: %d, %d\n", fd[0], fd[1]);
-
     pid_t pid1, pid2;
     if ((pid1 = fork()) == 0) {
         close(1);
@@ -159,8 +155,6 @@ void pipe_command_t::execute()
     close(fd[0]);
     close(fd[1]);
 
-    printf("pid1: %d\n", pid1);
-    printf("pid2: %d\n", pid2);
     wait(pid1);
     wait(pid2);
 }
@@ -175,7 +169,12 @@ list_command_t::list_command_t(command_t* left, command_t* right)
 
 list_command_t::~list_command_t()
 {
-    printf("list_command_t destruct\n");
+    if (m_left != nullptr) {
+        delete m_left;
+    }
+    if (m_right != nullptr) {
+        delete m_right;
+    }
 }
 
 void list_command_t::execute()

@@ -1,5 +1,4 @@
 #include "unistd.h"
-#include "stdio.h"
 
 
 extern "C" {
@@ -10,7 +9,6 @@ extern void __libc_init();
 
 int _start(int argc, char** argv)
 {
-    printf("start \n");
     __libc_init();
 
     exit(main(argc, argv));

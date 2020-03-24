@@ -47,16 +47,13 @@ void shell_t::process(char* cmdline)
         parser_t* parser = new parser_t(cmdline);
         command_t* cmd = parser->parse();
 
-        printf("exec\n");
         cmd->execute();
 
         delete parser;
         delete cmd;
     }
 
-    printf("wait\n");
     wait(pid);
-    printf("wait done\n");
 }
 
 void shell_t::run()

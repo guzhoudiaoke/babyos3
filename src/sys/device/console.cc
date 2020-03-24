@@ -129,10 +129,11 @@ void console_t::scroll()
     os()->vbe()->scroll();
 
     /* clear last line */
-    rect_t rc = {0,
-                 (int32)(m_row-1)*c_asc16_height,
-                 c_asc16_width*m_col_num,
-                 c_asc16_height
+    rect_t rc = {
+        0,
+        (int32)(m_row-1)*c_asc16_height,
+        c_asc16_width*m_col_num,
+        c_asc16_height
     };
     os()->vbe()->fill_rectangle(rc, c_background_color);
 
@@ -194,10 +195,11 @@ void console_t::putc(int c, color_ref_t color)
 
     switch (c) {
         case '\n':
-            rc = {(int32)m_col*c_asc16_width,
-                  (int32)m_row*c_asc16_height,
-                  c_asc16_width,
-                  c_asc16_height
+            rc = {
+                (int32)m_col*c_asc16_width,
+                (int32)m_row*c_asc16_height,
+                c_asc16_width,
+                c_asc16_height
             };
             os()->vbe()->fill_rectangle(rc, c_background_color);
             m_row++;
