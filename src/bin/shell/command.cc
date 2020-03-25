@@ -157,6 +157,7 @@ void pipe_command_t::execute()
 
     wait(pid1);
     wait(pid2);
+    exit(0);
 }
 
 /*******************************************************************************/
@@ -179,10 +180,19 @@ list_command_t::~list_command_t()
 
 void list_command_t::execute()
 {
+    pid_t pid;
     if (m_left != nullptr) {
-        m_left->execute();
+        if ((pid = fork()) == 0) {
+            m_left->execute();
+        }
+        wait(pid);
     }
+
     if (m_right != nullptr) {
-        m_right->execute();
+        if ((pid = fork()) == 0) {
+            m_right->execute();
+        }
+        wait(pid);
     }
+    exit(0);
 }

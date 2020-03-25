@@ -12,8 +12,9 @@ OBJS += $(KOBJS)
 KERNEL +=$(call mkobjs,kernel)
 
 
-KERNELFLAGS  := -T src/sys/kernel.ld
+KERNELFLAGS := -T src/sys/kernel.ld
 $(do)kernel: $(KOBJS)
+	@echo "linking kernel" $^
 	@$(LD) $(LDFLAGS) $(KERNELFLAGS) -o $@ $^
 
 $(eval $(call std_footer))

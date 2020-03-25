@@ -25,6 +25,7 @@
 
 #include "pipe.h"
 #include "babyos.h"
+#include "x86.h"
 
 
 void pipe_t::init()
@@ -48,16 +49,17 @@ void pipe_t::destroy()
         m_buffer = nullptr;
     }
 }
-//
+
 int32 pipe_t::read(void* buf, uint32 size)
 {
-    os()->uart()->kprintf("%d read: %d\n", current->m_pid, size);
+    os()->uart()->kprintf("%d read: %d, at %lx\n", current->m_pid, size, rdtsc());
 
     int n = 0;
     char* p = (char *) buf;
 
     uint64 flags;
     m_lock.lock_irqsave(flags);
+    os()->uart()->kprintf("%d read: locked at %lx\n", current->m_pid, rdtsc());
     while (m_write_index == m_read_index && m_writable) {
         m_lock.unlock_irqrestore(flags);
         current->sleep_on(&m_reader_wq);
@@ -72,8 +74,11 @@ int32 pipe_t::read(void* buf, uint32 size)
         p[i] = m_buffer[m_read_index++ % BUFFER_SIZE];
     }
 
+    os()->uart()->kprintf("%d read: copy data done at %lx\n", current->m_pid, rdtsc());
     m_writer_wq.wake_up();
+    os()->uart()->kprintf("%d read: wake up done at %lx\n", current->m_pid, rdtsc());
     m_lock.unlock_irqrestore(flags);
+    os()->uart()->kprintf("%d read: unlocked done at %lx\n", current->m_pid, rdtsc());
 
     os()->uart()->kprintf("%d read done: %d\n", current->m_pid, n);
     return n;
@@ -81,13 +86,14 @@ int32 pipe_t::read(void* buf, uint32 size)
 
 int32 pipe_t::write(void* buf, uint32 size)
 {
-    os()->uart()->kprintf("%d write: %d\n", current->m_pid, size);
+    os()->uart()->kprintf("%d write: %d at %lx\n", current->m_pid, size, rdtsc());
 
     int n = 0;
     char* p = (char *) buf;
 
     uint64 flags;
     m_lock.lock_irqsave(flags);
+    os()->uart()->kprintf("%d write: locked done at %lx\n", current->m_pid, rdtsc());
     for (uint32 i = 0; i < size; i++) {
         while (m_write_index == m_read_index + BUFFER_SIZE) {
             if (!m_readable) {
@@ -104,9 +110,12 @@ int32 pipe_t::write(void* buf, uint32 size)
         n++;
         m_buffer[m_write_index++ % BUFFER_SIZE] = p[i];
     }
+    os()->uart()->kprintf("%d write: copy data done at %lx\n", current->m_pid, rdtsc());
 
     m_reader_wq.wake_up();
+    os()->uart()->kprintf("%d write: wake up done at %lx\n", current->m_pid, rdtsc());
     m_lock.unlock_irqrestore(flags);
+    os()->uart()->kprintf("%d write: unlocked done at %lx\n", current->m_pid, rdtsc());
 
     os()->uart()->kprintf("%d write done: %d\n", current->m_pid, n);
     return n;

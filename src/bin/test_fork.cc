@@ -61,6 +61,5 @@ int main(int argc, char** argv)
 
     test_fork_wait_exit(argv[1]);
 
-    exit(0);
     return 0;
 }

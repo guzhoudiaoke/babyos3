@@ -30,11 +30,12 @@
 #include <stdarg.h>
 #include "types.h"
 
+extern "C" {
 
-void* memmov(void* dst, const void* src, uint32 n);
-void* memcpy(void* dst, const void* src, uint32 n);
-void* memset(void* dst, uint32 c, uint32 n);
-int   memcmp(const void* b1, const void* b2, uint32 n);
+//void* memmove(void* dst, const void* src, uint32 n);
+void* memcpy(void* dst, const void* src, size_t n);
+void* memset(void* dst, int c, size_t n);
+int   memcmp(const void* b1, const void* b2, size_t n);
 
 char* strcpy(char* dst, const char* src);
 char* strncpy(char* dst, const char* src, int n);
@@ -45,5 +46,9 @@ int   strncmp(const char* s1, const char *s2, int n);
 bool  is_digit(char c);
 int   sprintf(char* buffer, const char *fmt, ...);
 int   vsprintf(char *buffer, const char *fmt, va_list ap);
+
+void* memmove(void *dest, const void *src, size_t count);
+
+}
 
 #endif

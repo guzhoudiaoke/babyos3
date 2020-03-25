@@ -163,7 +163,6 @@ int main(int argc, char** argv)
     wait(pid2);
     wait(pid3);
 
-    exit(0);
     return 0;
 }
 

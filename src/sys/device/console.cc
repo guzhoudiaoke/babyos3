@@ -25,6 +25,7 @@
 #include "console.h"
 #include "babyos.h"
 #include "vbe.h"
+#include "x86.h"
 
 
 const uint32 c_buffer_size = 1024;
@@ -125,8 +126,13 @@ void console_t::scroll()
         return;
     }
 
+
+    os()->uart()->kprintf("scroll begin at %lx\n", rdtsc());
+
     /* scroll screen */
     os()->vbe()->scroll();
+
+    os()->uart()->kprintf("scroll end at %lx\n", rdtsc());
 
     /* clear last line */
     rect_t rc = {

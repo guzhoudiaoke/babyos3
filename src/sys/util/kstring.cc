@@ -29,65 +29,66 @@
 
 #define CHARACTER(ch)       (ch & 0xff)
 
+extern "C" {
 
-void* memmov(void* dst, const void* src, uint32 n)
+//void* memmove(void* dst, const void* src, uint32 n)
+//{
+//    uint32 count = n / 8;
+//    n = n % 8;
+//
+//    const uint64* s1 = (const uint64 *) src;
+//    uint64* d1 = (uint64 *) dst;
+//
+//    if (count > 0) {
+//        if (s1 < d1 && s1 + count > d1) {
+//            s1 += count, d1 += count;
+//            while (count--) {
+//                *--d1 = *--s1;
+//            }
+//        }
+//        else {
+//            while (count--) {
+//                *d1++ = *s1++;
+//            }
+//        }
+//    }
+//
+//    const char* s = (const char *) s1;
+//    char* d = (char *) d1;
+//
+//    if (n != 0) {
+//        if (s < d && s + n > d) {
+//            s += n, d += n;
+//            while (n--) {
+//                *--d = *--s;
+//            }
+//        }
+//        else {
+//            while (n--) {
+//                *d++ = *s++;
+//            }
+//        }
+//    }
+//
+//    return dst;
+//}
+
+void* memcpy(void* dst, const void* src, size_t n)
 {
-    uint32 count = n / 8;
-    n = n % 8;
-
-    const uint64* s1 = (const uint64 *) src;
-    uint64* d1 = (uint64 *) dst;
-
-    if (count > 0) {
-        if (s1 < d1 && s1 + count > d1) {
-            s1 += count, d1 += count;
-            while (count--) {
-                *--d1 = *--s1;
-            }
-        }
-        else {
-            while (count--) {
-                *d1++ = *s1++;
-            }
-        }
-    }
-
-    const char* s = (const char *) s1;
-    char* d = (char *) d1;
-
-    if (n != 0) {
-        if (s < d && s + n > d) {
-            s += n, d += n;
-            while (n--) {
-                *--d = *--s;
-            }
-        }
-        else {
-            while (n--) {
-                *d++ = *s++;
-            }
-        }
-    }
-
-    return dst;
+    return memmove(dst, src, n);
 }
 
-void* memcpy(void* dst, const void* src, uint32 n)
-{
-    return memmov(dst, src, n);
-}
-
-void* memset(void* dst, uint32 c, uint32 n)
+void* memset(void* dst, int c, size_t n)
 {
     char* d = (char *) dst;
-    for (uint32 i = 0; i < n; i++) {
+    for (size_t i = 0; i < n; i++) {
         *d++ = (c & 0xff);
     }
 
     return dst;
 }
 
-int memcmp(const void* b1, const void* b2, uint32 n)
+int memcmp(const void* b1, const void* b2, size_t n)
 {
     if (n == 0) {
         return 0;
@@ -364,3 +365,4 @@ int sprintf(char* buffer, const char *fmt, ...)
     return total;
 }
 
+}

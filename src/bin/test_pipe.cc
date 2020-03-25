@@ -84,7 +84,6 @@ int main(int argc, char** argv)
 
     test_pipe(argv[1]);
 
-    exit(0);
     return 0;
 }
 

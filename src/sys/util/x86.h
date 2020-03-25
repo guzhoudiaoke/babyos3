@@ -139,7 +139,7 @@ static inline void cli(void)
 
 static inline void halt(void)
 {
-        __asm__ volatile("hlt");
+    __asm__ volatile("hlt");
 }
 
 static inline uint64 rdtsc()

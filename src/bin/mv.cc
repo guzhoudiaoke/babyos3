@@ -44,7 +44,6 @@ int main(int argc, char** argv)
         unlink(argv[2]);
     }
 
-    exit(0);
     return 0;
 }
 

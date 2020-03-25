@@ -9,6 +9,7 @@ SUB_OBJS = \
 		  dlist.o \
 		  kstring.o \
 		  elf.o \
+		  memmove.o \
 
 KOBJS += $(call mkobjs,$(SUB_OBJS))
 

@@ -167,7 +167,7 @@ void vbe_t::fill_rectangle(rect_t rect, color_ref_t color)
 
 void vbe_t::scroll()
 {
-    memmov(m_base,
+    memmove(m_base,
            m_base + m_width*m_bytes_pp*c_asc16_height,
            m_width*m_bytes_pp*(m_height-c_asc16_height));
 }

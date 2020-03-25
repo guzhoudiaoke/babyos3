@@ -29,7 +29,6 @@
 
 void cat(int fd)
 {
-    printf("cat %d\n", fd);
     char buf[512];
 
     int n = 0;
@@ -43,7 +42,6 @@ void cat(int fd)
 
 int main(int argc, char** argv)
 {
-    printf("cat\n");
     if (argc <= 1) {
         cat(0);
         exit(0);
@@ -60,7 +58,6 @@ int main(int argc, char** argv)
         close(fd);
     }
 
-    printf("cat done\n");
     return 0;
 }
 

@@ -26,6 +26,7 @@
 #include "mm.h"
 #include "vm.h"
 #include "pipe.h"
+#include "babyos.h"
 
 
 mm_t::mm_t()
@@ -113,6 +114,7 @@ void* mm_t::kmalloc(uint64 size)
 {
     for (uint32 i = 0; i < MAX_CACHE_OF_SIZE_INDEX; i++) {
         if (m_cache_with_size[i].m_size >= size) {
+            os()->uart()->kprintf("kmalloc, size: %d\n", size);
             return m_cache_with_size[i].m_cache->alloc();
         }
     }

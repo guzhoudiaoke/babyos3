@@ -60,7 +60,6 @@ int main(int argc, char** argv)
     close(fd);
     close(fd2);
 
-    exit(0);
     return 0;
 }
 
