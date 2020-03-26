@@ -17,16 +17,14 @@ SUB_OBJS = \
 		   test_fork.o \
 		   test_wait.o \
 		   test_pipe.o \
+		   test_sig.o \
 
 
 OBJS += $(call mkobjs,$(SUB_OBJS))
 USERAPPS += $(call mkobjs,init cat ln ls rm mv mkdir \
 						  cp test_socket test_fork \
-						  test_wait test_pipe)
+						  test_wait test_pipe test_sig)
 
-
-#USERFLAGS := -e main -Ttext 0x1000 
-#USERFLAGS := -Ttext 0x1000 
 
 $(do)init: $(do)init.o $(USERLIBS)
 	@$(LD) $(LDFLAGS) -o $@ $^
@@ -62,6 +60,9 @@ $(do)test_wait: $(do)test_wait.o $(USERLIBS)
 	@$(LD) $(LDFLAGS) -o $@ $^
 
 $(do)test_pipe: $(do)test_pipe.o $(USERLIBS)
+	@$(LD) $(LDFLAGS) -o $@ $^
+
+$(do)test_sig: $(do)test_sig.o $(USERLIBS)
 	@$(LD) $(LDFLAGS) -o $@ $^
 
 

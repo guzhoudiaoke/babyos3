@@ -6,6 +6,7 @@ SUB_OBJS = \
 		  spinlock.o \
 		  sem.o \
 		  pipe.o \
+		  signal.o \
 
 KOBJS += $(call mkobjs,$(SUB_OBJS))
 

@@ -10,9 +10,9 @@ USERLIBS = $(call mklibs,c c++ m)
 
 $(eval $(call top_level_config))
 
-LIB_INCS 	:= 
-USR_INCS 	:= 
-SYS_INCS 	:= 
+LIB_INCS 	:= -I src/include -I src/include/babyos
+USR_INCS 	:= -I src/include -I src/include/babyos
+SYS_INCS 	:= -I src/include/babyos
 LIBS 		:=
 OBJS 		:=
 

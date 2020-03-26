@@ -32,6 +32,7 @@
 #include "sock.h"
 #include "filemode.h"
 #include "stat.h"
+#include "signal.h"
 #include <stdarg.h>
 
 
@@ -78,6 +79,7 @@ int   dup(int fd);
 int   chdir(const char* path);
 int   fstat(int fd, stat_t* st);
 int   stat(const char* path, stat_t* st);
+int   lseek(int fd, unsigned offset, int whence);
 int   pipe(int fd[2]);
 
 int   socket(int domain, int type, int protocol);
@@ -90,7 +92,7 @@ int   send_to(int fd, void *buf, unsigned size, sock_addr_t* addr);
 int   recv_from(int fd, void *buf, unsigned size, sock_addr_t* addr);
 void* sbrk(long increment);
 
-int   lseek(int fd, unsigned offset, int whence);
 
+sighandler_t __signal(int signum, sighandler_t handler);
 
 #endif

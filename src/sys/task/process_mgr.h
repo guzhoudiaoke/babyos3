@@ -54,15 +54,14 @@ public:
     uint32      get_next_pid();
     bool        in_run_queue(process_t* proc);
 
+
 private:
 	atomic_t	        m_next_pid;
     process_t*		    m_child_reaper;
 
-    //list_t<process_t*>  m_run_queue;
     dlist_t             m_run_queue;
     spinlock_t          m_run_queue_lock;
 
-    //list_t<process_t*>  m_proc_list;
     dlist_t             m_proc_list;
     spinlock_t          m_proc_list_lock;
 };

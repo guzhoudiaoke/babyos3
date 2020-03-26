@@ -146,6 +146,11 @@ reschedule:
 	call    schedule
 	jmp	    restore_all
 
+dosignal:
+    mov     %rsp,           %rdi
+	call	do_signal
+	jmp		restore_all
+
 ret_from_fork:
     movq    %rax,           %rdi
 	call	schedule_tail
@@ -165,6 +170,8 @@ ret_from_intr:
     cli
     cmpl    $0,             need_resched(%rbx)
     jne     reschedule
+	cmpl    $0,				sig_pending(%rbx)
+	jne     dosignal
 
 restore_all:
 	RESTORE_ALL

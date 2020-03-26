@@ -27,6 +27,7 @@
 #include "vm.h"
 #include "pipe.h"
 #include "babyos.h"
+#include "signal.h"
 
 
 mm_t::mm_t()
@@ -45,6 +46,7 @@ void mm_t::init()
     m_cache_cache.create(sizeof(kmem_cache_t), 8, 1);
     m_vma_cache.create(sizeof(vm_area_t), 8, 1);
     m_pipe_cache.create(sizeof(pipe_t), 8, 1);
+    m_siginfo_cache.create(sizeof(siginfo_t), 8, 1);
 
     uint32 size = 32;
     uint32 order = 1;
@@ -77,6 +79,11 @@ kmem_cache_t* mm_t::vma_cache()
 kmem_cache_t* mm_t::pipe_cache()
 {
     return &m_pipe_cache;
+}
+
+kmem_cache_t* mm_t::siginfo_cache()
+{
+    return &m_siginfo_cache;
 }
 
 uint64 mm_t::alloc_pages(uint32 order)

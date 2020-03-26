@@ -24,13 +24,25 @@
 
 
 
+#include "stdint.h"
 #include "signal.h"
 #include "stdio.h"
+#include "unistd.h"
+#include "syscall_def.h"
 
 
 sighandler_t signal(int signum, sighandler_t handler)
 {
-    // TODO
-    //printf("%s not implemented\n", __FUNCTION__);
-    return NULL;
+    return __signal(signum, handler);
+}
+
+int kill(pid_t pid, int sig)
+{
+    return syscall(KILL, pid, sig);
+}
+
+int killpg(int pgrp, int sig)
+{
+    printf("%s not implemented\n", __FUNCTION__);
+    return 0;
 }

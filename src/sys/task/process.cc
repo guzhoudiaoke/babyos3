@@ -48,9 +48,9 @@ void process_t::copy_files(const process_t& rhs)
 
 void process_t::copy_signal(const process_t& rhs)
 {
-    //p->m_signal.copy(m_signal);
-    //m_sig_queue.init(os()->get_obj_pool_of_size());
-    //m_sig_mask_lock.init();
+    m_signal.copy(rhs.m_signal);
+    m_sig_queue.init();
+    m_sig_mask_lock.init();
 }
 
 void process_t::init(process_t* parent)
@@ -85,6 +85,11 @@ void process_t::init(process_t* parent)
     for (int i = 0; i < MAX_OPEN_FILE; i++) {
         m_files[i] = nullptr;
     }
+
+    /* signal */
+    m_signal.init();
+    m_sig_queue.init();
+    m_sig_mask_lock.init();
 }
 
 void process_t::copy_context(const process_t& rhs, trap_frame_t* frame)
@@ -395,10 +400,10 @@ int32 process_t::exit()
     return 0;
 }
 
-//void process_t::calc_sig_pending()
-//{
-//    m_sig_pending = !m_sig_queue.empty();
-//}
+void process_t::calc_sig_pending()
+{
+    m_sig_pending = !m_sig_queue.empty();
+}
 
 int process_t::alloc_fd(file_t* file)
 {
@@ -442,18 +447,17 @@ void process_t::unlock()
 }
 
 
-//extern "C"
-//void do_signal(trap_frame_t* frame)
-//{
-//    current->do_signal(frame);
-//}
-//
-//void process_t::do_signal(trap_frame_t* frame)
-//{
-//    if (!m_sig_queue.empty()) {
-//        siginfo_t si = *current->m_sig_queue.begin();
-//        m_sig_queue.pop_front();
-//        calc_sig_pending();
-//        m_signal.handle_signal(frame, si);
-//    }
-//}
+extern "C"
+void do_signal(trap_frame_t* frame)
+{
+    current->do_signal(frame);
+}
+
+void process_t::do_signal(trap_frame_t* frame)
+{
+    if (!m_sig_queue.empty()) {
+        siginfo_t* si = (siginfo_t *) list_entry(m_sig_queue.remove_head(), siginfo_t, m_node);
+        calc_sig_pending();
+        m_signal.handle_signal(frame, si);
+    }
+}

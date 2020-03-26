@@ -25,6 +25,7 @@
 
 #include "unistd.h"
 #include "syscall_def.h"
+#include "stdint.h"
 
 
 long syscall(int id)
@@ -234,4 +235,9 @@ void* sbrk(long increment)
 int lseek(int fd, unsigned offset, int whence)
 {
     return syscall(LSEEK, offset, whence);
+}
+
+sighandler_t __signal(int signum, sighandler_t handler)
+{
+    return (sighandler_t) syscall(SIGNAL, signum, (uint64_t) handler);
 }

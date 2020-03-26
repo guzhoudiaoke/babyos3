@@ -185,22 +185,24 @@ uint32 process_mgr_t::get_next_pid()
     return pid;
 }
 
+int32 process_mgr_t::send_signal_to(uint32 pid, uint32 sig)
+{
+    int32 ret = -1;
 
-//int32 process_mgr_t::send_signal_to(uint32 pid, uint32 sig)
-//{
-//    siginfo_t si;
-//    si.m_sig = sig;
-//    si.m_pid = current->m_pid;
-//
-//    spinlock_t* lock = os()->get_process_mgr()->get_proc_list_lock();
-//    uint32 flags;
-//    lock->lock_irqsave(flags);
-//    process_t* p = os()->get_process_mgr()->find_process(pid);
-//    if (p != nullptr) {
-//        p->m_sig_queue.push_back(si);
-//        p->calc_sig_pending();
-//    }
-//    lock->unlock_irqrestore(flags);
-//
-//    return 0;
-//}
+    siginfo_t* si = (siginfo_t *) os()->mm()->siginfo_cache()->alloc();
+    si->m_sig = sig;
+    si->m_pid = current->m_pid;
+
+    spinlock_t* lock = os()->process_mgr()->get_proc_list_lock();
+    uint64 flags;
+    lock->lock_irqsave(flags);
+    process_t* p = os()->process_mgr()->find_process(pid);
+    if (p != nullptr) {
+        p->m_sig_queue.add_tail(&si->m_node);
+        p->calc_sig_pending();
+        ret = 0;
+    }
+    lock->unlock_irqrestore(flags);
+
+    return ret;
+}

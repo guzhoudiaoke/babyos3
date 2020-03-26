@@ -31,6 +31,7 @@
 #include "x86.h"
 #include "sock_addr.h"
 #include "sys_socket.h"
+#include "signal.h"
 
 
 uint64 (*syscall_t::s_system_call_table[])(trap_frame_t* frame);
@@ -64,10 +65,9 @@ void syscall_t::init()
     s_system_call_table[ACCEPT]   = sys_socket_t::sys_accept;
     s_system_call_table[CONNECT]  = sys_socket_t::sys_connect;
     s_system_call_table[SBRK]     = syscall_t::sys_sbrk;
-
-    //syscall_t::sys_signal,
-    //syscall_t::sys_sigret,
-    //syscall_t::sys_kill,
+    s_system_call_table[SIGNAL]   = syscall_t::sys_signal;
+    s_system_call_table[SIGRET]   = syscall_t::sys_sigret;
+    s_system_call_table[KILL]     = syscall_t::sys_kill;
 }
 
 void syscall_t::do_syscall(trap_frame_t* frame)
@@ -260,22 +260,21 @@ uint64 syscall_t::sys_sbrk(trap_frame_t* frame)
     return current->m_vmm.sbrk(increment);
 }
 
-//uint64 syscall_t::sys_signal(trap_frame_t* frame)
-//{
-//    uint32 sig = frame->ebx;
-//    sighandler_t sig_handler = (sighandler_t) frame->ecx;
-//    return current->m_signal.do_sigaction(sig, sig_handler);
-//}
-//
-//uint64 syscall_t::sys_sigret(trap_frame_t* frame)
-//{
-//    return current->m_signal.do_sigreturn(frame);
-//}
-//
-//uint64 syscall_t::sys_kill(trap_frame_t* frame)
-//{
-//    uint32 pid = frame->ebx;
-//    uint32 sig = frame->ecx;
-//    return os()->get_process_mgr()->send_signal_to(pid, sig);
-//}
-//
+uint64 syscall_t::sys_signal(trap_frame_t* frame)
+{
+    uint32 sig = (uint32) get_argument(frame, 0);
+    sighandler_t sig_handler = (sighandler_t) get_argument(frame, 1);
+    return current->m_signal.do_sigaction(sig, sig_handler);
+}
+
+uint64 syscall_t::sys_sigret(trap_frame_t* frame)
+{
+    return current->m_signal.do_sigreturn(frame);
+}
+
+uint64 syscall_t::sys_kill(trap_frame_t* frame)
+{
+    uint32 pid = (uint32) get_argument(frame, 0);
+    uint32 sig = (uint32) get_argument(frame, 1);
+    return os()->process_mgr()->send_signal_to(pid, sig);
+}

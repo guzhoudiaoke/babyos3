@@ -32,10 +32,10 @@
 #include "traps.h"
 #include "waitqueue.h"
 #include "vm.h"
-//#include "signal.h"
 #include "fs.h"
 #include "file.h"
 #include "arg.h"
+#include "signal.h"
 
 
 #define MAX_OPEN_FILE 64
@@ -84,13 +84,13 @@ public:
     void        set_state(state_t state);
     int32       exit();
     int32       wait_children(pid_t pid);
-    //void        calc_sig_pending();
+    void        calc_sig_pending();
 
     int         alloc_fd(file_t* file);
     void        free_fd(int fd);
     file_t*     get_file(int fd);
     void        set_cwd(inode_t* inode);
-    //void        do_signal(trap_frame_t* frame);
+    void        do_signal(trap_frame_t* frame);
 
     void        lock();
     void        unlock();
@@ -121,7 +121,6 @@ public:
     spinlock_t          m_task_lock;
 
     process_t*          m_parent;
-    //list_t<process_t *> m_children;
     dlist_t             m_children;
     dlist_node_t        m_child_list_node;
     dlist_node_t        m_mgr_list_node;
@@ -130,10 +129,10 @@ public:
 
     wait_queue_t        m_wait_child;
 
-    //signal_t            m_signal;
-    //list_t<siginfo_t>   m_sig_queue;
-    //sigset_t            m_sig_blocked;
-    //spinlock_t          m_sig_mask_lock;
+    signal_t            m_signal;
+    dlist_t             m_sig_queue;
+    sigset_t            m_sig_blocked;
+    spinlock_t          m_sig_mask_lock;
 
     inode_t*            m_cwd;
     file_t*             m_files[MAX_OPEN_FILE];

@@ -45,6 +45,7 @@ public:
     bootmem_t* bootmem();
     kmem_cache_t* vma_cache();
     kmem_cache_t* pipe_cache();
+    kmem_cache_t* siginfo_cache();
 
     void*  boot_mem_alloc(uint32 size, bool page_align);
     uint64 alloc_pages(uint32 order);
@@ -70,6 +71,7 @@ private:
     kmem_cache_t  m_cache_cache;
     kmem_cache_t  m_vma_cache;
     kmem_cache_t  m_pipe_cache;
+    kmem_cache_t  m_siginfo_cache;
     cache_sizes_t m_cache_with_size[MAX_CACHE_OF_SIZE_INDEX];
 };
 

@@ -29,6 +29,7 @@
 
 #include "stdint.h"
 
+
 #define SIGINVAL 0
 #define SIGHUP 1
 #define SIGINT 2
@@ -73,7 +74,8 @@ typedef __sighandler_t sighandler_t;
 typedef uint32_t sigset_t;
 typedef uint32_t sig_atomic_t;
 
-union sigval {
+union sigval
+{
     int sival_int;
     void* sival_ptr;
 };

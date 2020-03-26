@@ -1,5 +1,5 @@
 /*
- *	babyos/include/syscall_def.h
+ *	babyos/bin/test_sig.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,49 +19,42 @@
 
 
 /*
- *  2020-03-12		created
+ *  2020-03-11		created
  */
 
 
 
-#ifndef _SYSCALL_DEF_H_
-#define _SYSCALL_DEF_H_
+#include "unistd.h"
+#include "stdio.h"
+#include "signal.h"
 
 
-enum {
-    PRINT = 0,
-    FORK,
-    EXEC,
-    MMAP,
-    EXIT,
-    WAIT,
-    SLEEP,
-    OPEN,
-    CLOSE,
-    READ,
-    WRITE,
-    LINK,
-    UNLINK,
-    MKDIR,
-    MKNOD,
-    DUP,
-    STAT,
-    CHDIR,
-    PIPE,
-    SENDTO,
-    RECVFROM,
-    SOCKET,
-    BIND,
-    LISTEN,
-    ACCEPT,
-    CONNECT,
-    SBRK,
-    LSEEK,
-    SIGNAL,
-    SIGRET,
-    KILL,
-    MAX_SYSCALL,
-};
+void sig_handler(int sig)
+{
+    printf("Receive signal: %d\n", sig);
+}
 
+int main()
+{
+    int i = 0;
+    pid_t pid = fork();
 
-#endif
+    if (pid == 0) {
+        /* child */
+        sighandler_t handler = sig_handler;
+        signal(4, handler);
+        while (i++ < 10) {
+            sleep(2);
+        }
+        exit(0);
+    }
+
+    while (i++ < 10) {
+        sleep(2);
+        kill(pid, 4);
+        printf("Send signal\n");
+    }
+
+    wait(pid);
+    return 0;
+}
