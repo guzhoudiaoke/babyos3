@@ -40,7 +40,6 @@ void block_dev_t::init(uint32 dev)
     m_lock.init();
     m_used_list.init();
     m_free_list.init();
-    m_request_cache.create(sizeof(request_t), 8, 1);
 
     m_dev = dev;
     m_buf_num = PAGE_SIZE * BUFFER_PAGES / sizeof(io_buffer_t);
@@ -114,13 +113,10 @@ io_buffer_t* block_dev_t::read(uint32 lba)
         return b;
     }
 
-    for (int i = 0; i < 4; i++) {
-        request_t* req = (request_t *)m_request_cache.alloc();
-        req->init(m_dev, lba, i, request_t::CMD_READ, b);
-        os()->ide()->add_request(req);
-        b->wait();
-        m_request_cache.free(req);
-    }
+    request_t req;
+    req.init(m_dev, lba, request_t::CMD_READ, b);
+    os()->ide()->add_request(&req);
+    b->wait();
 
     return b;
 }
@@ -129,11 +125,9 @@ int block_dev_t::write(io_buffer_t* b)
 {
     request_t req;
 
-    for (int i = 0; i < 4; i++) {
-        req.init(m_dev, b->m_lba, i, request_t::CMD_WRITE, b);
-        os()->ide()->add_request(&req);
-        b->wait();
-    }
+    req.init(m_dev, b->m_lba, request_t::CMD_WRITE, b);
+    os()->ide()->add_request(&req);
+    b->wait();
 
     return 0;
 }

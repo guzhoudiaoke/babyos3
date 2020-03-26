@@ -49,9 +49,6 @@ static int32 load_elf_segment(elf64_phdr_t* ph, int fd)
     uint64 offset = ph->p_vaddr - (uint64)vaddr;
     uint64 len = PAGE_ALIGN(ph->p_memsz + ((uint64)ph->p_vaddr & (PAGE_SIZE-1)));
 
-    os()->uart()->kprintf("vaddr: %p, ph->p_vaddr: %p, offset: %x, len: %x, memsz: %x, filesz: %x\n", 
-            vaddr, ph->p_vaddr, offset, len, ph->p_memsz, ph->p_filesz);
-
     /* mmap */
     int64 ret = current->m_vmm.do_mmap((uint64) vaddr,
                                         len,
@@ -189,7 +186,6 @@ end:
     /* 6. close file */
     os()->fs()->do_close(fd);
 
-    os()->uart()->kprintf("load elf done\n");
     return ret;
 }
 

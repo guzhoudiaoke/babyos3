@@ -151,7 +151,6 @@ void* kmem_cache_t::alloc_one()
 
 void* kmem_cache_t::slab_alloc(slab_t* slab)
 {
-    os()->uart()->kprintf("slab: %p, m_in_use: %d, objsize: %d\n", slab, slab->m_in_use, m_objsize);
     slab->m_in_use++;
     void* obj = (uint8 *)slab->m_mem + slab->m_first_free*m_objsize;
     uint32* free_table = (uint32 *) (slab + 1);

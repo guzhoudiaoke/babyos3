@@ -257,7 +257,6 @@ end:
         exit();
     }
 
-    os()->uart()->kprintf("exec done\n");
     return ret;
 }
 
@@ -375,8 +374,6 @@ void process_t::close_all_files()
 
 int32 process_t::exit()
 {
-    os()->uart()->kprintf("%d %s, exit\n", m_pid, m_name);
-
     /* remove the mem resource */
     m_vmm.release();
 

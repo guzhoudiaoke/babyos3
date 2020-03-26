@@ -39,7 +39,6 @@ int main(int argc, char** argv)
         printf("link %s %s failed\n", argv[1], argv[2]);
     }
 
-    exit(0);
     return 0;
 }
 

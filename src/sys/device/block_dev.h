@@ -32,7 +32,6 @@
 #include "spinlock.h"
 #include "kernel.h"
 #include "io_buffer.h"
-#include "slab.h"
 
 
 class block_dev_t {
@@ -53,7 +52,6 @@ private:
     dlist_t       m_used_list;
     dlist_t       m_free_list;
     spinlock_t    m_lock;
-    kmem_cache_t  m_request_cache;
 };
 
 #endif

@@ -29,11 +29,10 @@
 #include "x86.h"
 
 
-void request_t::init(uint32 dev, uint32 lba, uint32 offset, uint32 cmd, io_buffer_t* b)
+void request_t::init(uint32 dev, uint32 lba, uint32 cmd, io_buffer_t* b)
 {
     m_dev = dev;
     m_lba = lba;
-    m_offset = offset;
     m_cmd = cmd;
     m_buffer = b;
 }
@@ -70,7 +69,6 @@ void ide_t::add_request(request_t* req)
         uint64 flags;
         m_lock.lock_irqsave(flags);
         m_req_list.add_tail(&req->m_list_node);
-        os()->uart()->puts("push_back\n");
         m_lock.unlock_irqrestore(flags);
     }
 }
@@ -81,29 +79,29 @@ void ide_t::do_request()
         return;
     }
 
-    uint32 lba = m_current->m_lba + m_current->m_offset;
+    uint32 lba = m_current->m_lba;
     wait();
 
-    outb(0x3f6, 0);     // generate interrupt
-    outb(0x1f2, 1);     // sector num
+    outb(0x3f6, 0);                     /* generate interrupt */
+    outb(0x1f2, BSIZE / SECT_SIZE);     /* sector num */
     outb(0x1f3, lba & 0xff);
     outb(0x1f4, (lba >> 8)  & 0xff);
     outb(0x1f5, (lba >> 16) & 0xff);
-    outb(0x1f6, 0xe0 | ((m_current->m_dev & 0x1) << 4) | ((lba >> 24) & 0xff));
+    outb(0x1f6, 0xe0 | ((m_current->m_dev & 0x1) << 4) | ((lba >> 24) & 0x0f));
 
     if (m_current->m_cmd == request_t::CMD_READ) {
-        outb(0x1f7, IO_CMD_READ);
+        outb(0x1f7, IO_CMD_READ_MUL);
     }
     else {
-        outb(0x1f7, IO_CMD_WRITE);
-        outsl(0x1f0, m_current->m_buffer->m_buffer+m_current->m_offset*SECT_SIZE, SECT_SIZE/4);
+        outb(0x1f7, IO_CMD_WRITE_MUL);
+        outsl(0x1f0, m_current->m_buffer->m_buffer, BSIZE/4);
     }
 }
 
 void ide_t::end_request()
 {
     if (m_current->m_cmd == request_t::CMD_READ) {
-        insl(0x1f0, m_current->m_buffer->m_buffer+m_current->m_offset*SECT_SIZE, SECT_SIZE/4);
+        insl(0x1f0, m_current->m_buffer->m_buffer, BSIZE/4);
     }
 
     m_current->m_buffer->done();
@@ -133,5 +131,3 @@ void ide_t::do_irq()
 {
     end_request();
 }
-
-

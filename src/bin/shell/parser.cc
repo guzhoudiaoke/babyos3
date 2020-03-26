@@ -151,7 +151,6 @@ parser_t::~parser_t()
 
 command_t* parser_t::parse()
 {
-    printf("%s, [%d, %d)", m_line, m_begin, m_end);
     if (m_begin >= m_end) {
         return nullptr;
     }

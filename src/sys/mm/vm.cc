@@ -829,7 +829,6 @@ out:
 
 uint64 vmm_t::do_brk(uint64 addr, uint64 len)
 {
-    os()->uart()->kprintf("do_brk: %p, %p\n", addr, len);
     vm_area_t* vma = nullptr;
 
     len = PAGE_ALIGN(len);
@@ -869,9 +868,7 @@ out:
 uint64 vmm_t::sbrk(uint64 increment)
 {
     uint64 addr = m_brk;
-    os()->uart()->kprintf("m_brk: %p, increment: %p\n", m_brk, increment);
     sys_brk(m_brk + increment);
 
-    os()->uart()->kprintf("sbrk return %p, m_brk: %p\n", addr, m_brk);
     return addr;
 }

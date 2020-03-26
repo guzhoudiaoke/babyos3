@@ -315,7 +315,7 @@ void test_ide()
     io_buffer_t buffer;
     memset(buffer.m_buffer, 0, 512);
     request_t req;
-    req.init(0, 0, 0, request_t::CMD_READ, &buffer);
+    req.init(0, 0, request_t::CMD_READ, &buffer);
     os()->ide()->add_request(&req);
 
     while (!buffer.m_done) {
