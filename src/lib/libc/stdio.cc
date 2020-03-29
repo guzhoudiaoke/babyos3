@@ -136,7 +136,7 @@ int fseek(FILE* stream, long offset, int whence)
 long ftell(FILE* fp)
 {
     fflush(fp);
-    return lseek(fp->fd, 0, SEEK_CUR);
+    return lseek(fp->fd, 0ULL, SEEK_CUR);
 }
 
 int fgetpos(FILE* stream, fpos_t* pos)

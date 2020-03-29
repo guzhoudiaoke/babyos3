@@ -49,6 +49,7 @@ public:
     static uint64 sys_close(trap_frame_t* frame);
     static uint64 sys_read(trap_frame_t* frame);
     static uint64 sys_write(trap_frame_t* frame);
+    static uint64 sys_lseek(trap_frame_t* frame);
     static uint64 sys_link(trap_frame_t* frame);
     static uint64 sys_unlink(trap_frame_t* frame);
     static uint64 sys_mkdir(trap_frame_t* frame);
@@ -63,6 +64,7 @@ public:
     static uint64 sys_signal(trap_frame_t* frame);
     static uint64 sys_sigret(trap_frame_t* frame);
     static uint64 sys_kill(trap_frame_t* frame);
+    static uint64 sys_pid(trap_frame_t* frame);
 
 private:
     static uint64 (*s_system_call_table[MAX_SYSCALL])(trap_frame_t* frame);

@@ -27,6 +27,7 @@
 #include "unistd.h"
 #include "stdio.h"
 #include "signal.h"
+#include "assert.h"
 
 
 void sig_handler(int sig)
@@ -42,19 +43,30 @@ int main()
     if (pid == 0) {
         /* child */
         sighandler_t handler = sig_handler;
-        signal(4, handler);
-        while (i++ < 10) {
-            sleep(2);
+        signal(SIGUSR1, handler);
+        while (i++ < 3) {
+            sleep(1);
         }
+
+        /* abort */
+        raise(SIGABRT);
+
+        printf("ERROR: return from abort\n");
         exit(0);
     }
 
-    while (i++ < 10) {
-        sleep(2);
-        kill(pid, 4);
+    /* parent send signal to child */
+    while (i++ < 3) {
+        sleep(1);
+        kill(pid, SIGUSR1);
         printf("Send signal\n");
     }
 
+    /* wait child end */
     wait(pid);
+
+    /* assert */
+    assert(1 == 0);
+
     return 0;
 }

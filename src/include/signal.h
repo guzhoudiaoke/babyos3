@@ -99,6 +99,7 @@ struct sigaction {
     int sa_flags;
 };
 
+int raise(int sig);
 int kill(pid_t, int sig);
 int killpg(int pgrp, int sig);
 sighandler_t signal(int sig, sighandler_t);

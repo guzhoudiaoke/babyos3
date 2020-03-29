@@ -31,7 +31,7 @@
 
 static int32 read_file_from(int fd, void* buffer, uint64 offset, uint64 size)
 {
-    if (os()->fs()->do_seek(fd, offset) < 0) {
+    if (os()->fs()->do_seek(fd, offset, SEEK_SET) < 0) {
         return -1;
     }
 

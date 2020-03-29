@@ -20,6 +20,7 @@ SUB_OBJS = \
 	gets.o \
 	ctype.o \
 	flags.o \
+	assert.o \
 
 LIBS += $(call mkobjs,libc.a)
 OBJS += $(call mkobjs,$(SUB_OBJS))

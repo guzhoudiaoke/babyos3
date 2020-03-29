@@ -40,6 +40,7 @@ enum {
     CLOSE,
     READ,
     WRITE,
+    LSEEK,
     LINK,
     UNLINK,
     MKDIR,
@@ -56,10 +57,12 @@ enum {
     ACCEPT,
     CONNECT,
     SBRK,
-    LSEEK,
     SIGNAL,
     SIGRET,
     KILL,
+    PID,
+    PS,
+    ALARM,
     MAX_SYSCALL,
 };
 

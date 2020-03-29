@@ -32,6 +32,7 @@
 #include "block_dev.h"
 #include "pipe.h"
 #include "socket.h"
+#include "dirent.h"
 
 
 void file_system_t::read_super_block(super_block_t* sb)
@@ -812,14 +813,35 @@ int file_system_t::do_stat(int fd, stat_t* st)
     return -1;
 }
 
-int file_system_t::do_seek(int fd, uint32 pos)
+int file_system_t::do_seek(int fd, uint64 pos, int whence)
 {
     file_t* file = current->get_file(fd);
-    if (file != nullptr && file->m_inode != nullptr && pos < file->m_inode->m_size) {
-        file->m_offset = pos;
+    //if (file != nullptr && file->m_inode != nullptr && pos < file->m_inode->m_size) {
+    if (file != nullptr && file->m_inode != nullptr) {
+        uint64 offset = 0;
+        switch (whence) {
+        case SEEK_CUR:
+            offset = file->m_offset + pos;
+            break;
+        case SEEK_SET:
+            offset = pos;
+            break;
+        case SEEK_END:
+            offset = file->m_inode->m_size;
+            break;
+        default:
+            return -EINVAL;
+        }
+
+        if (offset > file->m_inode->m_size) {
+            return -EINVAL;
+        }
+
+        file->m_offset = offset;
         return 0;
     }
-    return -1;
+
+    return -EINVAL;
 }
 
 int file_system_t::do_chdir(const char* path)

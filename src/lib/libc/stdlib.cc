@@ -24,6 +24,7 @@
 
 
 #include "stdlib.h"
+#include "signal.h"
 
 
 int system(const char* command)
@@ -73,14 +74,12 @@ void srandom(unsigned seed)
     printf("%s not implemented\n", __FUNCTION__);
 }
 
-void abort()
-{
-    printf("%s not implemented\n", __FUNCTION__);
-}
-
-
 int abs(int val)
 {
     return val < 0 ? -val : val;
 }
 
+void abort()
+{
+    raise(SIGABRT);
+}

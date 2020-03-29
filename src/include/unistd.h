@@ -71,6 +71,7 @@ int   open(const char* path, int mode);
 int   close(int fd);
 long  read(int fd, void* buf, long size);
 long  write(int fd, void* buf, long size);
+int   lseek(int fd, unsigned long offset, int whence);
 int   mkdir(const char* path);
 int   link(const char* path_old, const char* path_new);
 int   unlink(const char* path);
@@ -79,7 +80,6 @@ int   dup(int fd);
 int   chdir(const char* path);
 int   fstat(int fd, stat_t* st);
 int   stat(const char* path, stat_t* st);
-int   lseek(int fd, unsigned offset, int whence);
 int   pipe(int fd[2]);
 
 int   socket(int domain, int type, int protocol);
@@ -92,7 +92,9 @@ int   send_to(int fd, void *buf, unsigned size, sock_addr_t* addr);
 int   recv_from(int fd, void *buf, unsigned size, sock_addr_t* addr);
 void* sbrk(long increment);
 
-
 sighandler_t __signal(int signum, sighandler_t handler);
+pid_t getpid(void);
+unsigned int alarm(unsigned int seconds);
+
 
 #endif

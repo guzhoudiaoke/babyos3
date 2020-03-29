@@ -73,7 +73,7 @@ public:
     int      do_unlink(const char* path);
     int      do_mknod(const char* path, int major, int minor);
     int      do_dup(int fd);
-    int      do_seek(int fd, uint32 pos);
+    int      do_seek(int fd, uint64 pos, int whence);
     int      do_stat(int fd, stat_t* st);
     int      do_chdir(const char* path);
     int      do_pipe(int fd[2]);

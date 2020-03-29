@@ -1,5 +1,5 @@
 /*
- *	babyos/lib/stddef.h
+ *	babyos/lib/libc/assert.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,15 +19,17 @@
 
 
 /*
- *  2020-03-12		created
+ *  2020-03-29		created
  */
 
 
-#ifndef _STDDEF_H_
-#define _STDDEF_H_
+#include "assert.h"
+#include "stdio.h"
+#include "stdlib.h"
 
-#include "types.h"
 
-#define offsetof(type, member) __builtin_offsetof(type, member)
-
-#endif
+void __assert(const char* file, int line, const char* func, const char* expr)
+{
+    printf("Assertion failed: %s: line%d function: %s: expr: %s\n", file, line, func, expr);
+    abort();
+}

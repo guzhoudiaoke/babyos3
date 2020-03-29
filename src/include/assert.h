@@ -1,5 +1,5 @@
 /*
- *	babyos/lib/stddef.h
+ *	babyos/include/assert.h
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,15 +19,25 @@
 
 
 /*
- *  2020-03-12		created
+ *  2020-03-29		created
  */
 
 
-#ifndef _STDDEF_H_
-#define _STDDEF_H_
+#ifndef _ASSERT_H_
+#define _ASSERT_H_
 
-#include "types.h"
+#include <sys/cdefs.h>
 
-#define offsetof(type, member) __builtin_offsetof(type, member)
+
+__BEGIN_DECLS
+
+#ifdef DEBUG
+extern void __assert(const char* file, int line, const char* func, const char* expr);
+#define assert(expr) ((expr) ? (void) 0 : __assert(__FILE__, __LINE__, __FUNCTION__, #expr))
+#else
+#define assert(expr) ((ovid) 0)
+#endif
+
+__END_DECLS
 
 #endif

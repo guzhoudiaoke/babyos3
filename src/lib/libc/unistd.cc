@@ -138,6 +138,11 @@ long write(int fd, void* buf, long size)
     return syscall(WRITE, fd, buf, size);
 }
 
+int lseek(int fd, unsigned long offset, int whence)
+{
+    return syscall(LSEEK, offset, whence);
+}
+
 int mkdir(const char* path)
 {
     return syscall(MKDIR, path);
@@ -232,12 +237,17 @@ void* sbrk(long increment)
     return (void *) syscall(SBRK, increment);
 }
 
-int lseek(int fd, unsigned offset, int whence)
-{
-    return syscall(LSEEK, offset, whence);
-}
-
 sighandler_t __signal(int signum, sighandler_t handler)
 {
     return (sighandler_t) syscall(SIGNAL, signum, (uint64_t) handler);
+}
+
+pid_t getpid(void)
+{
+    return syscall(PID);
+}
+
+unsigned int alarm(unsigned int seconds)
+{
+    return syscall(ALARM, seconds);
 }

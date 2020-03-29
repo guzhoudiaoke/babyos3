@@ -30,6 +30,43 @@
 #include "syscall_def.h"
 
 
+const char* signal_names[NSIG] = {
+    "SIGINVAL, Invalid signal number",
+    "SIGHUP, Hangup",
+    "SIGINT, Interrupt",
+    "SIGQUIT, Quit",
+    "SIGILL, Illegal instruction",
+    "SIGTRAP, Trap",
+    "SIGABRT, Aborted",
+    "SIGBUS, Bus error",
+    "SIGFPE, Division by zero",
+    "SIGKILL, Killed",
+    "SIGUSR1, User signal 1",
+    "SIGSEGV, Segmentation violation",
+    "SIGUSR2, User signal 2",
+    "SIGPIPE, Broken pipe",
+    "SIGALRM, Alarm clock",
+    "SIGTERM, Terminated",
+    "SIGSTKFLT, Stack fault",
+    "SIGCHLD, Child exited",
+    "SIGCONT, Continued",
+    "SIGSTOP, Stopped (signal)",
+    "SIGTSTP, Stopped",
+    "SIGTTIN, Stopped (tty input)",
+    "SIGTTOU, Stopped (tty output)",
+    "SIGURG, Urgent I/O condition)",
+    "SIGXCPU, CPU limit exceeded",
+    "SIGFSZ, File size limit exceeded",
+    "SIGVTALRM, Virtual timer expired",
+    "SIGPROF, Profiling timer expired",
+    "SIGWINCH, Window changed",
+    "SIGIO, I/O possible",
+    "SIGPWR, Power failure",
+    "SIGSYS, Bad system call",
+};
+
+
+
 signal_t::signal_t()
 {
 }
@@ -92,10 +129,40 @@ int32 signal_t::do_sigaction(uint32 sig, sighandler_t sig_handler)
 
 int32 signal_t::handle_signal_default(uint32 sig)
 {
-    if (sig == SIG_SEGV) {
-        os()->uart()->kprintf("handle sigsegv\n");
-        current->exit();
+    /* init gets no signals it doesn't want */
+    if (current->m_pid == 1) {
+        return 0;
     }
+
+    switch (sig) {
+    case SIGCONT:
+    case SIGCHLD:
+    case SIGWINCH:
+        break;
+    case SIGTSTP:
+    case SIGTTIN:
+    case SIGTTOU:
+    case SIGSTOP:
+        current->set_state(process_t::SLEEP);
+        os()->cpu()->schedule();
+        break;
+    case SIGQUIT:
+    case SIGILL:
+    case SIGTRAP:
+    case SIGABRT:
+    case SIGFPE:
+    case SIGSEGV:
+    case SIGBUS:
+    case SIGSYS:
+    case SIGXCPU:
+    case SIGXFSZ:
+
+    default:
+        os()->console()->kprintf(RED, "%s\n", signal_names[sig]);
+        current->exit();
+        break;
+    }
+
     return 0;
 }
 
@@ -103,6 +170,10 @@ int32 signal_t::handle_signal(trap_frame_t* frame, const siginfo_t* si)
 {
     uint32 sig = si->m_sig;
     sigaction_t* action = &m_action[sig - 1];
+    if (action->m_handler == SIG_IGN) {
+        return 0;
+    }
+
     if (action->m_handler == SIG_DFL) {
         return handle_signal_default(sig);
     }

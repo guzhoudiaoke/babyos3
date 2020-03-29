@@ -35,12 +35,6 @@
 __BEGIN_DECLS
 
 
-pid_t getpid(void) {
-    // TODO
-    printf("%s not implemented\n", __FUNCTION__);
-    return 0;
-}
-
 char* tmpnam(char * s)
 {
     printf("%s not implemented\n", __FUNCTION__);

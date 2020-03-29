@@ -49,6 +49,7 @@ void syscall_t::init()
     s_system_call_table[CLOSE]    = syscall_t::sys_close,
     s_system_call_table[READ]     = syscall_t::sys_read,
     s_system_call_table[WRITE]    = syscall_t::sys_write,
+    s_system_call_table[LSEEK]    = syscall_t::sys_lseek,
     s_system_call_table[LINK]     = syscall_t::sys_link,
     s_system_call_table[UNLINK]   = syscall_t::sys_unlink,
     s_system_call_table[MKDIR]    = syscall_t::sys_mkdir,
@@ -68,6 +69,7 @@ void syscall_t::init()
     s_system_call_table[SIGNAL]   = syscall_t::sys_signal;
     s_system_call_table[SIGRET]   = syscall_t::sys_sigret;
     s_system_call_table[KILL]     = syscall_t::sys_kill;
+    s_system_call_table[PID]      = syscall_t::sys_pid;
 }
 
 void syscall_t::do_syscall(trap_frame_t* frame)
@@ -181,6 +183,14 @@ uint64 syscall_t::sys_write(trap_frame_t* frame)
     return os()->fs()->do_write(fd, buf, size);
 }
 
+uint64 syscall_t::sys_lseek(trap_frame_t* frame)
+{
+    int fd = (int) get_argument(frame, 0);
+    uint64 offset = get_argument(frame, 1);
+    int whence = (int) get_argument(frame, 2);
+    return os()->fs()->do_seek(fd, offset, whence);
+}
+
 uint64 syscall_t::sys_link(trap_frame_t* frame)
 {
     char* path_old = (char *) get_argument(frame, 0);
@@ -277,4 +287,9 @@ uint64 syscall_t::sys_kill(trap_frame_t* frame)
     uint32 pid = (uint32) get_argument(frame, 0);
     uint32 sig = (uint32) get_argument(frame, 1);
     return os()->process_mgr()->send_signal_to(pid, sig);
+}
+
+uint64 syscall_t::sys_pid(trap_frame_t* frame)
+{
+    return current->m_pid;
 }

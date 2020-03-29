@@ -36,6 +36,11 @@ sighandler_t signal(int signum, sighandler_t handler)
     return __signal(signum, handler);
 }
 
+int raise(int sig)
+{
+    return kill(getpid(), sig);
+}
+
 int kill(pid_t pid, int sig)
 {
     return syscall(KILL, pid, sig);
