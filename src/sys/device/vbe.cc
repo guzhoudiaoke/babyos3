@@ -29,6 +29,7 @@
 #include "kstring.h"
 #include "bootmem.h"
 #include "babyos.h"
+#include "x86.h"
 
 
 vbe_t::vbe_t()
@@ -46,6 +47,14 @@ void vbe_t::init()
     m_height   = info->height;
     m_bytes_pp = info->bits_per_pixel / 8;
     m_base     = (uint8 *)IO2V(info->vram_base_addr);
+    m_ioaddr   = nullptr;
+
+    bochs_graphic_init();
+    load_asc16();
+}
+
+void vbe_t::load_asc16()
+{
     m_asc16_addr = (uint8 *) os()->mm()->kmalloc(4096);
 
     int fd = os()->fs()->do_open("/bin/ASC16", MODE_RDWR);
@@ -170,4 +179,94 @@ void vbe_t::scroll()
     memmove(m_base,
            m_base + m_width*m_bytes_pp*c_asc16_height,
            m_width*m_bytes_pp*(m_height-c_asc16_height));
+}
+
+/****************************************************************************************/
+
+void vbe_t::bochs_vga_write(uint16 reg, uint16 val)
+{
+    if (m_ioaddr == nullptr) {
+        outw(c_bochs_port_index, reg);
+        outw(c_bochs_port_data, val);
+    }
+    else {
+        *(uint16*) (m_ioaddr + 0x500 + (reg << 1)) = val;
+    }
+}
+
+uint16 vbe_t::bochs_vga_read(uint16 reg)
+{
+    if (m_ioaddr == nullptr) {
+        outw(c_bochs_port_index, reg);
+        return inw(c_bochs_port_data);
+    }
+    else {
+        return *(uint16*) (m_ioaddr + 0x500 + (reg << 1));
+    }
+}
+
+void vbe_t::bochs_set_resolution(uint32 resolution_x, uint32 resolution_y, uint32 bpp)
+{
+    /* disable */
+    bochs_vga_write(VBE_DISPI_INDEX_ENABLE, 0);
+
+	/* set x resolution */
+    bochs_vga_write(VBE_DISPI_INDEX_XRES, resolution_x);
+
+	/* set y resolution */
+	bochs_vga_write(VBE_DISPI_INDEX_YRES, resolution_y);
+
+	/* set bpp to 32 */
+	bochs_vga_write(VBE_DISPI_INDEX_BPP, bpp);
+
+	/* set virtual height  */
+    bochs_vga_write(VBE_DISPI_INDEX_VIRT_HEIGHT, resolution_y*2);
+
+    /* enable */
+    bochs_vga_write(VBE_DISPI_INDEX_ENABLE, 0x41);
+}
+
+void vbe_t::bochs_graphic_init()
+{
+    os()->uart()->kprintf("init bochs graphic\n");
+    pci_device_t* device = os()->pci()->get_device(0x1234, 0x1111);
+    if (device == NULL) {
+        return;
+    }
+
+    /* enable bus mastering */
+    os()->pci()->enable_bus_mastering(device);
+
+    /* get io address */
+    /* FIXME: why bar2 */
+    uint64 ioaddr = device->get_io_addr(2);
+    uint64 length = device->get_io_length(2);
+    if (ioaddr != 0 && length != 0) {
+        os()->uart()->kprintf("ioaddr: %p, length: %p\n", ioaddr, length);
+        m_ioaddr = (uint8 *) IO2V(ioaddr);
+        vmm_t::map_pages(os()->mm()->bootmem()->get_pml4(), 
+                         m_ioaddr, ioaddr, length, PTE_W | PTE_U);
+    }
+
+    /* set resolution */
+    bochs_set_resolution(c_resolution_x, c_resolution_y, 32);
+
+    /* get resolution and so on */
+    m_width = bochs_vga_read(VBE_DISPI_INDEX_XRES);
+    m_height = bochs_vga_read(VBE_DISPI_INDEX_YRES);
+    m_bytes_pp = bochs_vga_read(VBE_DISPI_INDEX_BPP) / 8;
+    uint16 vh = bochs_vga_read(VBE_DISPI_INDEX_VIRT_HEIGHT);
+    os()->uart()->kprintf("bochs graphic video resolution: %d * %d, %d, virtual height: %d\n", m_width, m_height, m_bytes_pp, vh);
+
+    /* video ram address and length */
+    uint64 addr = device->get_io_addr(0);
+    m_video_mem_size = device->get_io_length(0);
+    os()->uart()->kprintf("addr: %p, length: %p\n", addr, m_video_mem_size);
+
+    if (addr != 0 && length != 0) {
+        m_base = (uint8 *) IO2V(addr);
+        vmm_t::map_pages(os()->mm()->bootmem()->get_pml4(), 
+                         m_base, addr, m_video_mem_size, PTE_W | PTE_U);
+    }
+    os()->uart()->kprintf("bochs graphic vram base: %p, length: %p\n", m_base, m_video_mem_size);
 }

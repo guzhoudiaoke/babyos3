@@ -141,6 +141,11 @@ io_apic_t* babyos_t::io_apic()
     return &m_io_apic;
 }
 
+pci_t* babyos_t::pci()
+{
+    return &m_pci;
+}
+
 
 void babyos_t::init()
 {
@@ -182,6 +187,9 @@ void babyos_t::init()
     /*keyboard */
     m_keyboard.init();
     uart()->puts("keyboard init done\n");
+
+    /* pci */
+    m_pci.init();
 
     /* ide */
     m_ide.init(1);

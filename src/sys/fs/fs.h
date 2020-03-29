@@ -54,10 +54,7 @@ typedef struct super_block_s {
 
 
 
-class fs_tester_t;
 class file_system_t {
-    friend class fs_tester_t;
-
 public:
     void     init();
     inode_t* get_root();

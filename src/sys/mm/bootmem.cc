@@ -213,12 +213,12 @@ void bootmem_t::init_page_map()
     }
 
     /* map video vram */
-    video_info_t* video_info = os()->bootinfo()->video_info();
-    uint32 bytes = video_info->width*video_info->height*video_info->bits_per_pixel/3;
-    map_pages(IO2V(video_info->vram_base_addr),   /* va */
-              video_info->vram_base_addr,         /* pa */
-              bytes,                              /* length */
-              PTE_P | PTE_W);
+    //video_info_t* video_info = os()->bootinfo()->video_info();
+    //uint32 bytes = video_info->width*video_info->height*video_info->bits_per_pixel/3;
+    //map_pages(IO2V(video_info->vram_base_addr),   /* va */
+    //          video_info->vram_base_addr,         /* pa */
+    //          bytes,                              /* length */
+    //          PTE_P | PTE_W);
 
     /* local apic */
     map_pages(IO2V(APIC_BASE),

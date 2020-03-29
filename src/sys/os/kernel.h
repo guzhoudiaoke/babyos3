@@ -82,12 +82,12 @@
 
 /* kernel va->pa, pa->va */
 #define V2P(x)	            (((uint64)(x)) - KERNEL_BASE)
-#define P2V(x)	            ((void *)(((uint64)x) + KERNEL_BASE))
+#define P2V(x)	            ((void *)(((uint64)(x)) + KERNEL_BASE))
 
 
 /* for device mmap */
 #define DEV_BASE            (0xffffffff00000000ull) /* First device virtual address */
-#define IO2V(x)             ((void *)(((uint64)x) + DEV_BASE))
+#define IO2V(x)             ((void *)(((uint64)(x)) + DEV_BASE))
 
 
 #define NR_CPU              16

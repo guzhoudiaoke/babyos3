@@ -22,6 +22,7 @@
  *  2020-02-13		created
  */
 
+
 #ifndef _VBE_H_
 #define _VBE_H_
 
@@ -33,8 +34,27 @@ const int32 c_asc16_size = 16;
 const int32 c_asc16_width = 8;
 const int32 c_asc16_height = 16;
 
+const int16 c_resolution_x = 1280;
+const int16 c_resolution_y = 960;
+
 
 class vbe_t {
+	const uint16 c_bochs_port_index = 0x01ce;
+	const uint16 c_bochs_port_data  = 0x01cf;
+
+	enum {
+		VBE_DISPI_INDEX_ID    		= 0,
+		VBE_DISPI_INDEX_XRES  		= 1,
+		VBE_DISPI_INDEX_YRES  		= 2,
+		VBE_DISPI_INDEX_BPP   		= 3,
+		VBE_DISPI_INDEX_ENABLE 		= 4,
+		VBE_DISPI_INDEX_BANK        = 5,
+		VBE_DISPI_INDEX_VIRT_WIDTH  = 6,
+		VBE_DISPI_INDEX_VIRT_HEIGHT = 7,
+		VBE_DISPI_INDEX_X_OFFSET 	= 8,
+		VBE_DISPI_INDEX_Y_OFFSET 	= 9,
+	};
+
 public:
 	vbe_t();
 	~vbe_t();
@@ -51,6 +71,11 @@ public:
 
 private:
     void   clip(rect_t* rect);
+	void   load_asc16();
+	void   bochs_graphic_init();
+	void   bochs_set_resolution(uint32 resolution_x, uint32 resolution_y, uint32 bpp);
+	void   bochs_vga_write(uint16 reg, uint16 val);
+	uint16 bochs_vga_read(uint16 reg);
 
 private:
 	uint8*	m_base;        /* base address */
@@ -58,6 +83,9 @@ private:
 	uint16	m_width;
 	uint16	m_height;
 	uint8	m_bytes_pp;    /* bytes per pixel */
+	uint32  m_video_mem_size;
+
+	uint8*  m_ioaddr;
 };
 
 #endif

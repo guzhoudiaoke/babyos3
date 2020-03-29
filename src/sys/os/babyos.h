@@ -46,6 +46,7 @@
 #include "block_dev.h"
 #include "fs.h"
 #include "io_apic.h"
+#include "pci.h"
 
 
 enum device_type_e {
@@ -83,12 +84,10 @@ public:
     dev_op_t*       get_dev(uint32 type);
     file_system_t*  fs();
     io_apic_t*      io_apic();
-
-
+    pci_t*          pci();
 
 private:
     void            start_init_proc();
-
 
 private:
     bool           m_panic;
@@ -106,6 +105,7 @@ private:
     block_dev_t    m_block_dev;
     file_system_t  m_fs;
     io_apic_t      m_io_apic;
+    pci_t          m_pci;
 
     process_mgr_t  m_process_mgr;
     timer_mgr_t    m_timer_mgr;
