@@ -292,7 +292,7 @@ uint32 vmm_t::insert_vma(vm_area_t* vma)
 
 uint64 vmm_t::get_unmapped_area(uint64 len)
 {
-    uint32 addr = VM_UNMAPPED_BASE;
+    uint64 addr = VM_UNMAPPED_BASE;
 
     vm_area_t* vma = find_vma(addr);
     while (vma != nullptr) {
@@ -589,6 +589,11 @@ void vmm_t::free_page_range(uint64 start, uint64 end)
     uint64 addr = start & PAGE_MASK;
     while (addr < end) {
         uint64 pa = vmm_t::va_to_pa(current->m_vmm.get_pml4_table(), (void *) addr);
+
+        /* FIXME: how to skip device io mem? */
+        if (pa >= 0xfd000000 && pa <= 0xffffffff) {
+            break;
+        }
         if (pa != -1ull) {
             os()->mm()->free_pages(pa, 0);
         }
@@ -677,9 +682,9 @@ void vmm_t::map_pages(pml4e_t *pml4_table, void *va, uint64 pa, uint64 size, uin
     pa = (pa & PAGE_MASK);
 
     while (v < e) {
-        pdpe_t* pdp_table = get_pdp_table(pml4_table, v);
-        pde_t* pd_table = get_pd_table(pdp_table, v);
-        pte_t* page_table = get_page_table(pd_table, v);
+        pdpe_t* pdp_table  = get_pdp_table(pml4_table, v);
+        pde_t*  pd_table   = get_pd_table(pdp_table, v);
+        pte_t*  page_table = get_page_table(pd_table, v);
 
         for (uint32 i = PTE_INDEX(v); i < PTRS_PER_PDE; i++) {
             if (v >= e) {

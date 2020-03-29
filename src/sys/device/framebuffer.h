@@ -1,5 +1,5 @@
 /*
- *	babyos/include/syscall_def.h
+ *	babyos/sys/device/framebuffer.h
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,52 +19,24 @@
 
 
 /*
- *  2020-03-12		created
+ *  2020-03-29		created
  */
 
 
+#ifndef _FRAMEBUFFER_H_
+#define _FRAMEBUFFER_H_
 
-#ifndef _SYSCALL_DEF_H_
-#define _SYSCALL_DEF_H_
+#include "types.h"
 
 
-enum {
-    PRINT = 0,
-    FORK,
-    EXEC,
-    MMAP,
-    EXIT,
-    WAIT,
-    SLEEP,
-    OPEN,
-    CLOSE,
-    READ,
-    WRITE,
-    LSEEK,
-    LINK,
-    UNLINK,
-    MKDIR,
-    MKNOD,
-    DUP,
-    STAT,
-    CHDIR,
-    PIPE,
-    IOCTL,
-    SENDTO,
-    RECVFROM,
-    SOCKET,
-    BIND,
-    LISTEN,
-    ACCEPT,
-    CONNECT,
-    SBRK,
-    SIGNAL,
-    SIGRET,
-    KILL,
-    PID,
-    PS,
-    ALARM,
-    MAX_SYSCALL,
+class framebuffer_t {
+public:
+    framebuffer_t();
+    ~framebuffer_t();
+    void init();
+    int ioctl(int cmd, uint64 arg);
+
+private:
 };
 
 

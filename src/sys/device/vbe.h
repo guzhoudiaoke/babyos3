@@ -62,6 +62,8 @@ public:
 	void   init();
 	uint32 width();
 	uint32 height();
+	uint32 depth();
+	uint32 vram_size();
 	uint8* vram();
 
 	void   set_pixel(uint32 x, uint32 y, color_ref_t color);

@@ -146,6 +146,10 @@ pci_t* babyos_t::pci()
     return &m_pci;
 }
 
+framebuffer_t* babyos_t::framebuffer()
+{
+    return &m_framebuffer;
+}
 
 void babyos_t::init()
 {
@@ -232,6 +236,10 @@ void babyos_t::init()
     m_console.init();
     uart()->puts("console init done\n");
     console()->kprintf(YELLOW, "Welcome to babyos!\n");
+
+    /* framebuffer */
+    m_framebuffer.init();
+    uart()->puts("framebuffer init done\n");
 
     /* start the first user process: init */
     start_init_proc();

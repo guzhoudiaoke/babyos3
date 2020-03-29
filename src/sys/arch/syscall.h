@@ -58,6 +58,7 @@ public:
     static uint64 sys_stat(trap_frame_t* frame);
     static uint64 sys_chdir(trap_frame_t* frame);
     static uint64 sys_pipe(trap_frame_t* frame);
+    static uint64 sys_ioctl(trap_frame_t* frame);
     static uint64 sys_send_to(trap_frame_t* frame);
     static uint64 sys_recv_from(trap_frame_t* frame);
     static uint64 sys_sbrk(trap_frame_t* frame);

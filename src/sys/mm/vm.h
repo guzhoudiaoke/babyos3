@@ -32,9 +32,8 @@
 #include "page.h"
 #include "sem.h"
 
-
-#define USER_VM_SIZE		(0xc0000000)
-#define VM_UNMAPPED_BASE	(USER_VM_SIZE / 3)
+#define USER_VM_SIZE		(0x0000800000000000ull)
+#define VM_UNMAPPED_BASE	(USER_VM_SIZE / 2)
 #define USER_PTRS_PER_PGD   (USER_VM_SIZE / PGDIR_SIZE)
 
 

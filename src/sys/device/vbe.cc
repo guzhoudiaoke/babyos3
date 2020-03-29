@@ -79,6 +79,16 @@ uint32 vbe_t::height()
     return m_height;
 }
 
+uint32 vbe_t::depth()
+{
+    return m_bytes_pp;
+}
+
+uint32 vbe_t::vram_size()
+{
+    return m_video_mem_size;
+}
+
 uint8* vbe_t::vram()
 {
     return m_base;

@@ -81,6 +81,7 @@ int   chdir(const char* path);
 int   fstat(int fd, stat_t* st);
 int   stat(const char* path, stat_t* st);
 int   pipe(int fd[2]);
+int   ioctl(int fd, int cmd, unsigned long arg);
 
 int   socket(int domain, int type, int protocol);
 int   bind(int sockfd, const sock_addr_t* addr);

@@ -74,6 +74,7 @@ public:
     int      do_stat(int fd, stat_t* st);
     int      do_chdir(const char* path);
     int      do_pipe(int fd[2]);
+    int      do_ioctl(int fd, int cmd, uint64 arg);
     int      do_send_to(int fd, void* buffer, uint64 count, sock_addr_t* addr);
     int      do_recv_from(int fd, void* buffer, uint64 count, sock_addr_t* addr);
 

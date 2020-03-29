@@ -195,6 +195,11 @@ int pipe(int fd[2])
     return syscall(PIPE, fd);
 }
 
+int ioctl(int fd, int cmd, unsigned long arg)
+{
+    return syscall(IOCTL, fd, cmd, arg);
+}
+
 int socket(int domain, int type, int protocol)
 {
     return syscall(SOCKET, domain, type, protocol);

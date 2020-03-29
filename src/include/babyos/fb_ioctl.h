@@ -1,5 +1,5 @@
 /*
- *	babyos/include/syscall_def.h
+ *	babyos/sys/device/fb_ioctl.h
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,53 +19,18 @@
 
 
 /*
- *  2020-03-12		created
+ *  2020-03-29		created
  */
 
 
+#ifndef _FB_IOCTL_H_
+#define _FB_IOCTL_H_
 
-#ifndef _SYSCALL_DEF_H_
-#define _SYSCALL_DEF_H_
 
-
-enum {
-    PRINT = 0,
-    FORK,
-    EXEC,
-    MMAP,
-    EXIT,
-    WAIT,
-    SLEEP,
-    OPEN,
-    CLOSE,
-    READ,
-    WRITE,
-    LSEEK,
-    LINK,
-    UNLINK,
-    MKDIR,
-    MKNOD,
-    DUP,
-    STAT,
-    CHDIR,
-    PIPE,
-    IOCTL,
-    SENDTO,
-    RECVFROM,
-    SOCKET,
-    BIND,
-    LISTEN,
-    ACCEPT,
-    CONNECT,
-    SBRK,
-    SIGNAL,
-    SIGRET,
-    KILL,
-    PID,
-    PS,
-    ALARM,
-    MAX_SYSCALL,
-};
+#define FB_GET_WIDTH  01
+#define FB_GET_HEIGHT 02
+#define FB_GET_DEPTH  03
+#define FB_MAP        04
 
 
 #endif

@@ -88,6 +88,7 @@
 /* for device mmap */
 #define DEV_BASE            (0xffffffff00000000ull) /* First device virtual address */
 #define IO2V(x)             ((void *)(((uint64)(x)) + DEV_BASE))
+#define V2IO(x)             ((((uint64)(x)) - DEV_BASE))
 
 
 #define NR_CPU              16

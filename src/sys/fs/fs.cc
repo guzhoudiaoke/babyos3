@@ -929,6 +929,27 @@ failed:
     return -1;
 }
 
+int file_system_t::do_ioctl(int fd, int cmd, uint64 arg)
+{
+    file_t* file = current->get_file(fd);
+    if (file == nullptr) {
+        return -1;
+    }
+
+    if (file->m_type == file_t::TYPE_INODE) {
+        inode_t* inode = file->m_inode;
+        if (inode->m_type == I_TYPE_DEV) {
+            dev_op_t* op = os()->get_dev(inode->m_major);
+            if (op == nullptr) {
+                return -1;
+            }
+            return op->ioctl(inode, cmd, arg);
+        }
+    }
+
+    return -1;
+}
+
 int file_system_t::do_send_to(int fd, void* buffer, uint64 count, sock_addr_t* addr)
 {
     file_t* file = current->get_file(fd);

@@ -47,10 +47,12 @@
 #include "fs.h"
 #include "io_apic.h"
 #include "pci.h"
+#include "framebuffer.h"
 
 
 enum device_type_e {
     DEV_CONSOLE = 0,
+    DEV_FRAMEBUFFER = 1,
     MAX_DEV,
 };
 
@@ -85,6 +87,7 @@ public:
     file_system_t*  fs();
     io_apic_t*      io_apic();
     pci_t*          pci();
+    framebuffer_t*  framebuffer();
 
 private:
     void            start_init_proc();
@@ -106,6 +109,7 @@ private:
     file_system_t  m_fs;
     io_apic_t      m_io_apic;
     pci_t          m_pci;
+    framebuffer_t  m_framebuffer;
 
     process_mgr_t  m_process_mgr;
     timer_mgr_t    m_timer_mgr;

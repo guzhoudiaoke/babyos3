@@ -61,6 +61,7 @@ public:
 typedef struct dev_op_s {
     int (*read)  (inode_t*, void*, int);
     int (*write) (inode_t*, void*, int);
+    int (*ioctl) (inode_t*, int, uint64);
 } dev_op_t;
 
 #endif

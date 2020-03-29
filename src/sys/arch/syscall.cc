@@ -58,6 +58,7 @@ void syscall_t::init()
     s_system_call_table[STAT]     = syscall_t::sys_stat,
     s_system_call_table[CHDIR]    = syscall_t::sys_chdir,
     s_system_call_table[PIPE]     = syscall_t::sys_pipe,
+    s_system_call_table[IOCTL]    = syscall_t::sys_ioctl,
     s_system_call_table[SENDTO]   = syscall_t::sys_send_to,
     s_system_call_table[RECVFROM] = syscall_t::sys_recv_from,
     s_system_call_table[SOCKET]   = sys_socket_t::sys_socket;
@@ -300,4 +301,13 @@ uint64 syscall_t::sys_ps(trap_frame_t* frame)
     char* buffer = (char *) get_argument(frame, 0);
     uint32 size = (uint32) get_argument(frame, 1);
     return os()->process_mgr()->list_process(buffer, size);
+}
+
+uint64 syscall_t::sys_ioctl(trap_frame_t* frame)
+{
+    int fd = (int) get_argument(frame, 0);
+    int cmd = (int) get_argument(frame, 1);
+    uint64 arg = (uint64) get_argument(frame, 2);
+
+    return os()->fs()->do_ioctl(fd, cmd, arg);
 }
