@@ -95,6 +95,7 @@ void* sbrk(long increment);
 sighandler_t __signal(int signum, sighandler_t handler);
 pid_t getpid(void);
 unsigned int alarm(unsigned int seconds);
+int   list_process(char* buffer, int size);
 
 
 #endif

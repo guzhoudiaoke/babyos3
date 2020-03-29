@@ -251,3 +251,8 @@ unsigned int alarm(unsigned int seconds)
 {
     return syscall(ALARM, seconds);
 }
+
+int list_process(char* buffer, int size)
+{
+    return syscall(PS, buffer, size);
+}

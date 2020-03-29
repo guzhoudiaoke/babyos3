@@ -53,6 +53,7 @@ public:
     dlist_t*    get_run_queue();
     uint32      get_next_pid();
     bool        in_run_queue(process_t* proc);
+    int32       list_process(char* buffer, uint32 size);
 
 
 private:

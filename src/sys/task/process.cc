@@ -151,6 +151,9 @@ process_t* process_t::fork(trap_frame_t* frame)
     /* add child to current */
     m_children.add_tail(&p->m_child_list_node);
 
+    /* name */
+    strcpy(p->m_name, m_name);
+
     return p;
 }
 

@@ -206,3 +206,45 @@ int32 process_mgr_t::send_signal_to(uint32 pid, uint32 sig)
 
     return ret;
 }
+
+int32 process_mgr_t::list_process(char* buffer, uint32 size)
+{
+    int32 ret = 0;
+    uint32 total = 0;
+    uint64 flags;
+
+    spinlock_t* lock = os()->process_mgr()->get_proc_list_lock();
+    lock->lock_irqsave(flags);
+
+    dlist_node_t* node = m_proc_list.head();
+    while (node != nullptr) {
+        process_t* p = list_entry(node, process_t, m_mgr_list_node);
+        char state[8] = {0};
+        switch (p->m_state) {
+        case process_t::RUNNING:
+            strcpy(state, "RUNNING");
+            break;
+            break;
+        case process_t::SLEEP:
+            strcpy(state, "SLEEP");
+            break;
+        case process_t::ZOMBIE:
+            strcpy(state, "ZOMBIE");
+            break;
+        default:
+            break;
+        }
+
+        int count = sprintf(buffer, "%3d %20s %8s\n", p->m_pid, p->m_name, state);
+        total += count;
+        if (total > size) {
+            break;
+        }
+
+        buffer += count;
+        node = node->next();
+    }
+
+    lock->unlock_irqrestore(flags);
+    return ret;
+}

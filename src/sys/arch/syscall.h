@@ -65,6 +65,7 @@ public:
     static uint64 sys_sigret(trap_frame_t* frame);
     static uint64 sys_kill(trap_frame_t* frame);
     static uint64 sys_pid(trap_frame_t* frame);
+    static uint64 sys_ps(trap_frame_t* frame);
 
 private:
     static uint64 (*s_system_call_table[MAX_SYSCALL])(trap_frame_t* frame);

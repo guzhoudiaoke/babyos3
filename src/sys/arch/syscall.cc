@@ -70,6 +70,7 @@ void syscall_t::init()
     s_system_call_table[SIGRET]   = syscall_t::sys_sigret;
     s_system_call_table[KILL]     = syscall_t::sys_kill;
     s_system_call_table[PID]      = syscall_t::sys_pid;
+    s_system_call_table[PS]       = syscall_t::sys_ps;
 }
 
 void syscall_t::do_syscall(trap_frame_t* frame)
@@ -292,4 +293,11 @@ uint64 syscall_t::sys_kill(trap_frame_t* frame)
 uint64 syscall_t::sys_pid(trap_frame_t* frame)
 {
     return current->m_pid;
+}
+
+uint64 syscall_t::sys_ps(trap_frame_t* frame)
+{
+    char* buffer = (char *) get_argument(frame, 0);
+    uint32 size = (uint32) get_argument(frame, 1);
+    return os()->process_mgr()->list_process(buffer, size);
 }
