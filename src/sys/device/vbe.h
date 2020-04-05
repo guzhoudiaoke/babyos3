@@ -38,6 +38,14 @@ const int16 c_resolution_x = 1280;
 const int16 c_resolution_y = 960;
 
 
+typedef struct rect_s {
+    int32 left;
+    int32 top;
+    uint32 width;
+    uint32 height;
+} rect_t;
+
+
 class vbe_t {
 	const uint16 c_bochs_port_index = 0x01ce;
 	const uint16 c_bochs_port_data  = 0x01cf;

@@ -142,9 +142,14 @@ void* memcpy(void *dst, const void *src, unsigned n)
 
 void* memset(void *dst, unsigned c, unsigned n)
 {
-    char* d = (char *) dst;
-    for (unsigned i = 0; i < n; i++) {
-        *d++ = (c & 0xff);
+    unsigned* d = (unsigned *) dst;
+    for (unsigned i = 0; i < n / 4; i++) {
+        *d++ = c;
+    }
+
+    char* d2 = (char *) dst + n / 4;
+    for (unsigned i = 0; i < n % 4; i++) {
+        *d2++ = (c & 0xff);
     }
 
     return dst;

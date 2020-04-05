@@ -2,11 +2,15 @@ USERLIBS_LIST = \
 				.../lib/libc/libc.a \
 				.../lib/libm/libm.a \
 				.../lib/libc++/libc++.a \
+				.../lib/libbdl/libbdl.a \
 
 mkobjs = $(addprefix $(do),$(1))
 mklibs = $(patsubst .../%,$(OBJTOP)/%,$(foreach lib,$(1),$(filter %lib$(lib).a,$(USERLIBS_LIST))))
 
-USERLIBS = $(call mklibs,c c++ m)
+USERLIBS = $(call mklibs,bdl c c++ m)
+LIBC = $(call mklibs, c)
+LIBM = $(call mklibs, m)
+LIBCXX = $(call mklibs, c++)
 
 $(eval $(call top_level_config))
 

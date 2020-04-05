@@ -64,13 +64,6 @@ typedef uint64_t       u_int64_t;
 
 #define NULL nullptr
 
-typedef struct rect_s {
-    int32 left;
-    int32 top;
-    uint32 width;
-    uint32 height;
-} rect_t;
-
 
 
 #endif

@@ -1,5 +1,5 @@
 /*
- *	babyos/bin/test_fb.cc
+ *	babyos/lib/libbdl/video_device.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,27 +19,38 @@
 
 
 /*
- *  2020-03-29		created
+ *  2020-04-04		created
  */
-
 
 
 #include "unistd.h"
 #include "fb_ioctl.h"
 #include "stdio.h"
+#include <video_device.h>
 
-void test_draw(uint8* buffer, uint32 width, uint32 height, uint32 depth)
+
+video_device_t::video_device_t()
 {
-    int x = 100, y = 100;
-    uint32* p = (uint32 *) buffer;
-    for (int i = y; i < y + 100; i++) {
-        for (int j = x; j < x + 100; j++) {
-            *(p + (width*i + j)) = 0x0000ff0000;
-        }
-    }
+
 }
 
-int main(int argc, char** argv)
+video_device_t::~video_device_t()
+{
+
+}
+
+int video_device_t::create_window(window_t* window)
+{
+    return 0;
+}
+
+
+int video_device_t::update_window_frame_buffer(window_t* window, rect_t* rects, int numrects)
+{
+    return 0;
+}
+
+int video_device_t::create_window_frame_buffer(window_t* window, void** pixels, int* pitch)
 {
     if (open("/dev/fb", MODE_RDWR) < 0) {
         mknod("/dev/fb", 1, 1);
@@ -52,7 +63,6 @@ int main(int argc, char** argv)
 
     unsigned long width = 0, height = 0, depth = 0;
     uint8* buffer = nullptr;
-    printf("&width: %p, &height: %p, &depth: %p, &buffer: %p\n", &width, &height, &depth, &buffer);
 
     ioctl(fd, FB_GET_WIDTH, (uint64) &width);
     ioctl(fd, FB_GET_HEIGHT, (uint64) &height);
@@ -60,7 +70,9 @@ int main(int argc, char** argv)
     ioctl(fd, FB_MAP, (uint64) &buffer);
 
     printf("fb width: %d, height: %d, depth: %d, buffer: %p\n", width, height, depth, buffer);
-    test_draw(buffer, width, height, depth);
+
+    *pixels = buffer;
+    *pitch = depth * width;
 
     return 0;
 }

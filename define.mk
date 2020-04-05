@@ -63,7 +63,7 @@ endef
 
 define define_linklibrary
 $1/%.a:
-	@echo Linking library $$@
+	@echo Linking library $$@ $$^
 	@$2 $(ARFLAGS) $$@ $$^
 endef
 
