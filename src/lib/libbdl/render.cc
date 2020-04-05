@@ -142,3 +142,9 @@ int renderer_t::fill_frects(const frect_t* rects, int count)
     delete frects;
     return 0;
 }
+
+int renderer_t::draw_point(int x, int y)
+{
+    uint32_t color = get_color();
+    return m_surface->draw_point(x, y, color);
+}

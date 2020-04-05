@@ -36,7 +36,7 @@
 
 
 
-#define RAND_MAX 32767
+#define RAND_MAX 0x7fffffff
 
 
 int system(const char* command);

@@ -23,6 +23,51 @@
  */
 
 
+#include <rect.h>
 
 
+bool rect_t::empty() const
+{
+    return w <= 0 || h <= 0;
+}
 
+bool rect_t::intersect(rect_t& rhs, rect_t& result) const
+{
+    if (empty() || rhs.empty()) {
+        result.w = 0;
+        result.h = 0;
+        return false;
+    }
+
+    /* horizontal intersection */
+    int lhs_min = x;
+    int lhs_max = lhs_min + w;
+    int rhs_min = rhs.x;
+    int rhs_max = rhs_min + rhs.w;
+
+    if (rhs_min > lhs_min) {
+        lhs_min = rhs_min;
+    }
+    result.x = lhs_min;
+    if (rhs_max < lhs_max) {
+        lhs_max = rhs_max;
+    }
+    result.w = lhs_max - lhs_min;
+
+    /* vertical intersection */
+    lhs_min = y;
+    lhs_max = lhs_min + h;
+    rhs_min = rhs.y;
+    rhs_max = rhs_min + rhs.h;
+
+    if (rhs_min > lhs_min) {
+        lhs_min = rhs_min;
+    }
+    result.y = lhs_min;
+    if (rhs_max < lhs_max) {
+        lhs_max = rhs_max;
+    }
+    result.h = lhs_max - lhs_min;
+
+    return !result.empty();
+}

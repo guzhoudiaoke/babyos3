@@ -46,6 +46,8 @@ public:
     int  fill_rect(const rect_t* rect);
     int  fill_frects(const frect_t* rects, int count);
 
+    int  draw_point(int x, int y);
+
 private:
     void* m_pixels;
     rect_t m_viewport;

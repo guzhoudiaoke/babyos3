@@ -24,6 +24,7 @@
 
 
 #include <stdio.h>
+#include <stdinc.h>
 #include <string.h>
 #include <surface.h>
 
@@ -35,6 +36,11 @@ surface_t::surface_t(void* pixels, int width, int height, int pitch)
     m_height = height;
     m_pitch = pitch;
     m_bpp = 4;
+
+    m_clip_rect.x = 0;
+    m_clip_rect.y = 0;
+    m_clip_rect.w = width;
+    m_clip_rect.h = height;
 }
 
 surface_t::~surface_t()
@@ -70,18 +76,16 @@ void* surface_t::pixels()
 
 int surface_t::fill_rect(const rect_t* rect, uint32_t color)
 {
-    //rect_t clipped;
+    rect_t clipped;
 
     if (rect != nullptr) {
-        // TODO:
-        //if (!rect->intersect(m_clip_rect, clipped)) {
-        //    return 0;
-        //}
-        //rect = &clipped;
+        if (!rect->intersect(m_clip_rect, clipped)) {
+            return 0;
+        }
+        rect = &clipped;
     }
     else {
-        // TODO:
-        //rect = m_clip_rect;
+        rect = &m_clip_rect;
     }
 
     if (m_pixels == nullptr) {
@@ -94,7 +98,7 @@ int surface_t::fill_rect(const rect_t* rect, uint32_t color)
 
     int h = rect->h;
     while (h--) {
-        memset(pixels, color, 4*rect->w);
+        memset4(pixels, color, rect->w);
         pixels += m_pitch;
     }
 
@@ -113,4 +117,44 @@ int surface_t::fill_rects(const rect_t* rects, int count, uint32_t color)
     }
 
     return status;
+}
+
+int surface_t::draw_point(int x, int y, uint32_t color)
+{
+    int minx, miny, maxx, maxy;
+
+    minx = 0;
+    miny = 0;
+    maxx = m_width-1;
+    maxy = m_height-1;
+    
+    if (x < minx || x > maxx || y < miny || y > maxy) {
+        return 0;;
+    }
+
+    *((uint32_t *) ((uint8_t *) m_pixels + y*m_pitch + x*m_bpp)) = color;
+    return 0;
+}
+
+int surface_t::draw_points(point_t* points, int count, uint32_t color)
+{
+    int minx, miny, maxx, maxy;
+
+    minx = 0;
+    miny = 0;
+    maxx = m_width-1;
+    maxy = m_height-1;
+
+    for (int i = 0; i < count; i++) {
+        int x = points[i].x;
+        int y = points[i].y;
+
+        if (x < minx || x > maxx || y < miny || y > maxy) {
+            continue;
+        }
+
+        *((uint32_t *) ((uint8_t *) m_pixels + y*m_pitch + x*m_bpp)) = color;
+    }
+
+    return 0;
 }

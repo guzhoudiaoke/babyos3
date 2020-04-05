@@ -27,13 +27,24 @@
 #define _RECT_H_
 
 
-typedef struct rect_s
+typedef struct point_s
+{
+    int x;
+    int y;
+} point_t;
+
+
+typedef struct rect_s rect_t;
+struct rect_s
 {
     int x;
     int y;
     int w;
     int h;
-} rect_t;
+
+    bool empty() const;
+    bool intersect(rect_t& rhs, rect_t& result) const;
+};
 
 
 typedef struct frect_s

@@ -51,27 +51,25 @@ char* strpbrk(const char*, const char* accept)
     return nullptr;
 }
 
-
+static unsigned long next = 1;
 int rand()
 {
-    printf("%s not implemented\n", __FUNCTION__);
-    return 0;
+    return ((next = next * 1103515245 + 12345) % ((unsigned long) RAND_MAX + 1));
 }
 
 void srand(unsigned seed)
 {
-    printf("%s not implemented\n", __FUNCTION__);
+    next = seed;
 }
 
 long int random()
 {
-    printf("%s not implemented\n", __FUNCTION__);
-    return 0;
+    return rand();
 }
 
 void srandom(unsigned seed)
 {
-    printf("%s not implemented\n", __FUNCTION__);
+    srand(seed);
 }
 
 int abs(int val)

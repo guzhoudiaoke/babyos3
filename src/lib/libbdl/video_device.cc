@@ -97,6 +97,7 @@ int video_device_t::create_window_frame_buffer(window_t* window, void** pixels, 
 {
     *pitch = window->width() * m_depth;
     *pixels = new char[*pitch * window->height()];
+    memset(*pixels, 0, *pitch * window->height());
 
     return 0;
 }

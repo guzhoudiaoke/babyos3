@@ -1,5 +1,5 @@
 /*
- *	babyos/lib/libbdl/surface.h
+ *	babyos/bin/stdinc.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,42 +19,33 @@
 
 
 /*
- *  2020-04-04		created
+ *  2020-04-05		created
  */
 
 
-#ifndef _SURFACE_H_
-#define _SURFACE_H_
+#ifndef _STDINC_H_
+#define _STDINC_H_
 
 
-#include <render.h>
-#include <rect.h>
+#include <stdint.h>
 
 
-class surface_t {
-public:
-    surface_t(void* pixels, int width, int height, int pitch);
-    ~surface_t();
-
-    renderer_t* create_software_renderer();
-    int width();
-    int height();
-    void* pixels();
-
-    int fill_rect(const rect_t* rect, uint32_t color);
-    int fill_rects(const rect_t* rects, int count, uint32_t color);
-
-    int draw_point(int x, int y, uint32_t color);
-    int draw_points(point_t* points, int count, uint32_t color);
-
-private:
-    void* m_pixels;
-    int m_width;
-    int m_height;
-    int m_pitch;
-    int m_bpp;
-    rect_t m_clip_rect;
-};
+void memset4(void *dst, uint32_t val, size_t dwords)
+{
+    size_t _n = (dwords + 3) / 4;
+    uint32_t *_p = (uint32_t *) dst;
+    uint32_t _val = (val);
+    if (dwords == 0)
+        return;
+    switch (dwords % 4)
+    {
+        case 0: do {    *_p++ = _val;   /* fallthrough */
+        case 3:         *_p++ = _val;   /* fallthrough */
+        case 2:         *_p++ = _val;   /* fallthrough */
+        case 1:         *_p++ = _val;   /* fallthrough */
+        } while ( --_n );
+    }
+}
 
 
 #endif

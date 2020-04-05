@@ -20,14 +20,31 @@ SUB_OBJS = \
 		   test_pipe.o \
 		   test_sig.o \
 		   test_fb.o \
-		   test_bdl.o \
+		   testbdl.o \
+		   testdraw.o \
 
 
 OBJS += $(call mkobjs,$(SUB_OBJS))
-USERAPPS += $(call mkobjs,init cat ln ls rm mv mkdir \
-						  cp test_socket test_fork \
-						  test_wait test_pipe test_sig \
-						  ps test_fb testbdl)
+
+APPS = init \
+	   cat \
+	   ln \
+	   ls \
+	   rm \
+	   mv \
+	   mkdir \
+	   cp \
+	   ps \
+	   test_socket \
+	   test_fork \
+	   test_wait \
+	   test_pipe \
+	   test_sig \
+	   test_fb \
+	   testbdl \
+	   testdraw \
+
+USERAPPS += $(call mkobjs, $(APPS))
 
 
 $(do)init: $(do)init.o $(USERLIBS)
@@ -76,6 +93,9 @@ $(do)test_fb: $(do)test_fb.o $(USERLIBS)
 	@$(LD) $(LDFLAGS) -o $@ $^
 
 $(do)testbdl: $(do)testbdl.o $(USERLIBS)
+	@$(LD) $(LDFLAGS) -o $@ $^
+
+$(do)testdraw: $(do)testdraw.o $(USERLIBS)
 	@$(LD) $(LDFLAGS) -o $@ $^
 
 
