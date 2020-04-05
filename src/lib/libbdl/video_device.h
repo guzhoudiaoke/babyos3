@@ -26,6 +26,7 @@
 #define _VIDEO_DEVICE_H_
 
 
+#include "stdint.h"
 #include <window.h>
 #include <surface.h>
 
@@ -41,6 +42,13 @@ public:
     int update_window_frame_buffer(window_t* window, rect_t* rects, int numrects);
 
 private:
+    int      m_fd;
+    uint32_t m_width;
+    uint32_t m_height;
+    uint32_t m_depth;
+
+    uint32_t m_buffer_id;
+    uint8_t* m_buffer[2];
 };
 
 

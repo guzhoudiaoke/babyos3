@@ -131,7 +131,8 @@ static inline void *get_next_link(void *bp)
 /* Given block ptr bp, set address of previous free block */ 
 static inline void set_prev_link(void *bp, void *prev)
 {
-    *((size_t *)bp) = (size_t)prev;}
+    *((size_t *)bp) = (size_t)prev;
+}
 
 /* Given block ptr bp, set address of next free block */ 
 static inline void set_next_link(void *bp, void *next)

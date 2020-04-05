@@ -87,6 +87,9 @@ int framebuffer_t::ioctl(int cmd, uint64 arg)
         *p = vaddr;
         break;
     }
+    case FB_SET_BUFFER:
+        os()->vbe()->swap_buffer();
+        break;
     default:
         return -EINVAL;
     }

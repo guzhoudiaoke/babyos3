@@ -63,6 +63,11 @@ int surface_t::height()
     return m_height;
 }
 
+void* surface_t::pixels()
+{
+    return m_pixels;
+}
+
 int surface_t::fill_rect(const rect_t* rect, uint32_t color)
 {
     //rect_t clipped;

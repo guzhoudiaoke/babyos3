@@ -36,6 +36,11 @@ public:
     window_t(const char* title, int x, int y, int w, int h);
     ~window_t();
 
+    int x();
+    int y();
+    int width();
+    int height();
+
     surface_t* get_surface();
     int update_surface();
     int update_surface_rects(rect_t* rects, int numrects);

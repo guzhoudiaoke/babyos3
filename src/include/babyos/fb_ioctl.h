@@ -31,6 +31,7 @@
 #define FB_GET_HEIGHT 02
 #define FB_GET_DEPTH  03
 #define FB_MAP        04
+#define FB_SWAP_BUFFER 05
 
 
 #endif

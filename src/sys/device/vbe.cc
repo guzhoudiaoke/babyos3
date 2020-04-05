@@ -48,6 +48,7 @@ void vbe_t::init()
     m_bytes_pp = info->bits_per_pixel / 8;
     m_base     = (uint8 *)IO2V(info->vram_base_addr);
     m_ioaddr   = nullptr;
+    m_buffer_id = 0;
 
     bochs_graphic_init();
     load_asc16();
@@ -279,4 +280,10 @@ void vbe_t::bochs_graphic_init()
                          m_base, addr, m_video_mem_size, PTE_W | PTE_U);
     }
     os()->uart()->kprintf("bochs graphic vram base: %p, length: %p\n", m_base, m_video_mem_size);
+}
+
+void vbe_t::swap_buffer()
+{
+    m_buffer_id = !m_buffer_id;
+    bochs_vga_write(VBE_DISPI_INDEX_Y_OFFSET, m_height*m_buffer_id);
 }

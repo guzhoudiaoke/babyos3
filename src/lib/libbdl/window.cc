@@ -43,6 +43,26 @@ window_t::~window_t()
     delete m_title;
 }
 
+int window_t::x()
+{
+    return m_x;
+}
+
+int window_t::y()
+{
+    return m_y;
+}
+
+int window_t::width()
+{
+    return m_width;
+}
+
+int window_t::height()
+{
+    return m_height;
+}
+
 surface_t* window_t::get_surface()
 {
     if (m_surface == nullptr) {

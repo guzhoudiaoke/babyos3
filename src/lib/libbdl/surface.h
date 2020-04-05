@@ -38,6 +38,7 @@ public:
     renderer_t* create_software_renderer();
     int width();
     int height();
+    void* pixels();
 
     int fill_rect(const rect_t* rect, uint32_t color);
     int fill_rects(const rect_t* rects, int count, uint32_t color);

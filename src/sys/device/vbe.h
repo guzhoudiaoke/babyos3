@@ -73,6 +73,7 @@ public:
 	uint32 depth();
 	uint32 vram_size();
 	uint8* vram();
+	void   swap_buffer();
 
 	void   set_pixel(uint32 x, uint32 y, color_ref_t color);
 	void   draw_asc16(char ch, uint32 left, uint32 top, color_ref_t color);
@@ -94,6 +95,7 @@ private:
 	uint16	m_height;
 	uint8	m_bytes_pp;    /* bytes per pixel */
 	uint32  m_video_mem_size;
+	uint32  m_buffer_id;
 
 	uint8*  m_ioaddr;
 };

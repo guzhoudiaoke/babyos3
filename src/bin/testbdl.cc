@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 {
     printf("begin\n");
 
-    window_t* window = video_t::create_window("Board", 0, 0, 1280, 960, 0);
+    window_t* window = video_t::create_window("Board", 320, 240, 640, 480, 0);
     printf("create window: %p\n", window);
 
     surface_t* surface = window->get_surface();
