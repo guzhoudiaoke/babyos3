@@ -10,6 +10,7 @@ SUB_OBJS = \
 		  syscall.o \
 		  sys_socket.o \
 		  pci.o \
+		  fpu.o \
 
 KOBJS += $(call mkobjs,$(SUB_OBJS))
 

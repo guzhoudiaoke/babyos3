@@ -241,6 +241,9 @@ void babyos_t::init()
     m_framebuffer.init();
     uart()->puts("framebuffer init done\n");
 
+    /* fpu */
+    m_fpu.init();
+
     /* start the first user process: init */
     start_init_proc();
     uart()->puts("start init proc\n");

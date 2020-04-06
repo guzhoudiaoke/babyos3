@@ -156,20 +156,33 @@ static inline void nop(void)
 
 static inline uint64 get_cr0(void)
 {
-    uint32 val;
-    __asm__ volatile("movl %%cr0, %0" : "=r" (val));
+    uint64 val;
+    __asm__ volatile("mov %%cr0, %0" : "=r" (val));
     return val;
 }
 
 static inline void set_cr0(uint64 val)
 {
-    __asm__ volatile("movl %0, %%cr0" : : "r" (val));
+    __asm__ volatile("mov %0, %%cr0" : : "r" (val));
 }
 
 static inline void set_cr3(uint64 val)
 {
     __asm__ volatile("mov %0, %%cr3" : : "r" (val));
 }
+
+static inline uint64 get_cr4(void)
+{
+    uint64 val;
+    __asm__ volatile("mov %%cr4, %0" : "=r" (val));
+    return val;
+}
+
+static inline void set_cr4(uint64 val)
+{
+    __asm__ volatile("mov %0, %%cr4" : : "r" (val));
+}
+
 
 static inline uint32 change_bit(uint64 nr, void* addr)
 {

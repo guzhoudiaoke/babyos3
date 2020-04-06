@@ -100,6 +100,10 @@ void loop(window_t* window, renderer_t* renderer)
 
 int main(int argc, char** argv)
 {
+    float a = 2.0f;
+    float b = 3.0f;
+    float c = a / b;
+
     window_t* window = video_t::create_window("Board", 320, 240, 640, 480, 0);
     surface_t* surface = window->get_surface();
     renderer_t* renderer = surface->create_software_renderer();
@@ -107,7 +111,7 @@ int main(int argc, char** argv)
     renderer->set_draw_color(0xff, 0xff, 0xff, 0xff);
     renderer->clear();
 
-    srand(0x1234);
+    srand(c+0x1234);
 
     while (true) {
         loop(window, renderer);

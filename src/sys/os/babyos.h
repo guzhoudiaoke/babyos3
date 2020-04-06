@@ -48,6 +48,7 @@
 #include "io_apic.h"
 #include "pci.h"
 #include "framebuffer.h"
+#include "fpu.h"
 
 
 enum device_type_e {
@@ -110,6 +111,7 @@ private:
     io_apic_t      m_io_apic;
     pci_t          m_pci;
     framebuffer_t  m_framebuffer;
+    fpu_t          m_fpu;
 
     process_mgr_t  m_process_mgr;
     timer_mgr_t    m_timer_mgr;
