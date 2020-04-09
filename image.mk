@@ -40,4 +40,4 @@ img: $(LIBS) $(BOOT) $(LOADER) $(KERNEL) $(USERAPPS)
 	$(DD) if=$(LOADER)         of=$(HDIMG)   ibs=512 seek=0 			count=$(LOADERSIZE) conv=notrunc
 	$(DD) if=$(KERNEL)         of=$(HDIMG)   ibs=512 seek=$(LOADERSIZE) count=$(KERNELSIZE) conv=notrunc
 
-	$(MKFS) ${USERAPPS} ./res/font/ASC16 ./luac.out ./test.lua
+	$(MKFS) ${USERAPPS} ./res/font/ASC16 ./luac.out ./test.lua ./sample.bmp

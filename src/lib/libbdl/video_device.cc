@@ -83,10 +83,10 @@ int video_device_t::update_window_frame_buffer(window_t* window, rect_t* rects, 
 
     surface_t* surface = window->get_surface();
     uint8_t* src = (uint8_t *) surface->pixels();
-    for (int i = 0; i < window->height(); i++) {
-        memcpy(dst, src, window->width() * m_depth);
+    for (int i = 0; i < surface->height(); i++) {
+        memcpy(dst, src, surface->width() * m_depth);
         dst += m_width * m_depth;
-        src += window->width() * m_depth;
+        src += surface->width() * m_depth;
     }
 
     ioctl(m_fd, FB_SWAP_BUFFER, 0);

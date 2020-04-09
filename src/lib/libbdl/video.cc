@@ -26,6 +26,7 @@
 #include <video.h>
 #include <render.h>
 #include <rect.h>
+#include <bitmap.h>
 
 
 video_device_t* video_t::m_device = nullptr;
@@ -99,6 +100,11 @@ void video_t::destroy_window(window_t* window)
 
 }
 
+uint32_t video_t::make_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+{
+    return (uint32_t) a << 24 | (uint32_t) r << 16 | (uint32_t) g << 8 | b;
+}
+
 surface_t* video_t::create_rgb_surface_from(void* pixels, int width, int height, int pitch)
 {
     if (width <= 0 || height <= 0) {
@@ -106,5 +112,32 @@ surface_t* video_t::create_rgb_surface_from(void* pixels, int width, int height,
     }
 
     surface_t* surface = new surface_t(pixels, width, height, pitch);
+    return surface;
+}
+
+surface_t* video_t::create_surface_from_bitmap(const char* path)
+{
+    bitmap_t bmp;
+    if (!bmp.load(path)) {
+        return nullptr;
+    }
+
+    int32_t pitch = 4 * bmp.width();
+    uint8_t* pixels = new uint8_t[pitch * bmp.height()];
+
+    uint32_t* dst = (uint32_t *) pixels;
+    uint8_t* src = bmp.pixels();
+    for (int32_t y = bmp.height()-1; y >= 0; y--) {
+        uint8_t* s = src + y * bmp.pitch();
+        for (uint32_t x = 0; x < bmp.width(); x++) {
+            uint8_t r = s[2], g = s[1], b = s[0];
+            uint32_t color = make_color(r, g, b, 0xff);
+            dst[x] = color;
+            s += 3;
+        }
+        dst += bmp.width();
+    }
+
+    surface_t* surface = new surface_t(pixels, bmp.width(), bmp.height(), pitch);
     return surface;
 }

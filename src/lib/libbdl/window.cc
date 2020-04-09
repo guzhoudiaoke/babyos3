@@ -71,6 +71,14 @@ surface_t* window_t::get_surface()
     return m_surface;
 }
 
+void window_t::set_surface(surface_t* surface)
+{
+    if (m_surface != nullptr) {
+        delete m_surface;
+    }
+    m_surface = surface;
+}
+
 surface_t* window_t::create_frame_buffer()
 {
     void* pixels;

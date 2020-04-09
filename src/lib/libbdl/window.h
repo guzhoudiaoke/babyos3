@@ -42,6 +42,8 @@ public:
     int height();
 
     surface_t* get_surface();
+    void set_surface(surface_t* surface);
+
     int update_surface();
     int update_surface_rects(rect_t* rects, int numrects);
 

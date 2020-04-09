@@ -46,6 +46,9 @@ public:
     static void destroy_window(window_t* window);
 
     static surface_t* create_rgb_surface_from(void* pixels, int width, int height, int pitch);
+    static surface_t* create_surface_from_bitmap(const char* path);
+
+    static uint32_t make_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 
 private:
     static video_device_t* m_device;
