@@ -48,9 +48,9 @@ surface_t::~surface_t()
 
 }
 
-renderer_t* surface_t::create_software_renderer()
+renderer_t* surface_t::create_renderer(window_t* window)
 {
-    renderer_t* renderer = new renderer_t(this);
+    renderer_t* renderer = new renderer_t(window, this);
     if (renderer == nullptr) {
         return nullptr;
     }
@@ -154,6 +154,74 @@ int surface_t::draw_points(point_t* points, int count, uint32_t color)
         }
 
         *((uint32_t *) ((uint8_t *) m_pixels + y*m_pitch + x*m_bpp)) = color;
+    }
+
+    return 0;
+}
+
+int surface_t::blit(surface_t* src, rect_t* srcrect, rect_t* dstrect)
+{
+    if (srcrect->w != dstrect->w || srcrect->h != dstrect->h) {
+        return -1;
+    }
+
+    int src_pitch = src->m_pitch;
+    int dst_pitch = m_pitch;
+
+    int src_x = srcrect->x;
+    int dst_x = dstrect->x;
+
+    uint8_t* src_pixels = (uint8_t *) src->m_pixels + src_pitch*srcrect->y;
+    uint8_t* dst_pixels = (uint8_t *) m_pixels + dst_pitch*dstrect->y;
+
+    int dst_h = dstrect->h;
+    while (dst_h--) {
+        memcpy(dst_pixels + m_bpp*dst_x, src_pixels + m_bpp*src_x, m_bpp*srcrect->w);
+        src_pixels += src_pitch;
+        dst_pixels += dst_pitch;
+    }
+
+    return 0;
+}
+
+static void copy_row(uint32_t *src, int src_w, uint32_t *dst, int dst_w)
+{                                           
+    int i;
+    int pos, inc;
+    uint32_t pixel = 0;
+
+    pos = 0x10000;
+    inc = (src_w << 16) / dst_w;
+    for (i = dst_w; i > 0; --i) {
+        while (pos >= 0x10000L) {
+            pixel = *src++;
+            pos -= 0x10000L;
+        }
+        *dst++ = pixel;
+        pos += inc;
+    }
+}
+
+int surface_t::blit_scaled(surface_t* src, rect_t* srcrect, rect_t* dstrect)
+{
+    int pos = 0x10000;
+    int inc = (srcrect->h << 16) / dstrect->h;
+    int src_row = srcrect->y;
+    int dst_row = dstrect->y;
+
+    uint8_t* dstp = nullptr;
+    uint8_t* srcp = nullptr;
+    int dst_maxrow = dst_row + dstrect->h;
+    for (; dst_row < dst_maxrow; ++dst_row) {
+        dstp = (uint8_t *) m_pixels + (dst_row * m_pitch) + (dstrect->x * m_bpp);
+        while (pos >= 0x10000L) {
+            srcp = (uint8_t *) src->m_pixels + (src_row * src->m_pitch) + (srcrect->x * m_bpp);
+            ++src_row;
+            pos -= 0x10000L;
+        }
+
+        copy_row((uint32_t *) srcp, srcrect->w, (uint32_t *) dstp, dstrect->w);
+        pos += inc;
     }
 
     return 0;

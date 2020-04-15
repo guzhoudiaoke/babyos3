@@ -29,6 +29,8 @@
 
 #include <stdint.h>
 #include <window.h>
+#include <surface.h>
+#include <texture.h>
 #include <video_device.h>
 #include <cxx.h>
 
@@ -47,6 +49,8 @@ public:
 
     static surface_t* create_rgb_surface_from(void* pixels, int width, int height, int pitch);
     static surface_t* create_surface_from_bitmap(const char* path);
+    static texture_t* create_texture_from_surface(surface_t* surface, renderer_t* renderer);
+    static texture_t* load_texture(const char* path, renderer_t* renderer);
 
     static uint32_t make_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 

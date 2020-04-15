@@ -73,7 +73,7 @@ int main(int argc, char** argv)
     surface_t* surface = window->get_surface();
     printf("window get surface: %p\n", surface);
 
-    renderer_t* renderer = surface->create_software_renderer();
+    renderer_t* renderer = surface->create_renderer(window);
     printf("surface create software renderer: %p\n", renderer);
 
     renderer->set_draw_color(0xff, 0xff, 0xff, 0xff);

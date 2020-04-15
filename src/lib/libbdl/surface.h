@@ -36,7 +36,7 @@ public:
     surface_t(void* pixels, int width, int height, int pitch);
     ~surface_t();
 
-    renderer_t* create_software_renderer();
+    renderer_t* create_renderer(window_t* window);
     int width();
     int height();
     void* pixels();
@@ -46,6 +46,9 @@ public:
 
     int draw_point(int x, int y, uint32_t color);
     int draw_points(point_t* points, int count, uint32_t color);
+
+    int blit(surface_t* src, rect_t* srcrect, rect_t* dstrect);
+    int blit_scaled(surface_t* src, rect_t* srcrect, rect_t* dstrect);
 
 private:
     void* m_pixels;

@@ -106,7 +106,7 @@ int main(int argc, char** argv)
 
     window_t* window = video_t::create_window("Board", 320, 240, 640, 480, 0);
     surface_t* surface = window->get_surface();
-    renderer_t* renderer = surface->create_software_renderer();
+    renderer_t* renderer = surface->create_renderer(window);
 
     renderer->set_draw_color(0xff, 0xff, 0xff, 0xff);
     renderer->clear();

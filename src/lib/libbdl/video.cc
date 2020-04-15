@@ -141,3 +141,21 @@ surface_t* video_t::create_surface_from_bitmap(const char* path)
     surface_t* surface = new surface_t(pixels, bmp.width(), bmp.height(), pitch);
     return surface;
 }
+
+texture_t* video_t::create_texture_from_surface(surface_t* surface, renderer_t* renderer)
+{
+    if (surface == nullptr) {
+        return nullptr;
+    }
+
+    texture_t* texture = new texture_t(surface->width(), surface->height(), surface);
+    renderer->set_texture(texture);
+
+    return texture;
+}
+
+texture_t* video_t::load_texture(const char* path, renderer_t* renderer)
+{
+    surface_t* surface = create_surface_from_bitmap(path);
+    return create_texture_from_surface(surface, renderer);
+}

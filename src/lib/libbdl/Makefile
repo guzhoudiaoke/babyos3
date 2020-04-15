@@ -14,6 +14,7 @@ SUB_OBJS = \
 	render.o \
 	surface.o \
 	bitmap.o \
+	texture.o \
 	
 
 LIBS += $(call mkobjs,libbdl.a)

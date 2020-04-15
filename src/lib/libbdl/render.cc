@@ -28,14 +28,16 @@
 #include <render.h>
 #include <surface.h>
 #include <video.h>
+#include <window.h>
 
 
-renderer_t::renderer_t(surface_t* surface)
+renderer_t::renderer_t(window_t* window, surface_t* surface)
 {
+    m_window = window;
     m_surface = surface;
     m_pixels = nullptr;
-    //m_scale.x = 1.0f;
-    //m_scale.y = 1.0f;
+    m_scale.x = 1.0f;
+    m_scale.y = 1.0f;
 }
 
 renderer_t::~renderer_t()
@@ -56,10 +58,10 @@ void renderer_t::get_view_port(rect_t* rect)
 int renderer_t::set_view_port(rect_t* rect)
 {
     if (rect != nullptr) {
-        //m_viewport.x = (int) floor(rect->x * m_scale.x);
-        //m_viewport.y = (int) floor(rect->y * m_scale.y);
-        //m_viewport.w = (int) floor(rect->w * m_scale.x);
-        //m_viewport.h = (int) floor(rect->h * m_scale.y);
+        m_viewport.x = (int) floor(rect->x * m_scale.x);
+        m_viewport.y = (int) floor(rect->y * m_scale.y);
+        m_viewport.w = (int) floor(rect->w * m_scale.x);
+        m_viewport.h = (int) floor(rect->h * m_scale.y);
     }
     else {
         m_viewport.x = 0;
@@ -143,4 +145,61 @@ int renderer_t::draw_point(int x, int y)
 {
     uint32_t color = video_t::make_color(m_r, m_g, m_b, m_a);
     return m_surface->draw_point(x, y, color);
+}
+
+void renderer_t::set_texture(texture_t* texture)
+{
+    m_texture = texture;
+}
+
+int renderer_t::copy_texture(texture_t* texture, rect_t* srcrect, rect_t* dstrect)
+{
+    rect_t real_srcrect, r;
+
+    real_srcrect.x = 0;
+    real_srcrect.y = 0;
+    real_srcrect.w = texture->width();
+    real_srcrect.h = texture->height();
+
+    if (srcrect != nullptr) {
+        if (!srcrect->intersect(real_srcrect, real_srcrect)) {
+            return 0;
+        }
+    }
+
+    get_view_port(&r);
+    rect_t real_dstrect;
+    real_dstrect.x = 0;
+    real_dstrect.y = 0;
+    real_dstrect.w = r.w;
+    real_dstrect.h = r.h;
+
+    if (dstrect != nullptr) {
+        if (!dstrect->has_intersection(real_dstrect)) {
+            return 0;
+        }
+        real_dstrect = *dstrect;
+    }
+
+    real_dstrect.x *= m_scale.x;
+    real_dstrect.y *= m_scale.y;
+    real_dstrect.w *= m_scale.x;
+    real_dstrect.h *= m_scale.y;
+
+    if (real_srcrect.w == (int) real_dstrect.w && real_srcrect.h == (int) real_dstrect.h) {
+        m_surface->blit(texture->get_surface(), &real_srcrect, &real_dstrect);
+    }
+    else {
+        m_surface->blit_scaled(texture->get_surface(), &real_srcrect, &real_dstrect);
+    }
+
+    return 0;
+}
+
+void renderer_t::present()
+{
+    window_t* window = m_window;
+    if (window != nullptr) {
+        window->update_surface();
+    }
 }

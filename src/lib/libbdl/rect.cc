@@ -71,3 +71,44 @@ bool rect_t::intersect(rect_t& rhs, rect_t& result) const
 
     return !result.empty();
 }
+
+bool rect_t::has_intersection(const rect_t& rhs)
+{
+    if (this->empty() || rhs.empty()) {
+        return false;
+    }
+
+    /* horizontal intersection */
+    int lhs_min = x;
+    int lhs_max = lhs_min + w;
+    int rhs_min = rhs.x;
+    int rhs_max = rhs_min + rhs.w;
+
+    if (rhs_min > lhs_min) {
+        lhs_min = rhs_min;
+    }
+    if (rhs_max < lhs_max) {
+        lhs_max = rhs_max;
+    }
+    if (lhs_max <= lhs_min) {
+        return false;
+    }
+
+    /* vertical intersection */
+    lhs_min = y;
+    lhs_max = lhs_min + h;
+    rhs_min = rhs.y;
+    rhs_max = rhs_min + rhs.h;
+
+    if (rhs_min > lhs_min) {
+        lhs_min = rhs_min;
+    }
+    if (rhs_max < lhs_max) {
+        lhs_max = rhs_max;
+    }
+    if (lhs_max <= lhs_min) {
+        return false;
+    }
+
+    return true;
+}

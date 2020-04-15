@@ -36,7 +36,9 @@ bitmap_t::bitmap_t()
 
 bitmap_t::~bitmap_t()
 {
-
+    if (m_pixels != nullptr) {
+        delete m_pixels;
+    }
 }
 
 bool bitmap_t::load(const char* path)

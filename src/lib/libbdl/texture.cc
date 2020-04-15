@@ -1,5 +1,5 @@
 /*
- *	babyos/lib/libbdl/rect.h
+ *	babyos/lib/libbdl/texture.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -18,50 +18,16 @@
  */
 
 
-/*
- *  2020-04-04		created
- */
+#include "texture.h"
 
-
-#ifndef _RECT_H_
-#define _RECT_H_
-
-
-typedef struct point_s
+texture_t::texture_t(int w, int h, surface_t* surface)
 {
-    int x;
-    int y;
-} point_t;
+    m_width = w;
+    m_height = h;
+    m_surface = surface;
+}
 
-
-typedef struct rect_s rect_t;
-struct rect_s
+texture_t::~texture_t()
 {
-    int x;
-    int y;
-    int w;
-    int h;
 
-    bool empty() const;
-    bool intersect(rect_t& rhs, rect_t& result) const;
-    bool has_intersection(const rect_t& rhs);
-};
-
-
-typedef struct frect_s
-{
-    float x;
-    float y;
-    float w;
-    float h;
-} frect_t;
-
-
-typedef struct fpoint_s
-{
-    float x;
-    float y;
-} fpoint_t;
-
-
-#endif
+}
