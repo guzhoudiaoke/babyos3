@@ -138,6 +138,7 @@ surface_t* video_t::create_surface_from_bitmap(const char* path)
         dst += bmp.width();
     }
 
+    printf("bmp: %d %d %d\n", bmp.width(), bmp.height(), pitch);
     surface_t* surface = new surface_t(pixels, bmp.width(), bmp.height(), pitch);
     return surface;
 }

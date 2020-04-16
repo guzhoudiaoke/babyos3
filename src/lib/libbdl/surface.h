@@ -50,6 +50,9 @@ public:
     int blit(surface_t* src, rect_t* srcrect, rect_t* dstrect);
     int blit_scaled(surface_t* src, rect_t* srcrect, rect_t* dstrect);
 
+    int lower_blit(surface_t* src, rect_t* srcrect, rect_t* dstrect);
+    int lower_blit_scaled(surface_t* src, rect_t* srcrect, rect_t* dstrect);
+
 private:
     void* m_pixels;
     int m_width;

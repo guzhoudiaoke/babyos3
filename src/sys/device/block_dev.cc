@@ -50,12 +50,12 @@ void block_dev_t::init(uint32 dev)
     }
 }
 
-io_buffer_t* block_dev_t::find_from_cache(uint32 lba)
+io_buffer_t* block_dev_t::find_from_cache(uint32 block)
 {
     dlist_node_t* node = m_used_list.head();
     while (node != nullptr) {
         io_buffer_t* buffer = list_entry(node, io_buffer_t, m_used_list_node);
-        if (buffer->m_lba == lba) {
+        if (buffer->m_block == block) {
             return buffer;
         }
         node = node->next();
@@ -64,13 +64,13 @@ io_buffer_t* block_dev_t::find_from_cache(uint32 lba)
     return nullptr;
 }
 
-io_buffer_t* block_dev_t::get_block(uint32 lba)
+io_buffer_t* block_dev_t::get_block(uint32 block)
 {
     uint64 flags;
     m_lock.lock_irqsave(flags);
 
     /* first, find from used list, if find it means this block cached */
-    io_buffer_t* b = find_from_cache(lba);
+    io_buffer_t* b = find_from_cache(block);
 
     /* find */
     if (b == nullptr) {
@@ -83,7 +83,7 @@ io_buffer_t* block_dev_t::get_block(uint32 lba)
             b = list_entry(m_used_list.remove_head(), io_buffer_t, m_used_list_node);
         }
 
-        b->m_lba = lba;
+        b->m_block = block;
         b->m_done = 0;
     }
     m_lock.unlock_irqrestore(flags);
@@ -98,23 +98,22 @@ void block_dev_t::release_block(io_buffer_t* b)
 {
     uint64 flags;
     m_lock.lock_irqsave(flags);
-    if (!find_from_cache(b->m_lba)) {
+    if (!find_from_cache(b->m_block)) {
         m_used_list.add_tail(&b->m_used_list_node);
     }
     m_lock.unlock_irqrestore(flags);
     b->unlock();
 }
 
-io_buffer_t* block_dev_t::read(uint32 lba)
+io_buffer_t* block_dev_t::read(uint32 block)
 {
-    lba *= 4;
-    io_buffer_t* b = get_block(lba);
+    io_buffer_t* b = get_block(block);
     if (b->m_done) {
         return b;
     }
 
     request_t req;
-    req.init(m_dev, lba, request_t::CMD_READ, b);
+    req.init(m_dev, block * (BSIZE / SECT_SIZE), request_t::CMD_READ, b);
     os()->ide()->add_request(&req);
     b->wait();
 
@@ -125,7 +124,7 @@ int block_dev_t::write(io_buffer_t* b)
 {
     request_t req;
 
-    req.init(m_dev, b->m_lba, request_t::CMD_WRITE, b);
+    req.init(m_dev, b->m_block * (BSIZE / SECT_SIZE), request_t::CMD_WRITE, b);
     os()->ide()->add_request(&req);
     b->wait();
 

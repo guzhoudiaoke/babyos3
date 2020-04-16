@@ -26,13 +26,13 @@ SUB_OBJS = \
 	s_frexp.o \
 	s_rint.o \
 	e_fmod.o \
+	floor.o \
 	
 
 LIBS += $(call mkobjs,libm.a)
 OBJS += $(call mkobjs,$(SUB_OBJS))
 LIBM_OBJS += $(call mkobjs,$(SUB_OBJS))
 
-#$(do)libm.a: $(call mkobjs,$(LIBM_OBJS))
 $(do)libm.a: $(LIBM_OBJS)
 
 $(eval $(call std_footer))

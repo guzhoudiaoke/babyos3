@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/block_dev.h
+ *	babyos/lib/libm/floor.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,39 +19,16 @@
 
 
 /*
- *  2020-02-17		created
+ *  2020-04-16		created
  */
 
+#include <sys/cdefs.h>
 
-#ifndef _BLOCK_DEV_H_
-#define _BLOCK_DEV_H_
+__BEGIN_DECLS
 
-#include "types.h"
-#include "dlist.h"
-#include "sem.h"
-#include "spinlock.h"
-#include "kernel.h"
-#include "io_buffer.h"
+double floor(double val)
+{
+    return (long) val;
+}
 
-
-class block_dev_t {
-public:
-    void             init(uint32 dev);
-    io_buffer_t*     read(uint32 block);
-    int              write(io_buffer_t* b);
-    void             release_block(io_buffer_t* b);
-
-private:
-    io_buffer_t*     get_block(uint32 block);
-    io_buffer_t*     find_from_cache(uint32 block);
-
-private:
-    uint32        m_dev;
-    uint32        m_buf_num;
-    io_buffer_t*  m_bufs;
-    dlist_t       m_used_list;
-    dlist_t       m_free_list;
-    spinlock_t    m_lock;
-};
-
-#endif
+__END_DECLS

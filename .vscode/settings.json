@@ -16,14 +16,19 @@
     },
     "cSpell.words": [
         "babyc",
+        "blit",
         "darea",
+        "dstp",
         "dwords",
         "frect",
         "frects",
         "inum",
+        "maxh",
+        "maxw",
         "miny",
         "nblocks",
         "ninodes",
-        "nlinks"
+        "nlinks",
+        "srcp"
     ]
 }

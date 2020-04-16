@@ -30,7 +30,7 @@
 
 void io_buffer_t::init()
 {
-    m_lba = 0;
+    m_block = 0;
     m_done = 0;
     m_sem.init(1);
     m_sem_wait_done.init(0);

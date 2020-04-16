@@ -40,7 +40,7 @@
 #define ROOT_DEV 1
 #define ROOT_INUM 1
 
-#define BSIZE   2048
+#define BSIZE   4096
 
 #define MAX_INODE_CACHE 64
 

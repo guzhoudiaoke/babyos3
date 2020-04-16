@@ -44,7 +44,7 @@ public:
     void done();
 
 public:
-    uint32          m_lba;
+    uint32          m_block;
     uint32          m_done;
     semaphore_t     m_sem;
     semaphore_t     m_sem_wait_done;

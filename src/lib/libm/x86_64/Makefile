@@ -15,7 +15,6 @@ SUB_OBJS = \
 	s_cos.o \
 	s_cbrt.o \
 	s_atan.o \
-	floor.o \
 	floorf.o \
 	e_sinh.o \
 	e_pow.o \
