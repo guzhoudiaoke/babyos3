@@ -25,7 +25,7 @@
 #ifndef _BUDDY_H_
 #define _BUDDY_H_
 
-#include "types.h"
+#include "babyos/types.h"
 #include "page.h"
 
 

@@ -26,7 +26,7 @@
 #ifndef _SEM_H_
 #define _SEM_H_
 
-#include "types.h"
+#include "babyos/types.h"
 #include "dlist.h"
 #include "spinlock.h"
 

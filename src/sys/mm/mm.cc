@@ -27,7 +27,7 @@
 #include "vm.h"
 #include "pipe.h"
 #include "babyos.h"
-#include "signal.h"
+#include "ipc/signal.h"
 
 
 mm_t::mm_t()

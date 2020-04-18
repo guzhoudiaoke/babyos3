@@ -28,7 +28,7 @@
 #define _STRING_H_
 
 #include <stdarg.h>
-#include "types.h"
+#include "babyos/types.h"
 
 extern "C" {
 

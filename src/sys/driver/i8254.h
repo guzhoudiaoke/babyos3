@@ -27,7 +27,7 @@
 #define _i8254_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 
 
 #define HZ              (100)

@@ -27,7 +27,7 @@
 #define _I8259A_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 
 
 class i8259a_t {

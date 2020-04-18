@@ -27,7 +27,7 @@
 #define _BOOTINFO_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 
 
 /* video info */

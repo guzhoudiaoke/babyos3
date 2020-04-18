@@ -32,7 +32,6 @@
 #include "block_dev.h"
 #include "pipe.h"
 #include "socket.h"
-#include "dirent.h"
 
 
 void file_system_t::read_super_block(super_block_t* sb)

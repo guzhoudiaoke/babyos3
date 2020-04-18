@@ -30,12 +30,12 @@
 #define _SOCKET_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 #include "sem.h"
-#include "sock_addr.h"
+#include "babyos/sock_addr.h"
 #include "sock_ring_buffer.h"
 #include "errno.h"
-#include "sock.h"
+#include "babyos/sock.h"
 
 
 class socket_t {

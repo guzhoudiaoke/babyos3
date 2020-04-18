@@ -26,7 +26,7 @@
 #ifndef _POOL_H_
 #define _POOL_H_
 
-#include "types.h"
+#include "babyos/types.h"
 #include "spinlock.h"
 
 

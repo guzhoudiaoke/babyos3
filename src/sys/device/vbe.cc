@@ -24,7 +24,6 @@
 
 
 #include "vbe.h"
-#include "types.h"
 #include "kernel.h"
 #include "kstring.h"
 #include "bootmem.h"

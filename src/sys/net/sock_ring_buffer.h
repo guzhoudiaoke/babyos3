@@ -29,7 +29,7 @@
 #define _SOCK_BUFFER_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 #include "spinlock.h"
 #include "sem.h"
 

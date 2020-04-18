@@ -26,8 +26,8 @@
 #define _CONSOLE_H_
 
 
-#include "types.h"
-#include "color.h"
+#include "babyos/types.h"
+#include "babyos/color.h"
 #include "kstring.h"
 #include "spinlock.h"
 #include "waitqueue.h"

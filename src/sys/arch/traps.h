@@ -27,7 +27,7 @@
 #define _TRAPS_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 
 
 #define IRQ_0               (0x20)

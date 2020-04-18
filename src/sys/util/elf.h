@@ -26,7 +26,7 @@
 #ifndef _ELF_H_
 #define _ELF_H_
 
-#include "types.h"
+#include "babyos/types.h"
 #include "traps.h"
 
 

@@ -23,7 +23,7 @@
  */
 
 
-#include "types.h"
+#include "babyos/types.h"
 #include "kernel.h"
 #include "babyos.h"
 

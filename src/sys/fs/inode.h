@@ -27,7 +27,7 @@
 #ifndef _INODE_H_
 #define _INODE_H_
 
-#include "types.h"
+#include "babyos/types.h"
 #include "sem.h"
 
 #define NDIRECT 12

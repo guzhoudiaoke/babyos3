@@ -27,7 +27,7 @@
 #ifndef _FILE_TABLE_H_
 #define _FILE_TABLE_H_
 
-#include "types.h"
+#include "babyos/types.h"
 #include "file.h"
 #include "spinlock.h"
 

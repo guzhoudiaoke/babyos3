@@ -27,7 +27,7 @@
 #define _PIPE_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 #include "sem.h"
 #include "spinlock.h"
 #include "waitqueue.h"

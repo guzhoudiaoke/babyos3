@@ -26,7 +26,7 @@
 #ifndef _BLOCK_DEV_H_
 #define _BLOCK_DEV_H_
 
-#include "types.h"
+#include "babyos/types.h"
 #include "dlist.h"
 #include "sem.h"
 #include "spinlock.h"

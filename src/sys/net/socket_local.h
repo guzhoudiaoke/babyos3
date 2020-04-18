@@ -29,7 +29,7 @@
 #define _SOCKET_LOCAL_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 #include "socket.h"
 #include "spinlock.h"
 #include "dlist.h"

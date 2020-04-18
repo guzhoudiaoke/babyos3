@@ -28,7 +28,7 @@
 #define _IO_APIC_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 
 
 #define IO_APIC_BASE     0xfec00000ull  /* default address map */

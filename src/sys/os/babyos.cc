@@ -26,7 +26,7 @@
 #include "x86.h"
 #include "delay.h"
 #include "syscall.h"
-#include "syscall_def.h"
+#include "babyos/syscall_def.h"
 #include "pipe.h"
 #include "syscall.h"
 #include "sys_socket.h"

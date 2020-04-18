@@ -28,8 +28,7 @@
 #define _PCI_H_
 
 
-#include "types.h"
-#include "types.h"
+#include "babyos/types.h"
 #include "dlist.h"
 
 

@@ -27,7 +27,7 @@
 #define _IDE_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 #include "io_buffer.h"
 #include "dlist.h"
 

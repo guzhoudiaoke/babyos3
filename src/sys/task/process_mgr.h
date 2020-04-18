@@ -28,7 +28,7 @@
 #define _PROCESS_MGR_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 #include "process.h"
 #include "list.h"
 #include "spinlock.h"

@@ -16,7 +16,7 @@ $(eval $(call top_level_config))
 
 LIB_INCS 	:= -I src/include -I src/include/babyos
 USR_INCS 	:= -I src/include -I src/include/babyos
-SYS_INCS 	:= -I src/include/babyos
+SYS_INCS 	:= -I src/include/
 LIBS 		:=
 OBJS 		:=
 

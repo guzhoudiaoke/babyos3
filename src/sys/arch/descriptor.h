@@ -27,7 +27,7 @@
 #define _DESCRIPTOR_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 #include "page.h"
 
 

@@ -27,7 +27,7 @@
 #include "kstring.h"
 #include "process.h"
 #include "babyos.h"
-#include "syscall_def.h"
+#include "babyos/syscall_def.h"
 
 
 const char* signal_names[NSIG] = {

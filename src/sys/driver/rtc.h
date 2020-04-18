@@ -27,7 +27,7 @@
 #define _RTC_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 
 
 class rtc_t {

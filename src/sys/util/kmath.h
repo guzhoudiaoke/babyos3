@@ -27,7 +27,7 @@
 #define _KMATH_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 
 
 class math_t {

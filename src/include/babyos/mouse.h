@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/io_buffer.h
+ *	babyos/include/babyos/mouse.h
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,40 +19,26 @@
 
 
 /*
- *  2020-02-17		created
+ *  2020-04-18		created
  */
 
 
-
-#ifndef _IO_BUFFER_H_
-#define _IO_BUFFER_H_
-
-#include "babyos/types.h"
-#include "kernel.h"
-#include "sem.h"
-#include "dlist.h"
-#include "fs.h"
+#ifndef _INCLUDE_MOUSE_H_
+#define _INCLUDE_MOUSE_H_
 
 
-class io_buffer_t {
-public:
+typedef enum mouse_button_s {
+    LEFT   = 0x1,
+    RIGHT  = 0x2,
+    MIDDLE = 0x4,
+} mouse_button_t;
 
-    void init();
-    void lock();
-    void unlock();
-    void wait();
-    void done();
 
-public:
-    uint32          m_block;
-    uint32          m_done;
-    semaphore_t     m_sem;
-    semaphore_t     m_sem_wait_done;
-    uint8           m_buffer[BSIZE];
-
-    dlist_node_t    m_used_list_node;
-    dlist_node_t    m_free_list_node;
-};
+typedef struct mouse_packet_s {
+    int             dx;
+    int             dy;
+    mouse_button_t  button;
+} mouse_packet_t;
 
 
 #endif

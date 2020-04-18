@@ -27,9 +27,9 @@
 #define _SYSCALL_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
+#include "babyos/syscall_def.h"
 #include "traps.h"
-#include "syscall_def.h"
 
 
 class syscall_t {

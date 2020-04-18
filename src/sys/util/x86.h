@@ -26,7 +26,7 @@
 #ifndef _X86_H_
 #define _X86_H_
 
-#include "types.h"
+#include "babyos/types.h"
 
 static inline uint8 inb(uint16 port)
 {

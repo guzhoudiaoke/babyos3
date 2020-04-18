@@ -29,7 +29,7 @@
 #define _SYS_SOCKET_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 #include "traps.h"
 #include "spinlock.h"
 #include "socket.h"

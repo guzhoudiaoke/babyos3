@@ -25,7 +25,7 @@
 #ifndef _DELAY_H_
 #define _DELAY_H_
 
-#include "types.h"
+#include "babyos/types.h"
 
 class delay_t {
 public:

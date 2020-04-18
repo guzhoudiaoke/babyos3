@@ -28,13 +28,13 @@
 #define _FS_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
+#include "babyos/sock_addr.h"
+#include "babyos/stat.h"
+#include "babyos/dirent.h"
 #include "file.h"
 #include "file_table.h"
 #include "inode.h"
-#include "sock_addr.h"
-#include "stat.h"
-#include "dirent.h"
 
 
 #define ROOT_DEV 1

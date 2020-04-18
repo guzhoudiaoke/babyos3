@@ -28,7 +28,7 @@
 #define _LOCAL_APIC_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 
 
 #define APIC_BASE       (0xfee00000ull)

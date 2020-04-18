@@ -29,7 +29,7 @@
 #define _TIMER_MGR_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 #include "dlist.h"
 #include "timer.h"
 #include "spinlock.h"

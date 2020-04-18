@@ -28,7 +28,7 @@
 #define _ATOMIC_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 
 
 typedef struct atomic_s {

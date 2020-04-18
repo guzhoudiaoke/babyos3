@@ -27,7 +27,7 @@
 #define _CPU_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 #include "descriptor.h"
 #include "traps.h"
 #include "process.h"

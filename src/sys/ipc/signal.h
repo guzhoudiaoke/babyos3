@@ -23,11 +23,11 @@
  */
 
 
-#ifndef _SIGNAL_H_
-#define _SIGNAL_H_
+#ifndef _KSIGNAL_H_
+#define _KSIGNAL_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 #include "traps.h"
 #include "spinlock.h"
 #include "atomic.h"

@@ -26,7 +26,7 @@
 #ifndef _FRAMEBUFFER_H_
 #define _FRAMEBUFFER_H_
 
-#include "types.h"
+#include "babyos/types.h"
 
 
 class framebuffer_t {

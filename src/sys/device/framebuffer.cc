@@ -25,7 +25,7 @@
 
 #include "framebuffer.h"
 #include "babyos.h"
-#include "fb_ioctl.h"
+#include "babyos/fb_ioctl.h"
 #include "errno.h"
 #include "kmath.h"
 #include "kernel.h"

@@ -28,7 +28,7 @@
 #define _FPU_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 
 
 class fpu_t {

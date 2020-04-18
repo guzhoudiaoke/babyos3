@@ -25,7 +25,7 @@
 #ifndef _PAGE_H_
 #define _PAGE_H_
 
-#include "types.h"
+#include "babyos/types.h"
 #include "kernel.h"
 #include "atomic.h"
 

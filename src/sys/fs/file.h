@@ -27,8 +27,8 @@
 #define _FILE_H_
 
 
-#include "types.h"
-#include "filemode.h"
+#include "babyos/types.h"
+#include "babyos/filemode.h"
 
 
 class inode_t;

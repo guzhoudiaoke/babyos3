@@ -29,9 +29,9 @@
 #include "babyos.h"
 #include "kstring.h"
 #include "x86.h"
-#include "sock_addr.h"
+#include "babyos/sock_addr.h"
 #include "sys_socket.h"
-#include "signal.h"
+#include "ipc/signal.h"
 
 
 uint64 (*syscall_t::s_system_call_table[])(trap_frame_t* frame);

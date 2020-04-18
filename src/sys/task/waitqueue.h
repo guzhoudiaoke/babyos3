@@ -28,7 +28,7 @@
 #define _WAIT_QUEUE_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 #include "spinlock.h"
 #include "dlist.h"
 

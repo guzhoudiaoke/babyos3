@@ -27,6 +27,7 @@
 #define _MOUSE_H_
 
 
+#include "babyos/mouse.h"
 #include "queue.h"
 #include "spinlock.h"
 

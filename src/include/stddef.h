@@ -26,7 +26,7 @@
 #ifndef _STDDEF_H_
 #define _STDDEF_H_
 
-#include "types.h"
+#include "babyos/types.h"
 
 #define offsetof(type, member) __builtin_offsetof(type, member)
 

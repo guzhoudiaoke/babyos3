@@ -27,7 +27,7 @@
 #ifndef _VM_H_
 #define _VM_H_
 
-#include "types.h"
+#include "babyos/types.h"
 #include "traps.h"
 #include "page.h"
 #include "sem.h"

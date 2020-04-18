@@ -28,7 +28,7 @@
 #define _KEYBOARD_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 
 
 #define NR_SCAN_CODES		0x80		/* 扫描码个数 */

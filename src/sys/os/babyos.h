@@ -27,7 +27,7 @@
 #define _BABYOS_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
 #include "uart.h"
 #include "vbe.h"
 #include "console.h"

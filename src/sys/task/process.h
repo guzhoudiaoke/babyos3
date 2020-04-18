@@ -27,15 +27,15 @@
 #define _PROCESS_H_
 
 
-#include "types.h"
+#include "babyos/types.h"
+#include "babyos/arg.h"
 #include "dlist.h"
 #include "traps.h"
 #include "waitqueue.h"
 #include "vm.h"
 #include "fs.h"
 #include "file.h"
-#include "arg.h"
-#include "signal.h"
+#include "ipc/signal.h"
 
 
 #define MAX_OPEN_FILE 64

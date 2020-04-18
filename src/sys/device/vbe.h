@@ -26,8 +26,8 @@
 #ifndef _VBE_H_
 #define _VBE_H_
 
-#include "types.h"
-#include "color.h"
+#include "babyos/types.h"
+#include "babyos/color.h"
 
 
 const int32 c_asc16_size = 16;
