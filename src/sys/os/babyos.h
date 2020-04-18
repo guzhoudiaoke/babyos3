@@ -49,6 +49,7 @@
 #include "pci.h"
 #include "framebuffer.h"
 #include "fpu.h"
+#include "mouse.h"
 
 
 enum device_type_e {
@@ -80,6 +81,7 @@ public:
     cpu_t*          cpu();
     rtc_t*          rtc();
     keyboard_t*     keyboard();
+    mouse_t*        mouse();
     ide_t*          ide();
     process_mgr_t*  process_mgr();
     timer_mgr_t*    timer_mgr();
@@ -105,6 +107,7 @@ private:
     cpu_t          m_cpu;
     rtc_t          m_rtc;
     keyboard_t     m_keyboard;
+    mouse_t        m_mouse;
     ide_t          m_ide;
     block_dev_t    m_block_dev;
     file_system_t  m_fs;

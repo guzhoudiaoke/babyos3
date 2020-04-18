@@ -103,6 +103,12 @@ keyboard_t* babyos_t::keyboard()
     return &m_keyboard;
 }
 
+
+mouse_t* babyos_t::mouse()
+{
+    return &m_mouse;
+}
+
 ide_t* babyos_t::ide()
 {
     return &m_ide;
@@ -191,6 +197,10 @@ void babyos_t::init()
     /*keyboard */
     m_keyboard.init();
     uart()->puts("keyboard init done\n");
+
+    /* mouse */
+    m_mouse.init();
+    uart()->puts("mouse init done\n");
 
     /* pci */
     m_pci.init();

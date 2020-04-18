@@ -222,6 +222,10 @@ void cpu_t::do_interrupt(uint64 trapno)
         os()->keyboard()->do_irq();
         m_local_apic.eoi();
         break;
+    case IRQ_0 + IRQ_MOUSE:
+        os()->mouse()->do_irq();
+        m_local_apic.eoi();
+        break;
     case IRQ_0 + IRQ_HARDDISK:
         os()->ide()->do_irq();
         m_local_apic.eoi();

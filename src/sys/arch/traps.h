@@ -35,6 +35,7 @@
 
 #define IRQ_TIMER           (0x00)
 #define IRQ_KEYBOARD        (0x01)
+#define IRQ_MOUSE           (0x0c)
 #define IRQ_HARDDISK        (0x0e)
 
 #define VEC_LOCAL_TIMER     (0xfc)

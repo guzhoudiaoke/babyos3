@@ -9,6 +9,7 @@ SUB_OBJS = \
 		  keyboard.o \
 		  ide.o \
 		  rtc.o \
+		  mouse.o \
 
 KOBJS += $(call mkobjs,$(SUB_OBJS))
 

@@ -177,12 +177,10 @@ int surface_t::lower_blit(surface_t* src, rect_t* srcrect, rect_t* dstrect)
 
 
     int dst_h = dstrect->h;
-    //printf("blit: %d %d %d %d\n", src_x, srcrect->y, dst_x, dstrect->y);
     while (dst_h--) {
         memcpy(dst_pixels + m_bpp*dst_x, src_pixels + m_bpp*src_x, m_bpp*srcrect->w);
         src_pixels += src_pitch;
         dst_pixels += dst_pitch;
-        //printf("%d, ", dst_h);
     }
 
     return 0;
@@ -296,8 +294,6 @@ int surface_t::lower_blit_scaled(surface_t* src, rect_t* srcrect, rect_t* dstrec
     uint8_t* dstp = nullptr;
     uint8_t* srcp = nullptr;
     int dst_maxrow = dst_row + dstrect->h;
-    //printf("sw: %d sh: %d dw: %d dh: %d dmaxrow: %d, src_row:%d, dst_row: %d, sx: %d, dx: %d\n", 
-    //        srcrect->w, srcrect->h, dstrect->w, dstrect->h, dst_maxrow, src_row, dst_row, srcrect->x, dstrect->x);
 
     for (; dst_row < dst_maxrow; ++dst_row) {
         dstp = (uint8_t *) m_pixels + (dst_row * m_pitch) + (dstrect->x * m_bpp);
