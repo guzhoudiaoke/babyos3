@@ -26,7 +26,7 @@
 #include <bitmap.h>
 #include "stdio.h"
 #include "string.h"
-
+#include <cxx.h>
 
 bitmap_t::bitmap_t()
 {
@@ -76,7 +76,7 @@ bool bitmap_t::load(const char* path)
         goto out;
     }
 
-    m_pitch = (m_info_head.bi_width * m_info_head.bi_bit_count + 31) / 8;
+    m_pitch = ((m_info_head.bi_width * m_info_head.bi_bit_count + 31) >> 5) << 2;
     m_pixels = new uint8_t[m_pitch * m_info_head.bi_height];
 
     p = m_pixels;

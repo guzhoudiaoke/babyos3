@@ -41,11 +41,6 @@ int raise(int sig)
     return kill(getpid(), sig);
 }
 
-int kill(pid_t pid, int sig)
-{
-    return syscall(KILL, pid, sig);
-}
-
 int killpg(int pgrp, int sig)
 {
     printf("%s not implemented\n", __FUNCTION__);

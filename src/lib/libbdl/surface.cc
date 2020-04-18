@@ -28,6 +28,7 @@
 #include <string.h>
 #include <surface.h>
 #include <math.h>
+#include <cxx.h>
 
 
 surface_t::surface_t(void* pixels, int width, int height, int pitch)

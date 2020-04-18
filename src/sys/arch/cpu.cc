@@ -123,6 +123,7 @@ void cpu_t::startup()
     init_idt();
     init_tss();
     init_idle();
+    os()->uart()->kprintf("cpu: %p, local_apic: %p\n", this, &m_local_apic);
     m_local_apic.init();
 }
 
@@ -135,6 +136,7 @@ void cpu_t::init_gdt()
     set_global_descriptor(&m_gdt[SEG_UDATA], 0x0000f20000000000ULL);
 
     lgdt(m_gdt, sizeof(uint64) * (GDT_LEN));
+    os()->uart()->kprintf("init_gdt done\n");
 }
 
 void cpu_t::init_tss()
@@ -164,12 +166,14 @@ void cpu_t::init_tss()
 
     /* load tr */
     ltr(SEG_TSS0 << 3);
+    os()->uart()->kprintf("init_tss done\n");
 }
 
 void cpu_t::init_idt()
 {
     init_isrs();
     lidt(m_idt, sizeof(m_idt));
+    os()->uart()->kprintf("init_idt done\n");
 }
 
 void cpu_t::init_isrs()
@@ -186,6 +190,7 @@ void cpu_t::init_isrs()
 
     /* syscall */
     set_system_gate(&m_idt[IRQ_SYSCALL], (uint64)isr_vector[IRQ_SYSCALL]);
+    os()->uart()->kprintf("init_isrs done\n");
 }
 
 

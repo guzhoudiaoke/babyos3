@@ -55,6 +55,7 @@
 enum device_type_e {
     DEV_CONSOLE = 0,
     DEV_FRAMEBUFFER = 1,
+    DEV_MOUSE = 2,
     MAX_DEV,
 };
 

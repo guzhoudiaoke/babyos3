@@ -23,6 +23,7 @@ SUB_OBJS = \
 		   testbdl.o \
 		   testdraw.o \
 		   testtexture.o \
+		   testmouse.o \
 
 
 OBJS += $(call mkobjs,$(SUB_OBJS))
@@ -45,6 +46,7 @@ APPS = init \
 	   testbdl \
 	   testdraw \
 	   testtexture \
+	   testmouse \
 
 USERAPPS += $(call mkobjs, $(APPS))
 
@@ -101,6 +103,9 @@ $(do)testdraw: $(do)testdraw.o $(USERLIBS)
 	@$(LD) $(LDFLAGS) -o $@ $^
 
 $(do)testtexture: $(do)testtexture.o $(USERLIBS)
+	@$(LD) $(LDFLAGS) -o $@ $^
+
+$(do)testmouse: $(do)testmouse.o $(USERLIBS)
 	@$(LD) $(LDFLAGS) -o $@ $^
 
 

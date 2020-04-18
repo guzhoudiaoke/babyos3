@@ -32,15 +32,6 @@
 #include "spinlock.h"
 
 
-typedef struct mouse_data {
-    uint8 data[3];
-    uint8 phase;
-    uint8 button;
-    int32 x;
-    int32 y;
-} mouse_data_t;
-
-
 class mouse_t {
 public:
     mouse_t();
@@ -48,8 +39,8 @@ public:
 
     void init();
     void wait();
-    void read();
     void do_irq();
+    int  read(void* buf, int size);
 
 private:
     void init_kb_controller();
@@ -57,9 +48,10 @@ private:
     void process_data(uint8 data);
 
 private:
-    queue_t<uint8> m_queue;
-    mouse_data_t   m_mouse_data;
-    spinlock_t     m_spinlock;
+    spinlock_t              m_spinlock;
+    uint8                   m_data[3];
+    uint8                   m_phase;
+    queue_t<mouse_packet_t> m_queue;
 };
 
 

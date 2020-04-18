@@ -28,6 +28,7 @@
 #include "stdio.h"
 #include "string.h"
 #include <video_device.h>
+#include "cxx.h"
 
 
 video_device_t::video_device_t()
@@ -77,7 +78,7 @@ int video_device_t::create_window(window_t* window)
 
 int video_device_t::update_window_frame_buffer(window_t* window, rect_t* rects, int numrects)
 {
-    //m_buffer_id = !m_buffer_id;
+    m_buffer_id = !m_buffer_id;
     uint8_t* dst = m_buffer[m_buffer_id];
     dst += (m_width*window->y() + window->x()) * m_depth;
 
@@ -89,7 +90,7 @@ int video_device_t::update_window_frame_buffer(window_t* window, rect_t* rects, 
         src += surface->width() * m_depth;
     }
 
-    //ioctl(m_fd, FB_SWAP_BUFFER, 0);
+    ioctl(m_fd, FB_SWAP_BUFFER, 0);
     return 0;
 }
 

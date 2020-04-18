@@ -9,11 +9,11 @@ OBJCOPY  := objcopy
 QEMU     := qemu-system-x86_64
 
 # flags
-LDFLAGS  := -g -m elf_x86_64
-CPPFLAGS := -g -m64 -Wall -Werror -fno-exceptions -mcmodel=kernel -fno-pic -static -fno-builtin -fno-strict-aliasing
+LDFLAGS  := -O1 -g -m elf_x86_64
+CPPFLAGS := -O1 -g -m64 -Wall -Werror -fno-exceptions -mcmodel=kernel -fno-pic -static -fno-builtin -fno-strict-aliasing
 CPPFLAGS += -MD -fno-omit-frame-pointer -ffreestanding -fno-common -nostdlib -gdwarf-2 -DX64 -mtls-direct-seg-refs 
 CPPFLAGS += -mno-red-zone -fno-rtti -DDEBUG
-ASFLAGS  := -g -m64 -I src/include -I src/include/babyos
+ASFLAGS  := -O1 -g -m64 -I src/include -I src/include/babyos
 ARFLAGS  := -r
 
 # top dir

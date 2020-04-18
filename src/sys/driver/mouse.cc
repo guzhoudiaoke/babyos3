@@ -25,6 +25,7 @@
 #include "mouse.h"
 #include "x86.h"
 #include "babyos.h"
+#include "errno.h"
 
 
 #define KB_PORT_DATA            0x60
@@ -38,6 +39,18 @@
 #define KB_CMD_SENDTO_MOUSE     0xd4
 #define MOUSE_CMD_ENABLE        0xf4
 
+
+static int mouse_read(inode_t* inode, void* buf, int size)
+{
+    return os()->mouse()->read(buf, size);
+}
+
+static int mouse_write(inode_t* inode, void* buf, int size)
+{
+    return -EPERM;
+}
+
+/*************************************************************************/
 
 
 void* allocator_alloc(uint32 size)
@@ -91,21 +104,22 @@ void mouse_t::enable()
 
 void mouse_t::do_irq()
 {
-    os()->uart()->kprintf("m\n");
-
     uint8 data = inb(0x60);
-    if (!m_queue.full()) {
-        m_queue.push(data);
-    }
+    uint64 flags;
 
-    read();
+    m_spinlock.lock_irqsave(flags);
+    process_data(data);
+    m_spinlock.unlock_irqrestore(flags);
 }
 
 void mouse_t::init()
 {
-    m_mouse_data.phase = 0;
+    m_phase = 0;
     m_spinlock.init();
     m_queue.init(1024, allocator);
+
+    os()->get_dev(DEV_MOUSE)->read = mouse_read;
+    os()->get_dev(DEV_MOUSE)->write = mouse_write;
 
     init_kb_controller();
     enable();
@@ -115,72 +129,64 @@ void mouse_t::init()
 
 void mouse_t::process_data(uint8 data)
 {
-    if (m_mouse_data.phase == 0) {
+    if (m_phase == 0) {
         if (data == 0xfa) {
-            m_mouse_data.phase = 1;
+            m_phase = 1;
         }
     }
-    else if (m_mouse_data.phase == 1) {
+    else if (m_phase == 1) {
         if ((data & 0xc8) != 0x08) {
             return;
         }
 
-        m_mouse_data.data[0] = data;
-        m_mouse_data.phase = 2;
+        m_data[0] = data;
+        m_phase = 2;
     }
-    else if (m_mouse_data.phase == 2) {
-        m_mouse_data.data[1] = data;
-        m_mouse_data.phase = 3;
+    else if (m_phase == 2) {
+        m_data[1] = data;
+        m_phase = 3;
     }
-    else if (m_mouse_data.phase == 3) {
-        m_mouse_data.data[2] = data;
-        m_mouse_data.phase = 1;
+    else if (m_phase == 3) {
+        m_data[2] = data;
+        m_phase = 1;
 
-        m_mouse_data.button = m_mouse_data.data[0] & 0x07;
-        m_mouse_data.x = m_mouse_data.data[1];
-        m_mouse_data.y = m_mouse_data.data[2];
+        mouse_packet_t packet;
 
-        if ((m_mouse_data.data[0] & 0x10) != 0) {
-            m_mouse_data.x |= 0xffffff00;
+        packet.button = mouse_button_t(m_data[0] & 0x07);
+        packet.dx = m_data[1];
+        packet.dy = m_data[2];
+
+        if ((m_data[0] & 0x10) != 0) {
+            packet.dx |= 0xffffff00;
         }
-        if ((m_mouse_data.data[0] & 0x20) != 0) {
-            m_mouse_data.y |= 0xffffff00;
+        if ((m_data[0] & 0x20) != 0) {
+            packet.dy |= 0xffffff00;
         }
-        m_mouse_data.y = -m_mouse_data.y;
+        packet.dy = -packet.dy;
 
-        os()->uart()->kprintf("button: %d, x: %d y: %d\n", m_mouse_data.button, m_mouse_data.x, m_mouse_data.y);
+        //os()->uart()->kprintf("button: %d, x: %d y: %d\n", packet.button, packet.dx, packet.dy);
 
-        //mouse_x_pre = mouse_x;
-        //mouse_y_pre = mouse_y;
-        //mouse_x += mouse_data.x;
-        //mouse_y += mouse_data.y;
-        //if (mouse_x < 0) mouse_x = 0;
-        //if (mouse_x >= 1024-MOUSE_IMG_WIDTH) mouse_x = 1024-MOUSE_IMG_WIDTH-1;
-        //if (mouse_y < 0) mouse_y = 0;
-        //if (mouse_y >= 768-MOUSE_IMG_HEIGHT) mouse_y = 768-MOUSE_IMG_HEIGHT-1;
-
-        //if (mouse_x != mouse_x_pre || mouse_y != mouse_y_pre)
-        //{
-        //    mouse_move();
-        //}
+        if (m_queue.full()) {
+            m_queue.pop();
+        }
+        m_queue.push(packet);
     }
 }
 
-void mouse_t::read()
+int mouse_t::read(void* buf, int size)
 {
-    uint8 data = 0;
-    uint64 flags = 0;
-    bool ok = false;
+    uint64 flags;
+    int ret = 0;
+    mouse_packet_t* p = (mouse_packet_t *) buf;
 
     m_spinlock.lock_irqsave(flags);
-    if (!m_queue.empty()) {
-        data = m_queue.front();
+    while (!m_queue.empty() && size > 0) {
+        mouse_packet_t packet = m_queue.front();
         m_queue.pop();
-        ok = true;
+        memcpy(p + ret, &packet, sizeof(mouse_packet_t));
+        ret += 1;
     }
     m_spinlock.unlock_irqrestore(flags);
 
-    if (ok) {
-        process_data(data);
-    }
+    return ret;
 }

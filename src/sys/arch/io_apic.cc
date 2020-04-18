@@ -28,6 +28,7 @@
 #include "io_apic.h"
 #include "traps.h"
 #include "babyos.h"
+#include "x86.h"
 
 
 #define IO_APIC_REG_ID      0x00
@@ -40,12 +41,12 @@
 void io_apic_t::init()
 {
     uint32 count = (read(IO_APIC_REG_VER) >> 16) & 0xff;
-    //uint32 id = (read(IO_APIC_REG_ID) >> 24);
+    uint32 id = (read(IO_APIC_REG_ID) >> 24);
 
-    //console()->kprintf(GREEN, "****************** io apic ****************\n", id);
-    //console()->kprintf(GREEN, "io apic id: %u\n", id);
-    //console()->kprintf(GREEN, "io apic num of table: %u\n", count);
-    //console()->kprintf(GREEN, "****************** io apic ****************\n", id);
+    os()->uart()->kprintf("****************** io apic ****************\n", id);
+    os()->uart()->kprintf("io apic id: %u\n", id);
+    os()->uart()->kprintf("io apic num of table: %u\n", count);
+    os()->uart()->kprintf("****************** io apic ****************\n", id);
 
     for (uint32 i = 0; i <= count; i++) {
         write(IO_APIC_REG_TABLE + 2*i,     INT_DISABLED | (IRQ_0 + i));
@@ -62,14 +63,20 @@ void io_apic_t::enable_irq(uint32 irq, uint32 cpu_id)
 uint32 io_apic_t::read(uint32 reg)
 {
     uint32* base = (uint32 *) IO2V(IO_APIC_BASE);
+    //os()->uart()->kprintf("read: io apic base: %p\n", base);
+    wmb();
     *base = reg;
+    wmb();
     return *(base + 4);
 }
 
 void io_apic_t::write(uint32 reg, uint32 data)
 {
     uint32* base = (uint32 *) IO2V(IO_APIC_BASE);
+    //os()->uart()->kprintf("write: io apic base: %p\n", base);
+    wmb();
     *base = reg;
+    wmb();
     *(base + 4) = data;
 }
 

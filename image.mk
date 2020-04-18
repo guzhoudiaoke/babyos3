@@ -6,7 +6,7 @@ DD         := dd
 # size
 BOOTSIZE   := 1
 LOADERSIZE := 3
-KERNELSIZE := 2048
+KERNELSIZE := 4096
 FLOPPYSIZE := 1024
 DISKSIZE   := 4096
 FSSIZE     := 4096
@@ -40,4 +40,4 @@ img: $(LIBS) $(BOOT) $(LOADER) $(KERNEL) $(USERAPPS)
 	$(DD) if=$(LOADER)         of=$(HDIMG)   ibs=512 seek=0 			count=$(LOADERSIZE) conv=notrunc
 	$(DD) if=$(KERNEL)         of=$(HDIMG)   ibs=512 seek=$(LOADERSIZE) count=$(KERNELSIZE) conv=notrunc
 
-	$(MKFS) ${USERAPPS} ./res/font/ASC16 ./luac.out ./test.lua ./sample.bmp
+	$(MKFS) ${USERAPPS} ./res/font/ASC16 ./luac.out ./test.lua ./sample.bmp ./arrow.bmp

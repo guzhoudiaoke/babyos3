@@ -261,3 +261,8 @@ int list_process(char* buffer, int size)
 {
     return syscall(PS, buffer, size);
 }
+
+int kill(pid_t pid, int sig)
+{
+    return syscall(KILL, pid, sig);
+}

@@ -253,9 +253,8 @@ uint32 vmm_t::insert_vma(vm_area_t* vma)
     }
 
     if (prev != nullptr && prev->m_end > vma->m_start) {
-        os()->console()->kprintf(RED,
-                                 "insert_vma: inserting: [%x, %x], overlaped with [%x, %x]\n",
-                                 vma->m_start, vma->m_end, prev->m_start, prev->m_end);
+        os()->uart()->kprintf("insert_vma: inserting: [%x, %x], overlaped with [%x, %x]\n",
+                              vma->m_start, vma->m_end, prev->m_start, prev->m_end);
         return -1;
     }
 
@@ -339,7 +338,7 @@ uint64 vmm_t::do_mmap(uint64 addr, uint64 len, uint32 prot, uint32 flags)
         /* check [addr, addr+len] not in a vm_area */
         vm_area_t* p = find_vma(addr);
         if (p != nullptr && addr + len > p->m_start) {
-            os()->console()->kprintf(RED, "do_mmap: addr: %p is overlaped with vma: [%p, %p]\n", 
+            os()->uart()->kprintf("do_mmap: addr: %p is overlaped with vma: [%p, %p]\n", 
                     addr, p->m_start, p->m_end);
             return -1;
         }
@@ -347,7 +346,7 @@ uint64 vmm_t::do_mmap(uint64 addr, uint64 len, uint32 prot, uint32 flags)
     else {
         addr = get_unmapped_area(len);
         if (addr == 0) {
-            os()->console()->kprintf(RED, "do_mmap: failed to get_unmaped_area\n");
+            os()->uart()->kprintf("do_mmap: failed to get_unmaped_area\n");
             return -1;
         }
     }
@@ -355,7 +354,7 @@ uint64 vmm_t::do_mmap(uint64 addr, uint64 len, uint32 prot, uint32 flags)
     /* alloc a vma from pool */
     vm_area_t* vma = (vm_area_t *) os()->mm()->vma_cache()->alloc();
     if (vma == nullptr) {
-        os()->console()->kprintf(RED, "do_mmap: failed to alloc vma\n");
+        os()->uart()->kprintf("do_mmap: failed to alloc vma\n");
         return -1;
     }
 
@@ -368,7 +367,7 @@ uint64 vmm_t::do_mmap(uint64 addr, uint64 len, uint32 prot, uint32 flags)
 
     /* insert vma into list, and do merge */
     if (insert_vma(vma)) {
-        os()->console()->kprintf(RED, "do_mmap: failed to insert vma: [%x, %x]\n", vma->m_start, vma->m_end);
+        os()->uart()->kprintf("do_mmap: failed to insert vma: [%x, %x]\n", vma->m_start, vma->m_end);
         return -1;
     }
 
@@ -448,13 +447,13 @@ int32 vmm_t::do_protection_fault(vm_area_t* vma, uint64 addr, bool write)
 {
     uint64 pa = vmm_t::va_to_pa(current->m_vmm.get_pml4_table(), (void *)addr);
     if (pa == -1ull) {
-        os()->console()->kprintf(RED, "protection fault, no physical page found\n");
+        os()->uart()->kprintf("protection fault, no physical page found\n");
         return -1;
     }
 
     /* this is a write protection fault, but this vma can't write */
     if (write && !(vma->m_flags & VM_WRITE)) {
-        os()->console()->kprintf(RED, "protection fault, ref count: %u!\n",
+        os()->uart()->kprintf("protection fault, ref count: %u!\n",
                 os()->mm()->get_page_ref(pa));
         return -1;
     }
@@ -520,9 +519,6 @@ good_area:
     return 0;
 
 sig_segv:
-    os()->console()->kprintf(RED, "cpu: %u, process: %u, segment fault, addr: %lx, err: %lx, cs: %p, rip: %p, rsp: %p\n",
-                             os()->cpu(), current->m_pid, addr, frame->err, frame->cs, frame->rip, frame->rsp);
-
     os()->uart()->kprintf("do_page_fault segment fault, cpu: %u, process: %u, addr: %lx, err: %lx,"
                           "cs: %p, rip: %p, rsp: %p\n",
                           os()->cpu(), current->m_pid, addr, frame->err, frame->cs, frame->rip, frame->rsp);

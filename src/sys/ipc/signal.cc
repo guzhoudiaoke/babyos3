@@ -119,6 +119,8 @@ int32 signal_t::do_sigaction(uint32 sig, sighandler_t sig_handler)
 
     sigaction_t sa;
     sa.m_handler = sig_handler;
+    sa.m_flags = 0;
+    sa.m_mask = 0;
 
     lock();
     set_sigaction(sig, sa);

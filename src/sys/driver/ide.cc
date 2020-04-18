@@ -61,6 +61,7 @@ void ide_t::init(uint32 dev)
 
 void ide_t::add_request(request_t* req)
 {
+    os()->uart()->kprintf("ide_t::add_request\n");
     if (m_current == nullptr) {
         m_current = req;
         do_request();
@@ -75,6 +76,7 @@ void ide_t::add_request(request_t* req)
 
 void ide_t::do_request()
 {
+    os()->uart()->kprintf("ide_t::do_request\n");
     if (m_current == nullptr) {
         return;
     }
@@ -96,6 +98,7 @@ void ide_t::do_request()
         outb(0x1f7, IO_CMD_WRITE_MUL);
         outsl(0x1f0, m_current->m_buffer->m_buffer, BSIZE/4);
     }
+    os()->uart()->kprintf("ide_t::do_request done\n");
 }
 
 void ide_t::end_request()
@@ -129,5 +132,6 @@ void ide_t::wait()
 
 void ide_t::do_irq()
 {
+    os()->uart()->kprintf("ide_t::do_irq\n");
     end_request();
 }

@@ -89,11 +89,15 @@ static __inline uint64 apic_read64(uint32 reg)
 }
 
 
+#define cpuid(in,a,b,c,d) do { asm volatile ("cpuid" : "=a"(a),"=b"(b),"=c"(c),"=d"(d) : "a"(in)); } while(0)
+
 int local_apic_t::check()
 {
-    uint32 edx = 0, ecx = 0;
-    __asm__ volatile("cpuid" : "=d" (edx), "=c" (ecx) : "a" (0x1) : "memory", "cc");
+    uint32 edx = 0, ecx = 0, a, b;
+    //__asm__ volatile("cpuid" : "=d" (edx), "=c" (ecx) : "a" (0x1) : "memory", "cc");
+    cpuid(0x1, a, b, ecx, edx);
 
+    os()->uart()->kprintf("local apic %p init begin1\n", this);
     //console()->kprintf(YELLOW, "**************** check apic **********************\n");
     //console()->kprintf(YELLOW, "local_apic check, ecx: %x, edx: %x\n", ecx, edx);
     //console()->kprintf(YELLOW, "support APIC:   %s\n", (edx & (1 << 9))  ? "YES" : "NO");
@@ -111,6 +115,7 @@ int local_apic_t::check()
     //console()->kprintf(WHITE, "******************** local APIC register *****************\n");
     //uint32 val = 0;
     m_id = apic_read(APIC_ID) >> 24;
+    os()->uart()->kprintf("local apic %p init begin2\n", this);
     //console()->kprintf(WHITE, "APIC ID:                                 %x\n", m_id);
     //val = apic_read(APIC_LVR);
     //console()->kprintf(WHITE, "APIC version:                            %x\n", val);
@@ -149,9 +154,11 @@ int local_apic_t::check()
 
     /* support APIC */
     if (edx & (1 << 9)) {
+        os()->uart()->kprintf("local apic %p init begin3\n", this);
         return 0;
     }
 
+    os()->uart()->kprintf("local apic %p init begin4\n", this);
     return -1;
 }
 
@@ -266,27 +273,33 @@ uint32 local_apic_t::calibrate_clock()
 int local_apic_t::init_timer()
 {
     //if (os()->cpu()->is_bsp()) {
-        m_clocks = calibrate_clock();
+    os()->uart()->kprintf("before local apic %p, &m_clocks: %p\n", this, &m_clocks);
+    m_clocks = calibrate_clock();
+    os()->uart()->kprintf("local apic clocks: %d\n", m_clocks);
     //}
     //else {
     //    m_clocks = os()->boot_processor()->get_local_apic()->get_clocks();
     //}
     setup_lvt_timer(m_clocks);
+    os()->uart()->kprintf("local apic setup_lvt_timer done\n");
 
     return 0;
 }
 
 int local_apic_t::init()
 {
+    os()->uart()->kprintf("local apic %p init begin\n", this);
     m_tick = 0;
 
     if (check() != 0) {
         return -1;
     }
+    os()->uart()->kprintf("local apic %p check done\n", this);
 
     if (init_timer() != 0) {
         return -1;
     }
+    os()->uart()->kprintf("local apic init_timer done\n");
 
     apic_write(APIC_SPIV, APIC_SOFT_ENABLE | VEC_SPURIOUS);
 
@@ -304,6 +317,7 @@ int local_apic_t::init()
     /* enable interrupt on APIC */
     apic_write(APIC_TPR, 0);
 
+    os()->uart()->kprintf("local apic init done\n");
     return 0;
 }
 

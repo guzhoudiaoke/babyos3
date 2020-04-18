@@ -108,6 +108,7 @@ void keyboard_t::do_irq()
     if (ch != '\0') {
         //os()->console()->kprintf(WHITE, "%c", ch);
         os()->console()->do_input(ch);
+        os()->uart()->kprintf("%c", ch);
     }
 
 	//outb(0x20, 0x20);
