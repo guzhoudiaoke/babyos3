@@ -3,6 +3,8 @@ USERLIBS_LIST = \
 				.../lib/libm/libm.a \
 				.../lib/libc++/libc++.a \
 				.../lib/libbdl/libbdl.a \
+				.../lib/libpng/libpng.a \
+				.../lib/zlib/libzlib.a \
 
 mkobjs = $(addprefix $(do),$(1))
 mklibs = $(patsubst .../%,$(OBJTOP)/%,$(foreach lib,$(1),$(filter %lib$(lib).a,$(USERLIBS_LIST))))
