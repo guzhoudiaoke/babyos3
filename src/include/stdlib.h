@@ -56,5 +56,6 @@ void abort();
 
 int abs(int val);
 
+double atof (const char *__nptr);
 
 #endif

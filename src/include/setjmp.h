@@ -22,8 +22,11 @@
  *  2020-03-16		created
  */
 
+#ifndef _SETJMP_H_
+#define _SETJMP_H_
 
 #define	_JBLEN	11		/* size, in longs, of a jmp_buf */
+
 
 typedef long sigjmp_buf[_JBLEN + 1];
 typedef long jmp_buf[_JBLEN];
@@ -47,7 +50,7 @@ typedef long jmp_buf[_JBLEN];
         ret;\
 })
 
-#define longjmp(ctx, x) \
+#define _longjmp(ctx, x) \
     asm("movq   56(%%rdx), %%rcx            \n\t"\
         "movq   48(%%rdx), %%rsp            \n\t"\
         "movq   40(%%rdx), %%r15            \n\t"\
@@ -69,3 +72,10 @@ typedef long jmp_buf[_JBLEN];
         : : "d" (ctx), "a" (1))
 
 #define setjmp(env)	_setjmp (env)
+
+void longjmp (long* ctx, int val)
+{
+    _longjmp(ctx, val);
+}
+
+#endif

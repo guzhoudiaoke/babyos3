@@ -81,3 +81,8 @@ void abort()
 {
     raise(SIGABRT);
 }
+
+double atof (const char *__nptr)
+{
+    return strtod(__nptr, nullptr);
+}
