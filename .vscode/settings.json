@@ -29,6 +29,7 @@
         "nblocks",
         "ninodes",
         "nlinks",
-        "srcp"
+        "srcp",
+        "xiangqi"
     ]
 }

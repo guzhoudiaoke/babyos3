@@ -73,9 +73,6 @@ typedef long jmp_buf[_JBLEN];
 
 #define setjmp(env)	_setjmp (env)
 
-void longjmp (long* ctx, int val)
-{
-    _longjmp(ctx, val);
-}
+void longjmp (long* ctx, int val);
 
 #endif

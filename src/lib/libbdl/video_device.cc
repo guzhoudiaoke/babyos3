@@ -48,7 +48,6 @@ video_device_t::~video_device_t()
 
 int video_device_t::create_window(window_t* window)
 {
-    printf("device, create window\n");
     m_fd = open("/dev/fb", MODE_RDWR);
     if (m_fd < 0) {
         mknod("/dev/fb", 1, 1);
@@ -61,13 +60,12 @@ int video_device_t::create_window(window_t* window)
 
     uint8* buffer = nullptr;
 
-    printf("device, create window1\n");
     ioctl(m_fd, FB_GET_WIDTH, (uint64) &m_width);
     ioctl(m_fd, FB_GET_HEIGHT, (uint64) &m_height);
     ioctl(m_fd, FB_GET_DEPTH, (uint64) &m_depth);
     ioctl(m_fd, FB_MAP, (uint64) &buffer);
 
-    printf("fb width: %d, height: %d, depth: %d, buffer: %p\n", m_width, m_height, m_depth, buffer);
+    //printf("fb width: %d, height: %d, depth: %d, buffer: %p\n", m_width, m_height, m_depth, buffer);
     m_buffer_id = 0;
     m_buffer[0] = buffer;
     m_buffer[1] = buffer + m_width * m_height * m_depth;

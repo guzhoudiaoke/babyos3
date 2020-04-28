@@ -1,5 +1,5 @@
 /*
- *	babyos/bin/testtexture.cc
+ *	babyos/bin/testpng.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -51,19 +51,6 @@ void loop(window_t* window, renderer_t* renderer)
     renderer->get_view_port(&viewport);
     renderer->copy_texture(drawstates->background, nullptr, nullptr);
 
-    drawstates->sprite_rect.w += drawstates->scale_direction;
-    drawstates->sprite_rect.h += drawstates->scale_direction;
-    if (drawstates->scale_direction > 0) {
-        if (drawstates->sprite_rect.w+10 >= viewport.w || drawstates->sprite_rect.h+10 >= viewport.h) {
-            drawstates->scale_direction = -10;
-        }
-    }
-    else {
-        if (drawstates->sprite_rect.w <= 10 || drawstates->sprite_rect.h <= 10) {
-            drawstates->scale_direction = 10;
-        }
-    }
-
     drawstates->sprite_rect.x = (viewport.w - drawstates->sprite_rect.w) / 2;
     drawstates->sprite_rect.y = (viewport.h - drawstates->sprite_rect.h) / 2;
     renderer->copy_texture(drawstates->sprite, nullptr, &drawstates->sprite_rect);
@@ -77,8 +64,16 @@ int main()
     drawstates->window = video_t::create_window("Texture", 320, 240, 640, 480, 0);
     surface_t* surface = drawstates->window->get_surface();
     drawstates->renderer = surface->create_renderer(drawstates->window);
-    drawstates->background = video_t::load_texture_bmp("/bin/sample.bmp", drawstates->renderer);
-    drawstates->sprite = video_t::load_texture_bmp("/bin/sample.bmp", drawstates->renderer);
+    drawstates->background = video_t::load_texture_bmp("/bin/board.bmp", drawstates->renderer);
+    if (drawstates->background == nullptr) {
+        printf("Failed to load bmp\n");
+        return -1;
+    }
+    drawstates->sprite = video_t::load_texture_png("/bin/r_shi.png", drawstates->renderer);
+    if (drawstates->sprite == nullptr) {
+        printf("Failed to load png\n");
+        return -1;
+    }
     drawstates->scale_direction = 10;
 
     drawstates->sprite_rect.w = drawstates->sprite->width();

@@ -27,6 +27,7 @@ SUB_OBJS = \
 	s_rint.o \
 	e_fmod.o \
 	floor.o \
+	math.o \
 	
 
 LIBS += $(call mkobjs,libm.a)

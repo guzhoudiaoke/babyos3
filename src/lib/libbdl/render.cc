@@ -187,7 +187,7 @@ int renderer_t::copy_texture(texture_t* texture, rect_t* srcrect, rect_t* dstrec
     real_dstrect.h *= m_scale.y;
 
     if (real_srcrect.w == (int) real_dstrect.w && real_srcrect.h == (int) real_dstrect.h) {
-        m_surface->blit(texture->get_surface(), &real_srcrect, &real_dstrect);
+        m_surface->blit_alpha(texture->get_surface(), &real_srcrect, &real_dstrect);
     }
     else {
         m_surface->blit_scaled(texture->get_surface(), &real_srcrect, &real_dstrect);

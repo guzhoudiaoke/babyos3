@@ -80,8 +80,8 @@ int main()
     drawstates->window = video_t::create_window("Mouse", 0, 0, 1280, 960, 0);
     surface_t* surface = drawstates->window->get_surface();
     drawstates->renderer = surface->create_renderer(drawstates->window);
-    drawstates->background = video_t::load_texture("/bin/sample.bmp", drawstates->renderer);
-    drawstates->mouse = video_t::load_texture("/bin/arrow.bmp", drawstates->renderer);
+    drawstates->background = video_t::load_texture_bmp("/bin/sample.bmp", drawstates->renderer);
+    drawstates->mouse = video_t::load_texture_bmp("/bin/arrow.bmp", drawstates->renderer);
     drawstates->mouse_x = 0;
     drawstates->mouse_y = 0;
 

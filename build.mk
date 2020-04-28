@@ -4,15 +4,17 @@ USERLIBS_LIST = \
 				.../lib/libc++/libc++.a \
 				.../lib/libbdl/libbdl.a \
 				.../lib/libpng/libpng.a \
-				.../lib/zlib/libzlib.a \
+				.../lib/libzlib/libzlib.a \
 
 mkobjs = $(addprefix $(do),$(1))
 mklibs = $(patsubst .../%,$(OBJTOP)/%,$(foreach lib,$(1),$(filter %lib$(lib).a,$(USERLIBS_LIST))))
 
-USERLIBS = $(call mklibs,bdl c c++ m)
+USERLIBS = $(call mklibs,bdl png c c++ zlib m)
 LIBC = $(call mklibs, c)
 LIBM = $(call mklibs, m)
 LIBCXX = $(call mklibs, c++)
+LIBZLIB = $(call mklibs, zlib)
+LIBPNG = $(call mklibs, png)
 
 $(eval $(call top_level_config))
 

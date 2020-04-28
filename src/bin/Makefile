@@ -1,7 +1,7 @@
 $(eval $(call start_directory,bin))
 $(eval $(call std_header))
 
-SUBDIRS := shell
+SUBDIRS := shell xiangqi
 $(eval $(call include_subdirs))
 
 SUB_OBJS = \
@@ -24,6 +24,7 @@ SUB_OBJS = \
 		   testdraw.o \
 		   testtexture.o \
 		   testmouse.o \
+		   testpng.o \
 
 
 OBJS += $(call mkobjs,$(SUB_OBJS))
@@ -47,6 +48,8 @@ APPS = init \
 	   testdraw \
 	   testtexture \
 	   testmouse \
+	   testpng \
+
 
 USERAPPS += $(call mkobjs, $(APPS))
 
@@ -106,6 +109,9 @@ $(do)testtexture: $(do)testtexture.o $(USERLIBS)
 	@$(LD) $(LDFLAGS) -o $@ $^
 
 $(do)testmouse: $(do)testmouse.o $(USERLIBS)
+	@$(LD) $(LDFLAGS) -o $@ $^
+
+$(do)testpng: $(do)testpng.o $(USERLIBS)
 	@$(LD) $(LDFLAGS) -o $@ $^
 
 

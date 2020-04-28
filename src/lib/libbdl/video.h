@@ -48,9 +48,13 @@ public:
     static void destroy_window(window_t* window);
 
     static surface_t* create_rgb_surface_from(void* pixels, int width, int height, int pitch);
-    static surface_t* create_surface_from_bitmap(const char* path);
+    static surface_t* create_surface_from_bmp(const char* path);
+    static surface_t* create_surface_from_bmp(const char* path, const char* mask);
+    static surface_t* create_surface_from_png(const char* path);
     static texture_t* create_texture_from_surface(surface_t* surface, renderer_t* renderer);
-    static texture_t* load_texture(const char* path, renderer_t* renderer);
+    static texture_t* load_texture_bmp(const char* path, renderer_t* renderer);
+    static texture_t* load_texture_bmp(const char* path, const char* mask, renderer_t* renderer);
+    static texture_t* load_texture_png(const char* path, renderer_t* renderer);
 
     static uint32_t make_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 

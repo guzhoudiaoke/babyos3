@@ -27,6 +27,8 @@
 #include <render.h>
 #include <rect.h>
 #include <bitmap.h>
+#include <png.h>
+#include <string.h>
 
 
 video_device_t* video_t::m_device = nullptr;
@@ -115,7 +117,7 @@ surface_t* video_t::create_rgb_surface_from(void* pixels, int width, int height,
     return surface;
 }
 
-surface_t* video_t::create_surface_from_bitmap(const char* path)
+surface_t* video_t::create_surface_from_bmp(const char* path)
 {
     bitmap_t bmp;
     if (!bmp.load(path)) {
@@ -138,25 +140,101 @@ surface_t* video_t::create_surface_from_bitmap(const char* path)
         dst += bmp.width();
     }
 
-    printf("bmp: %d %d %d\n", bmp.width(), bmp.height(), pitch);
+    //printf("bmp %s: %d %d %d\n", path, bmp.width(), bmp.height(), pitch);
     surface_t* surface = new surface_t(pixels, bmp.width(), bmp.height(), pitch);
+    return surface;
+}
+
+surface_t* video_t::create_surface_from_bmp(const char* path, const char* mask)
+{
+    bitmap_t bmp, mask_bmp;
+    if (!bmp.load(path)) {
+        return nullptr;
+    }
+    if (!mask_bmp.load(mask)) {
+        return nullptr;
+    }
+
+    if (mask_bmp.height() != bmp.height() || mask_bmp.width() != bmp.width()) {
+        return nullptr;
+    }
+
+    int32_t pitch = 4 * bmp.width();
+    uint8_t* pixels = new uint8_t[pitch * bmp.height()];
+
+    uint32_t* dst = (uint32_t *) pixels;
+    uint8_t* src = bmp.pixels();
+    for (int32_t y = bmp.height()-1; y >= 0; y--) {
+        uint8_t* s = src + y * bmp.pitch();
+        uint8_t* m = mask_bmp.pixels() + y * mask_bmp.pitch();
+
+        for (uint32_t x = 0; x < bmp.width(); x++) {
+            uint8_t r = s[2], g = s[1], b = s[0], a = 0xff;
+            if (m[0] && m[1] && m[2]) {
+                a = 0x0;
+            }
+            dst[x] = make_color(r, g, b, a);
+            s += 3;
+            m += 3;
+        }
+        dst += bmp.width();
+    }
+
+    //printf("bmp %s: %d %d %d\n", path, bmp.width(), bmp.height(), pitch);
+    surface_t* surface = new surface_t(pixels, bmp.width(), bmp.height(), pitch);
+    return surface;
+}
+
+surface_t* video_t::create_surface_from_png(const char* path)
+{
+    png_t png;
+    if (!png.load(path)) {
+        printf("load png failed\n");
+        return nullptr;
+    }
+
+    int32_t pitch = 4 * png.width();
+    uint8_t* pixels = new uint8_t[pitch * png.height()];
+    memcpy(pixels, png.pixels(), png.height()*png.pitch());
+
+    surface_t* surface = new surface_t(pixels, png.width(), png.height(), pitch);
     return surface;
 }
 
 texture_t* video_t::create_texture_from_surface(surface_t* surface, renderer_t* renderer)
 {
-    if (surface == nullptr) {
-        return nullptr;
-    }
-
     texture_t* texture = new texture_t(surface->width(), surface->height(), surface);
     renderer->set_texture(texture);
 
     return texture;
 }
 
-texture_t* video_t::load_texture(const char* path, renderer_t* renderer)
+texture_t* video_t::load_texture_bmp(const char* path, renderer_t* renderer)
 {
-    surface_t* surface = create_surface_from_bitmap(path);
+    surface_t* surface = create_surface_from_bmp(path);
+    if (surface == nullptr) {
+        return nullptr;
+    }
+
+    return create_texture_from_surface(surface, renderer);
+}
+
+texture_t* video_t::load_texture_bmp(const char* path, const char* mask, renderer_t* renderer)
+{
+    surface_t* surface = create_surface_from_bmp(path, mask);
+    if (surface == nullptr) {
+        return nullptr;
+    }
+
+    return create_texture_from_surface(surface, renderer);
+}
+
+texture_t* video_t::load_texture_png(const char* path, renderer_t* renderer)
+{
+    surface_t* surface = create_surface_from_png(path);
+    if (surface == nullptr) {
+        return nullptr;
+    }
+
     return create_texture_from_surface(surface, renderer);
 }

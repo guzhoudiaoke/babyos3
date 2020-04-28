@@ -48,10 +48,14 @@ public:
     int draw_points(point_t* points, int count, uint32_t color);
 
     int blit(surface_t* src, rect_t* srcrect, rect_t* dstrect);
+    int blit_alpha(surface_t* src, rect_t* srcrect, rect_t* dstrect);
     int blit_scaled(surface_t* src, rect_t* srcrect, rect_t* dstrect);
+    int blit_scaled_alpha(surface_t* src, rect_t* srcrect, rect_t* dstrect);
 
     int lower_blit(surface_t* src, rect_t* srcrect, rect_t* dstrect);
+    int lower_blit_alpha(surface_t* src, rect_t* srcrect, rect_t* dstrect);
     int lower_blit_scaled(surface_t* src, rect_t* srcrect, rect_t* dstrect);
+    int lower_blit_scaled_alpha(surface_t* src, rect_t* srcrect, rect_t* dstrect);
 
 private:
     void* m_pixels;

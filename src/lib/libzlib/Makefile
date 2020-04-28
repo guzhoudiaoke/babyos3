@@ -1,4 +1,4 @@
-$(eval $(call start_directory,zlib))
+$(eval $(call start_directory,libzlib))
 $(eval $(call std_header))
 $(eval $(call add_to_lib_include_path))
 

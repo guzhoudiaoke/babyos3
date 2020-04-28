@@ -176,10 +176,59 @@ int surface_t::lower_blit(surface_t* src, rect_t* srcrect, rect_t* dstrect)
     uint8_t* src_pixels = (uint8_t *) src->m_pixels + src_pitch*srcrect->y;
     uint8_t* dst_pixels = (uint8_t *) m_pixels + dst_pitch*dstrect->y;
 
-
     int dst_h = dstrect->h;
     while (dst_h--) {
         memcpy(dst_pixels + m_bpp*dst_x, src_pixels + m_bpp*src_x, m_bpp*srcrect->w);
+        src_pixels += src_pitch;
+        dst_pixels += dst_pitch;
+    }
+
+    return 0;
+}
+
+int surface_t::lower_blit_alpha(surface_t* src, rect_t* srcrect, rect_t* dstrect)
+{
+    if (srcrect->w != dstrect->w || srcrect->h != dstrect->h) {
+        return -1;
+    }
+
+    int src_pitch = src->m_pitch;
+    int dst_pitch = m_pitch;
+
+    int src_x = srcrect->x;
+    int dst_x = dstrect->x;
+
+    uint8_t* src_pixels = (uint8_t *) src->m_pixels + src_pitch*srcrect->y;
+    uint8_t* dst_pixels = (uint8_t *) m_pixels + dst_pitch*dstrect->y;
+
+    int dst_h = dstrect->h;
+    while (dst_h--) {
+        for (int x = 0; x < srcrect->w; x++) {
+            uint32_t offset_src = m_bpp * (src_x + x);
+            uint32_t offset_dst = m_bpp * (dst_x + x);
+
+            uint8_t a = src_pixels[offset_src + 3];
+            uint8_t sr = src_pixels[offset_src + 0], sg = src_pixels[offset_src + 1], sb = src_pixels[offset_src + 2];
+            uint8_t dr = dst_pixels[offset_dst + 0], dg = dst_pixels[offset_dst + 1], db = dst_pixels[offset_dst + 2];
+
+            dst_pixels[offset_dst + 3] = a;
+            if (a == 0) {
+                dst_pixels[offset_dst + 0] = dr;
+                dst_pixels[offset_dst + 1] = dg;
+                dst_pixels[offset_dst + 2] = db;
+            }
+            else if (a == 0xff) {
+                dst_pixels[offset_dst + 0] = sr;
+                dst_pixels[offset_dst + 1] = sg;
+                dst_pixels[offset_dst + 2] = sb;
+            }
+            else {
+                dst_pixels[offset_dst + 0] = (int) (1.0 * sr * a / 255 + 1.0 * dr * (255-a) / 255);
+                dst_pixels[offset_dst + 1] = (int) (1.0 * sg * a / 255 + 1.0 * dg * (255-a) / 255);
+                dst_pixels[offset_dst + 2] = (int) (1.0 * sb * a / 255 + 1.0 * db * (255-a) / 255);
+            }
+        }
+
         src_pixels += src_pitch;
         dst_pixels += dst_pitch;
     }
@@ -263,6 +312,88 @@ int surface_t::blit(surface_t* src, rect_t* srcrect, rect_t* dstrect)
         sr.w = dstrect->w = w;
         sr.h = dstrect->h = h;
         return lower_blit(src, &sr, dstrect);
+    }
+
+    dstrect->w = dstrect->h = 0;
+    return 0;
+}
+
+int surface_t::blit_alpha(surface_t* src, rect_t* srcrect, rect_t* dstrect)
+{
+    rect_t fulldst;
+    int srcx, srcy, w, h;
+
+    if (dstrect == nullptr) {
+        fulldst.x = fulldst.y = 0;
+        fulldst.w = m_width;
+        fulldst.h = m_height;
+        dstrect = &fulldst;
+    }
+
+    if (srcrect != nullptr) {
+        int maxw, maxh;
+
+        srcx = srcrect->x;
+        w = srcrect->w;
+        if (srcx < 0) {
+            w += srcx;
+            dstrect->x -= srcx;
+        }
+
+        maxw = src->width() - srcx;
+        if (maxw < w)
+            w = maxw;
+
+        srcy = srcrect->y;
+        h = srcrect->h;
+        if (srcy < 0) {
+            h += srcy;
+            dstrect->y -= srcy;
+            srcy = 0;
+        }
+        maxh = src->height() - srcy;
+        if (maxh < h) {
+            h = maxh;
+        }
+    }
+    else {
+        srcx = srcy = 0;
+        w = src->width();
+        h = src->height();
+    }
+
+    rect_t *clip = &m_clip_rect;
+    int dx, dy;
+
+    dx = clip->x - dstrect->x;
+    if (dx > 0) {
+        w -= dx;
+        dstrect->x += dx;
+        srcx += dx;
+    }
+    dx = dstrect->x + w - clip->x - clip->w;
+    if (dx > 0) {
+        w -= dx;
+    }
+
+    dy = clip->y - dstrect->y;
+    if (dy > 0) {
+        h -= dy;
+        dstrect->y += dy;
+        srcy += dy;
+    }
+    dy = dstrect->y + h - clip->y - clip->h;
+    if (dy > 0) {
+        h -= dy;
+    }
+
+    if (w > 0 && h > 0) {
+        rect_t sr;
+        sr.x = srcx;
+        sr.y = srcy;
+        sr.w = dstrect->w = w;
+        sr.h = dstrect->h = h;
+        return lower_blit_alpha(src, &sr, dstrect);
     }
 
     dstrect->w = dstrect->h = 0;
