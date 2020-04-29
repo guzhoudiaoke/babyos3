@@ -52,7 +52,7 @@ bool bitmap_t::load(const char* path)
 
     FILE* fp = fopen(path, "r");
     if (fp == nullptr) {
-        printf("open failed\n");
+        printf("open %s failed\n", path);
         return false;
     }
 

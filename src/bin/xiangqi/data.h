@@ -23,19 +23,23 @@
  */
 
 
-const int QIPAN_TOP = 3;
-const int QIPAN_BOTTOM = 12;
-const int QIPAN_LEFT = 3;
-const int QIPAN_RIGHT = 11;
+#ifndef _DATA_H_
+#define _DATA_H_
+
+
+const int BOARD_TOP = 3;
+const int BOARD_BOTTOM = 12;
+const int BOARD_LEFT = 3;
+const int BOARD_RIGHT = 11;
 
 // no of piece
-const int QIZI_JS = 0;
-const int QIZI_SHI = 1;
-const int QIZI_XIANG = 2;
-const int QIZI_MA = 3;
-const int QIZI_JU = 4;
-const int QIZI_PAO = 5;
-const int QIZI_BZ = 6;
+const int PIECE_JS = 0;
+const int PIECE_SHI = 1;
+const int PIECE_XIANG = 2;
+const int PIECE_MA = 3;
+const int PIECE_JU = 4;
+const int PIECE_PAO = 5;
+const int PIECE_BZ = 6;
 
 const int RED = 0;
 const int BLACK = 1;
@@ -78,7 +82,7 @@ const char in_jiugong[256] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-const char init_qipan[256] = {
+const char init_board[256] = {
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -257,3 +261,27 @@ const int position_value[7][256] = {
 const int siqi_value = 12345;
 
 const int not_value = -99999;
+
+const char* image_names[] = { 
+    "/bin/board.bmp", 
+    "/bin/r_shuai.bmp", 
+    "/bin/r_shi.bmp", 
+    "/bin/r_xiang.bmp", 
+    "/bin/r_ma.bmp", 
+    "/bin/r_ju.bmp", 
+    "/bin/r_pao.bmp", 
+    "/bin/r_bing.bmp", 
+    "/bin/b_jiang.bmp", 
+    "/bin/b_shi.bmp", 
+    "/bin/b_xiang.bmp", 
+    "/bin/b_ma.bmp", 
+    "/bin/b_ju.bmp", 
+    "/bin/b_pao.bmp",
+    "/bin/b_zu.bmp",
+    "/bin/mask.bmp",
+    "/bin/arrow.png",
+    "/bin/select.bmp",
+};
+
+
+#endif

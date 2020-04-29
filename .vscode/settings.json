@@ -17,6 +17,7 @@
     "cSpell.words": [
         "babyc",
         "blit",
+        "bytep",
         "darea",
         "dstp",
         "dwords",
@@ -30,6 +31,7 @@
         "ninodes",
         "nlinks",
         "srcp",
+        "structp",
         "xiangqi"
     ]
 }
