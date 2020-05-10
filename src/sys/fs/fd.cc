@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/fs/file.h
+ *	babyos/kernel/fd.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,31 +19,33 @@
 
 
 /*
- *  2020-05-07		created
+ *  2020-02-19		created
  */
 
 
-#ifndef _FILE_H_
-#define _FILE_H_
-
-
-#include "babyos/types.h"
 #include "fd.h"
 
 
-class file_t {
-public:
-    virtual ~file_t();
+void file_descriptor_t::init(uint32 type, inode_t* inode, pipe_t* pipe, uint32 offset, uint16 readable, uint16 writeable)
+{
+    m_type = type;
+    m_ref = 1;
+    m_readable = readable;
+    m_writeable = writeable;
+    m_inode = inode;
+    m_pipe = pipe;
+    m_offset = 0;
+    m_socket = nullptr;
+}
 
-    virtual void open(int flags) = 0;
-    virtual void close() = 0;
-    virtual uint64 read(file_descriptor_t& fd, uint8* buffer, uint64 size) = 0;
-    virtual uint64 write(file_descriptor_t& fd, uint8* buffer, uint64 size) = 0;
-    virtual uint64 ioctl(file_descriptor_t& fd, uint32 cmd, uint64 arg) = 0;
-
-private:
-    file_t();
-};
-
-
-#endif
+void file_descriptor_t::init(uint32 type, socket_t* socket)
+{
+    m_type = TYPE_SOCKET;
+    m_ref = 1;
+    m_readable = 1;
+    m_writeable = 1;
+    m_inode = nullptr;
+    m_pipe = nullptr;
+    m_offset = 0;
+    m_socket = socket;
+}

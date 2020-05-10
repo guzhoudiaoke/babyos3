@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/fs/file.h
+ *	babyos/kernel/device/dev.h
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -23,26 +23,25 @@
  */
 
 
-#ifndef _FILE_H_
-#define _FILE_H_
+#ifndef _DEV_H_
+#define _DEV_H_
 
 
-#include "babyos/types.h"
-#include "fd.h"
+#include "file.h"
 
 
-class file_t {
+class dev_t : file_t {
 public:
-    virtual ~file_t();
-
-    virtual void open(int flags) = 0;
-    virtual void close() = 0;
-    virtual uint64 read(file_descriptor_t& fd, uint8* buffer, uint64 size) = 0;
-    virtual uint64 write(file_descriptor_t& fd, uint8* buffer, uint64 size) = 0;
-    virtual uint64 ioctl(file_descriptor_t& fd, uint32 cmd, uint64 arg) = 0;
+    ~dev_t();
+    uint32 major();
+    uint32 minor();
 
 private:
-    file_t();
+    dev_t();
+
+private:
+    uint32 m_major;
+    uint32 m_minor;
 };
 
 

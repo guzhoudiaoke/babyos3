@@ -40,7 +40,7 @@ void process_t::copy_files(const process_t& rhs)
 {
     m_cwd = os()->fs()->dup_inode(rhs.m_cwd);
     for (int i = 0; i < MAX_OPEN_FILE; i++) {
-        if (rhs.m_files[i] != nullptr && rhs.m_files[i]->m_type != file_t::TYPE_NONE) {
+        if (rhs.m_files[i] != nullptr && rhs.m_files[i]->m_type != file_descriptor_t::TYPE_NONE) {
             m_files[i] = os()->fs()->dup_file(rhs.m_files[i]);
         }
     }
@@ -374,7 +374,7 @@ void process_t::close_all_files()
 {
     os()->fs()->put_inode(m_cwd);
     for (int i = 0; i < MAX_OPEN_FILE; i++) {
-        if (m_files[i] != nullptr && m_files[i]->m_type != file_t::TYPE_NONE) {
+        if (m_files[i] != nullptr && m_files[i]->m_type != file_descriptor_t::TYPE_NONE) {
             os()->fs()->close_file(m_files[i]);
         }
     }
@@ -408,7 +408,7 @@ void process_t::calc_sig_pending()
     m_sig_pending = !m_sig_queue.empty();
 }
 
-int process_t::alloc_fd(file_t* file)
+int process_t::alloc_fd(file_descriptor_t* file)
 {
     for (int i = 0; i < MAX_OPEN_FILE; i++) {
         if (m_files[i] == nullptr) {
@@ -419,7 +419,7 @@ int process_t::alloc_fd(file_t* file)
     return -1;
 }
 
-file_t* process_t::get_file(int fd)
+file_descriptor_t* process_t::get_file(int fd)
 {
     if (fd < 0 || fd >= MAX_OPEN_FILE) {
         return nullptr;

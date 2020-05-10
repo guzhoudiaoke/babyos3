@@ -48,7 +48,7 @@ void file_system_t::init()
     m_inode_lba = 2;
 
     m_inodes_lock.init();
-    m_file_table.init();
+    m_file_descriptor_table.init();
 
     memset(m_inodes, 0, sizeof(inode_t) * MAX_INODE_CACHE);
 }
@@ -530,25 +530,25 @@ inode_t* file_system_t::create(const char* path, uint16 type, uint16 major, uint
     return inode;
 }
 
-file_t* file_system_t::alloc_file()
+file_descriptor_t* file_system_t::alloc_file()
 {
-    return m_file_table.alloc();
+    return m_file_descriptor_table.alloc();
 }
 
-int file_system_t::close_file(file_t* file)
+int file_system_t::close_file(file_descriptor_t* file)
 {
-    return m_file_table.free(file);
+    return m_file_descriptor_table.free(file);
 }
 
-file_t* file_system_t::dup_file(file_t* file)
+file_descriptor_t* file_system_t::dup_file(file_descriptor_t* file)
 {
-    return m_file_table.dup_file(file);
+    return m_file_descriptor_table.dup_file(file);
 }
 
 int file_system_t::do_open(const char* path, int mode)
 {
     inode_t* inode = nullptr;
-    file_t* file = nullptr;
+    file_descriptor_t* file = nullptr;
 
     if (mode & MODE_CREATE) {
         if ((inode = create(path, I_TYPE_FILE, 0, 0)) == nullptr) {
@@ -577,7 +577,7 @@ int file_system_t::do_open(const char* path, int mode)
 
     inode->unlock();
     if (fd >= 0) {
-        file->init(file_t::TYPE_INODE, inode, nullptr, 0,
+        file->init(file_descriptor_t::TYPE_INODE, inode, nullptr, 0,
                    !(mode & MODE_WRONLY),
                    (mode & MODE_WRONLY) || (mode & MODE_RDWR));
     }
@@ -587,7 +587,7 @@ int file_system_t::do_open(const char* path, int mode)
 
 int file_system_t::do_close(int fd)
 {
-    file_t* file = current->get_file(fd);
+    file_descriptor_t* file = current->get_file(fd);
     if (file != nullptr) {
         current->free_fd(fd);
         close_file(file);
@@ -598,18 +598,18 @@ int file_system_t::do_close(int fd)
 
 int64 file_system_t::do_read(int fd, void* buffer, uint32 count)
 {
-    file_t* file = current->get_file(fd);
+    file_descriptor_t* file = current->get_file(fd);
     if (file == nullptr || file->m_readable == 0) {
         return -1;
     }
 
-    if (file->m_type == file_t::TYPE_PIPE) {
+    if (file->m_type == file_descriptor_t::TYPE_PIPE) {
         return file->m_pipe->read(buffer, count);
     }
-    if (file->m_type == file_t::TYPE_SOCKET) {
+    if (file->m_type == file_descriptor_t::TYPE_SOCKET) {
         return file->m_socket->read(buffer, count);
     }
-    if (file->m_type == file_t::TYPE_INODE) {
+    if (file->m_type == file_descriptor_t::TYPE_INODE) {
         int nbyte = 0;
         if ((nbyte = read_inode(file->m_inode, (char *) buffer, file->m_offset, count)) > 0) {
             file->m_offset += nbyte;
@@ -622,18 +622,18 @@ int64 file_system_t::do_read(int fd, void* buffer, uint32 count)
 
 int64 file_system_t::do_write(int fd, void* buffer, uint32 count)
 {
-    file_t* file = current->get_file(fd);
+    file_descriptor_t* file = current->get_file(fd);
     if (file == nullptr || file->m_writeable == 0) {
         return -1;
     }
 
-    if (file->m_type == file_t::TYPE_PIPE) {
+    if (file->m_type == file_descriptor_t::TYPE_PIPE) {
         return file->m_pipe->write(buffer, count);
     }
-    if (file->m_type == file_t::TYPE_SOCKET) {
+    if (file->m_type == file_descriptor_t::TYPE_SOCKET) {
         return file->m_socket->write(buffer, count);
     }
-    if (file->m_type == file_t::TYPE_INODE) {
+    if (file->m_type == file_descriptor_t::TYPE_INODE) {
         int nbyte = 0;
         if ((nbyte = write_inode(file->m_inode, (char *) buffer, file->m_offset, count)) > 0) {
             file->m_offset += nbyte;
@@ -786,7 +786,7 @@ int file_system_t::do_mknod(const char* path, int major, int minor)
 
 int file_system_t::do_dup(int fd)
 {
-    file_t* file = current->get_file(fd);
+    file_descriptor_t* file = current->get_file(fd);
     if (file != nullptr) {
         int fd2 = current->alloc_fd(file);
         os()->uart()->kprintf("dup %d->%d\n", fd, fd2);
@@ -801,7 +801,7 @@ int file_system_t::do_dup(int fd)
 
 int file_system_t::do_stat(int fd, stat_t* st)
 {
-    file_t* file = current->get_file(fd);
+    file_descriptor_t* file = current->get_file(fd);
     if (file != nullptr && file->m_inode != nullptr) {
         st->m_type      = file->m_inode->m_type;
         st->m_nlinks    = file->m_inode->m_nlinks;
@@ -814,7 +814,7 @@ int file_system_t::do_stat(int fd, stat_t* st)
 
 int file_system_t::do_seek(int fd, uint64 pos, int whence)
 {
-    file_t* file = current->get_file(fd);
+    file_descriptor_t* file = current->get_file(fd);
     //if (file != nullptr && file->m_inode != nullptr && pos < file->m_inode->m_size) {
     if (file != nullptr && file->m_inode != nullptr) {
         uint64 offset = 0;
@@ -862,7 +862,7 @@ int file_system_t::do_chdir(const char* path)
     return 0;
 }
 
-int file_system_t::alloc_pipe(file_t*& file_read, file_t*& file_write)
+int file_system_t::alloc_pipe(file_descriptor_t*& file_read, file_descriptor_t*& file_write)
 {
     pipe_t* pipe = nullptr;
 
@@ -881,8 +881,8 @@ int file_system_t::alloc_pipe(file_t*& file_read, file_t*& file_write)
     }
 
     pipe->init();
-    file_read->init(file_t::TYPE_PIPE, nullptr, pipe, 0, 1, 0);
-    file_write->init(file_t::TYPE_PIPE, nullptr, pipe, 0, 0, 1);
+    file_read->init(file_descriptor_t::TYPE_PIPE, nullptr, pipe, 0, 1, 0);
+    file_write->init(file_descriptor_t::TYPE_PIPE, nullptr, pipe, 0, 0, 1);
 
     return 0;
 
@@ -901,8 +901,8 @@ failed:
 
 int file_system_t::do_pipe(int fd[2])
 {
-    file_t* file_read = nullptr;
-    file_t* file_write = nullptr;
+    file_descriptor_t* file_read = nullptr;
+    file_descriptor_t* file_write = nullptr;
     int fd_read = -1, fd_write = -1;
     if (alloc_pipe(file_read, file_write) < 0) {
         return -1;
@@ -930,12 +930,12 @@ failed:
 
 int file_system_t::do_ioctl(int fd, int cmd, uint64 arg)
 {
-    file_t* file = current->get_file(fd);
+    file_descriptor_t* file = current->get_file(fd);
     if (file == nullptr) {
         return -1;
     }
 
-    if (file->m_type == file_t::TYPE_INODE) {
+    if (file->m_type == file_descriptor_t::TYPE_INODE) {
         inode_t* inode = file->m_inode;
         if (inode->m_type == I_TYPE_DEV) {
             dev_op_t* op = os()->get_dev(inode->m_major);
@@ -951,12 +951,12 @@ int file_system_t::do_ioctl(int fd, int cmd, uint64 arg)
 
 int file_system_t::do_send_to(int fd, void* buffer, uint64 count, sock_addr_t* addr)
 {
-    file_t* file = current->get_file(fd);
+    file_descriptor_t* file = current->get_file(fd);
     if (file == nullptr || file->m_readable == 0) {
         return -1;
     }
 
-    if (file->m_type == file_t::TYPE_SOCKET) {
+    if (file->m_type == file_descriptor_t::TYPE_SOCKET) {
         return file->m_socket->send_to(buffer, count, addr);
     }
 
@@ -965,12 +965,12 @@ int file_system_t::do_send_to(int fd, void* buffer, uint64 count, sock_addr_t* a
 
 int file_system_t::do_recv_from(int fd, void* buffer, uint64 count, sock_addr_t* addr)
 {
-    file_t* file = current->get_file(fd);
+    file_descriptor_t* file = current->get_file(fd);
     if (file == nullptr || file->m_readable == 0) {
         return -1;
     }
 
-    if (file->m_type == file_t::TYPE_SOCKET) {
+    if (file->m_type == file_descriptor_t::TYPE_SOCKET) {
         return file->m_socket->recv_from(buffer, count, addr);
     }
 

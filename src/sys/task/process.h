@@ -34,7 +34,7 @@
 #include "waitqueue.h"
 #include "vm.h"
 #include "fs.h"
-#include "file.h"
+#include "fd.h"
 #include "ipc/signal.h"
 
 
@@ -86,9 +86,9 @@ public:
     int32       wait_children(pid_t pid);
     void        calc_sig_pending();
 
-    int         alloc_fd(file_t* file);
+    int         alloc_fd(file_descriptor_t* file);
     void        free_fd(int fd);
-    file_t*     get_file(int fd);
+    file_descriptor_t*     get_file(int fd);
     void        set_cwd(inode_t* inode);
     void        do_signal(trap_frame_t* frame);
 
@@ -135,7 +135,7 @@ public:
     spinlock_t          m_sig_mask_lock;
 
     inode_t*            m_cwd;
-    file_t*             m_files[MAX_OPEN_FILE];
+    file_descriptor_t*  m_files[MAX_OPEN_FILE];
 };
 
 #endif

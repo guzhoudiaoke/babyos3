@@ -78,7 +78,7 @@ socket_t* sys_socket_t::look_up_socket(int fd)
         return socket;
     }
 
-    file_t* file = current->get_file(fd);
+    file_descriptor_t* file = current->get_file(fd);
     if (file == nullptr) {
         return socket;
     }
@@ -101,12 +101,12 @@ int32 sys_socket_t::socket(uint32 family, uint32 type, uint32 protocol)
     socket->create(family, type, protocol);
 
     /* alloc a file */
-    file_t* file = os()->fs()->alloc_file();
+    file_descriptor_t* file = os()->fs()->alloc_file();
     if (file == nullptr) {
         release_socket(socket);
         return -ENOSR;
     }
-    file->init(file_t::TYPE_SOCKET, socket);
+    file->init(file_descriptor_t::TYPE_SOCKET, socket);
 
     /* alloc a fd and bind to file */
     int fd = current->alloc_fd(file);
@@ -173,12 +173,12 @@ int32 sys_socket_t::accept(int fd, sock_addr_t* client_addr)
     new_socket->dup(socket);
 
     /* alloc a file */
-    file_t* file = os()->fs()->alloc_file();
+    file_descriptor_t* file = os()->fs()->alloc_file();
     if (file == nullptr) {
         release_socket(new_socket);
         return -ENOSR;
     }
-    file->init(file_t::TYPE_SOCKET, new_socket);
+    file->init(file_descriptor_t::TYPE_SOCKET, new_socket);
 
     /* alloc a fd and bind to file */
     int new_fd = current->alloc_fd(file);

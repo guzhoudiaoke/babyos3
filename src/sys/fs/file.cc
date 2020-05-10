@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/file.cc
+ *	babyos/kernel/fs/file.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -19,33 +19,9 @@
 
 
 /*
- *  2020-02-19		created
+ *  2020-05-07		created
  */
 
 
+
 #include "file.h"
-
-
-void file_t::init(uint32 type, inode_t* inode, pipe_t* pipe, uint32 offset, uint16 readable, uint16 writeable)
-{
-    m_type = type;
-    m_ref = 1;
-    m_readable = readable;
-    m_writeable = writeable;
-    m_inode = inode;
-    m_pipe = pipe;
-    m_offset = 0;
-    m_socket = nullptr;
-}
-
-void file_t::init(uint32 type, socket_t* socket)
-{
-    m_type = TYPE_SOCKET;
-    m_ref = 1;
-    m_readable = 1;
-    m_writeable = 1;
-    m_inode = nullptr;
-    m_pipe = nullptr;
-    m_offset = 0;
-    m_socket = socket;
-}

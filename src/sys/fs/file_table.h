@@ -1,5 +1,5 @@
 /*
- *	babyos/kernel/file_table.cc
+ *	babyos/kernel/file_descriptor_table.cc
  *
  *  Copyright (C) <2020>  <Ruyi Liu>
  *
@@ -28,22 +28,22 @@
 #define _FILE_TABLE_H_
 
 #include "babyos/types.h"
-#include "file.h"
+#include "fd.h"
 #include "spinlock.h"
 
 #define MAX_FILE_NUM 256
 
 
-class file_table_t {
+class file_descriptor_table_t {
 public:
-    void    init();
-    file_t* alloc();
-    int     free(file_t* file);
-    file_t* dup_file(file_t* file);
+    void                init();
+    file_descriptor_t*  alloc();
+    int                 free(file_descriptor_t* file);
+    file_descriptor_t*  dup_file(file_descriptor_t* file);
 
 private:
-    spinlock_t      m_lock;
-    file_t          m_file_table[MAX_FILE_NUM];
+    spinlock_t          m_lock;
+    file_descriptor_t   m_file_descriptor_table[MAX_FILE_NUM];
 };
 
 #endif

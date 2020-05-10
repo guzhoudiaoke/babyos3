@@ -32,7 +32,7 @@
 #include "babyos/sock_addr.h"
 #include "babyos/stat.h"
 #include "babyos/dirent.h"
-#include "file.h"
+#include "fd.h"
 #include "file_table.h"
 #include "inode.h"
 
@@ -81,9 +81,9 @@ public:
     inode_t* dup_inode(inode_t* inode);
     void     put_inode(inode_t* inode);
 
-    file_t*  dup_file(file_t* file);
-    file_t*  alloc_file();
-    int      close_file(file_t* file);
+    file_descriptor_t*  dup_file(file_descriptor_t* file);
+    file_descriptor_t*  alloc_file();
+    int      close_file(file_descriptor_t* file);
 
 private:
     uint32   bitmap_block();
@@ -108,7 +108,7 @@ private:
     inode_t* namei(const char* path, int parent, char* name);
     inode_t* create(const char* path, uint16 type, uint16 major, uint16 minor);
 
-    int      alloc_pipe(file_t*& file_read, file_t*& file_write);
+    int      alloc_pipe(file_descriptor_t*& file_read, file_descriptor_t*& file_write);
 
 private:
     uint32          m_dev;
@@ -121,7 +121,7 @@ private:
     spinlock_t      m_inodes_lock;
     inode_t         m_inodes[MAX_INODE_CACHE];
 
-    file_table_t    m_file_table;
+    file_descriptor_table_t    m_file_descriptor_table;
 };
 
 
