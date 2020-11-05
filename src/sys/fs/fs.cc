@@ -80,6 +80,11 @@ uint32 file_system_t::inode_offset(uint32 id)
 int file_system_t::read_inode(inode_t* inode, void* dst, uint64 offset, uint64 size)
 {
     if (inode->m_type == I_TYPE_DEV) {
+        if (inode->m_major == DEV_MOUSE) {
+            file_t* file = (file_t *) os()->get_devices(inode->m_major);
+            return file->read(nullptr, dst, size);
+        }
+
         dev_op_t* op = os()->get_dev(inode->m_major);
         if (op == nullptr) {
             return -1;

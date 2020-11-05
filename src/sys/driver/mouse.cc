@@ -68,14 +68,10 @@ allocator_t allocator = {
     allocator_free
 };
 
+/*************************************************************************/
 
 mouse_t::mouse_t()
 {
-}
-
-mouse_t::~mouse_t()
-{
-
 }
 
 void mouse_t::init_kb_controller()
@@ -189,4 +185,49 @@ int mouse_t::read(void* buf, int size)
     m_spinlock.unlock_irqrestore(flags);
 
     return ret;
+}
+
+void mouse_t::create()
+{
+
+}
+
+void mouse_t::open(int flags)
+{
+
+}
+
+void mouse_t::close()
+{
+}
+
+uint64 mouse_t::read(file_descriptor_t* fd, void* buffer, uint64 size)
+{
+    uint64 flags;
+    int ret = 0;
+    uint64 pack_size = sizeof(mouse_packet_t);
+    mouse_packet_t* p = (mouse_packet_t *) buffer;
+
+    m_spinlock.lock_irqsave(flags);
+    while (!m_queue.empty() && size >= pack_size) {
+        mouse_packet_t packet = m_queue.front();
+        m_queue.pop();
+        memcpy(p + ret, &packet, pack_size);
+
+        ret += pack_size;
+        size -= pack_size;
+    }
+    m_spinlock.unlock_irqrestore(flags);
+
+    return ret;
+}
+
+uint64 mouse_t::write(file_descriptor_t* fd, void* buffer, uint64 size)
+{
+    return -EPERM;
+}
+
+uint64 mouse_t::ioctl(file_descriptor_t* fd, uint32 cmd, uint64 arg)
+{
+    return -EPERM;
 }

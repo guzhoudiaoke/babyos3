@@ -8,6 +8,9 @@ SUB_OBJS = \
 		  vbe.o \
 		  io_buffer.o \
 		  framebuffer.o \
+		  dev.o \
+		  cdev.o \
+		  bdev.o \
 
 
 KOBJS += $(call mkobjs,$(SUB_OBJS))

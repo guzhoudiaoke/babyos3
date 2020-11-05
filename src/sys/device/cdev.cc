@@ -24,5 +24,10 @@
 
 
 
-#incldue "cdev.h"
+#include "cdev.h"
 
+
+cdev_t::cdev_t()
+{
+
+}

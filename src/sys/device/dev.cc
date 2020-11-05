@@ -32,11 +32,6 @@ dev_t::dev_t()
 
 }
 
-dev_t::~dev_t()
-{
-
-}
-
 uint32 dev_t::major()
 {
     return m_major;

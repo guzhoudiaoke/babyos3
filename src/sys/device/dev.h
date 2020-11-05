@@ -32,12 +32,10 @@
 
 class dev_t : file_t {
 public:
-    ~dev_t();
+    dev_t();
+
     uint32 major();
     uint32 minor();
-
-private:
-    dev_t();
 
 private:
     uint32 m_major;

@@ -49,10 +49,6 @@ babyos_t::babyos_t()
 {
 }
 
-babyos_t::~babyos_t()
-{
-}
-
 uart_t* babyos_t::uart()
 {
     return &m_uart;
@@ -137,6 +133,14 @@ dev_op_t* babyos_t::get_dev(uint32 type)
     return &m_devices[type];
 }
 
+dev_t* babyos_t::get_devices(uint32 type)
+{
+    if (type >= MAX_DEV) {
+        return nullptr;
+    }
+    return m_devs[type];
+}
+
 file_system_t* babyos_t::fs()
 {
     return &m_fs;
@@ -200,6 +204,7 @@ void babyos_t::init()
 
     /* mouse */
     m_mouse.init();
+    m_devs[DEV_MOUSE] = (dev_t *) &m_mouse;
     uart()->puts("mouse init done\n");
 
     /* pci */

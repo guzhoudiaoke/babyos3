@@ -173,11 +173,12 @@ void xiangqi_t::draw_mouse()
 int xiangqi_t::get_event()
 {
     mouse_packet_t packet[1024];
-    int count = read(m_mouse_fd, packet, 1024);
+    uint64 size = read(m_mouse_fd, packet, 1024*sizeof(mouse_packet_t));
+	uint64 count = size / sizeof(mouse_packet_t);
     int button = 0;
     if (count != 0) {
         int dx = 0, dy = 0;
-        for (int i = 0; i < count; i++) {
+        for (uint64 i = 0; i < count; i++) {
             dx += packet[i].dx;
             dy += packet[i].dy;
             if (packet[i].button == LEFT) {

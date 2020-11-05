@@ -32,9 +32,6 @@
 
 class bdev_t : dev_t {
 public:
-    ~bdev_t();
-
-private:
     bdev_t();
 
 private:

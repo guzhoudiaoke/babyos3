@@ -25,3 +25,8 @@
 
 
 #include "file.h"
+
+file_t::file_t()
+{
+
+}

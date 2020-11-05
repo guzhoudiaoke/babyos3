@@ -65,7 +65,6 @@ public:
     static babyos_t* get_instance();
 
     babyos_t();
-    ~babyos_t();
 
     void init();
     void run();
@@ -88,6 +87,7 @@ public:
     timer_mgr_t*    timer_mgr();
     block_dev_t*    block_dev();
     dev_op_t*       get_dev(uint32 type);
+    dev_t*          get_devices(uint32 type);
     file_system_t*  fs();
     io_apic_t*      io_apic();
     pci_t*          pci();
@@ -120,6 +120,7 @@ private:
     process_mgr_t  m_process_mgr;
     timer_mgr_t    m_timer_mgr;
     dev_op_t       m_devices[MAX_DEV];
+    dev_t*         m_devs[MAX_DEV];
 };
 
 #define os() babyos_t::get_instance()

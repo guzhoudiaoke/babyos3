@@ -30,17 +30,24 @@
 #include "babyos/mouse.h"
 #include "queue.h"
 #include "spinlock.h"
+#include "cdev.h"
 
 
-class mouse_t {
+class mouse_t : public cdev_t {
 public:
     mouse_t();
-    ~mouse_t();
 
     void init();
     void wait();
     void do_irq();
     int  read(void* buf, int size);
+
+    virtual void create();
+    virtual void open(int flags);
+    virtual void close();
+    virtual uint64 read(file_descriptor_t* fd, void* buffer, uint64 size);
+    virtual uint64 write(file_descriptor_t* fd, void* buffer, uint64 size);
+    virtual uint64 ioctl(file_descriptor_t* fd, uint32 cmd, uint64 arg);
 
 private:
     void init_kb_controller();
